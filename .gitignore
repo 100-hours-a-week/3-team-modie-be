@@ -1,0 +1,117 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+### Windows ###
+Thumbs.db
+
+### Log files ###
+*.log
+logs/
+
+### Local configuration ###
+application-local.yml
+application-local.properties
+
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+### JPA Generate ###
+generated/
+
+### QueryDSL ###
+/src/main/generated/
+
+### Private Keys ###
+*.pem
+*.key
+*.p12
+*.pfx
+
+### JWT ###
+*.jks
+
+### Environment Variables ###
+.env
+.env.*
+
+### Test Coverage Reports ###
+jacoco/
+
+### Docker ###
+docker-compose.override.yml
+
+### Database ###
+*.db
+*.sqlite
+h2db/
+*.h2.db
+
+### Redis ###
+*.rdb
+dump.rdb
+
+### Node (프론트엔드 포함된 경우) ###
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+### Code Coverage ###
+/coverage/
+.coverage
+coverage.xml
+*.cover
+
+### Spring Boot DevTools ###
+.restart
+
+### Temp files ###
+*.tmp
+*.temp
+*~
