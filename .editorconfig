@@ -1,0 +1,39 @@
+# 네이버 코딩 스타일 기반 EditorConfig 설정
+root = true
+
+# 모든 파일에 적용될 기본 설정
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 120
+
+# Java 파일 특정 설정
+[*.java]
+indent_size = 4
+continuation_indent_size = 8
+# 네이버 코딩 스타일은 들여쓰기에 4칸 공백 사용
+
+# 특정 파일 타입 설정
+[*.{xml,xsd}]
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.properties]
+indent_size = 2
+
+[*.json]
+indent_size = 2
+
+# Gradle 파일
+[*.gradle]
+indent_size = 4
+
+# 마크다운 파일
+[*.md]
+trim_trailing_whitespace = false

@@ -1,11 +1,14 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.3'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version "${springVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
+    id 'org.ec4j.editorconfig' version "${editorconfigVersion}"
+    id 'checkstyle'
+    id 'jacoco'
 }
 
-group = 'org.ktb'
-version = '0.0.1-SNAPSHOT'
+group = "${projectGroup}"
+version = "${projectVersion}"
 
 java {
     toolchain {
@@ -17,6 +20,11 @@ repositories {
     mavenCentral()
 }
 
+// 외부 설정 스크립트 적용
+apply from: "${rootDir}/config/checkstyle/checkstyle.gradle"
+apply from: "${rootDir}/config/jacoco/jacoco.gradle"
+apply from: "${rootDir}/config/editorconfig/editorconfig.gradle"
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -27,18 +35,15 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'  // lombok 어노테이션 프로세서
 
     // DB
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.4.3' // jpa
-    implementation 'com.mysql:mysql-connector-j' // MySQL Driver
+//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.4.3' // jpa
+//    implementation 'com.mysql:mysql-connector-j' // MySQL Driver
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4' // springdoc
     implementation 'org.springframework.boot:spring-boot-starter-validation:3.4.3' // 유효성 검증을 위한 validation 라이브러리
-
-
-//    implementation 'org.jacoco:jacoco-maven-plugin:0.8.8'    // jacoco
-//    implementation 'com.puppycrawl.tools:checkstyle:10.18.0' // checkstyle
 
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }

@@ -1,12 +1,26 @@
-apply plugin: 'checkstyle'
+// 빌드 스크립트 상단에 변수 정의
+def checkstyleVersion = '10.18.0' // 사용 중인 버전으로 업데이트
+def checkstylePath = 'config/checkstyle'
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
 checkstyle {
-    toolVersion = "${checkstyleVersion}"
+    toolVersion = checkstyleVersion
     maxWarnings = 0
     maxErrors = 0
-    configFile = file(rootProject.projectDir.absolutePath + "/${checkstylePath}" + '/naver-checkstyle-rules.xml')
-    configProperties = [suppressionFile: file("${checkstylePath}" + '/naver-checkstyle-suppressions.xml')]
+    configFile = file("${rootProject.projectDir}/config/checkstyle/naver-checkstyle-rules.xml")
+    configProperties = [suppressionFile: file("${rootProject.projectDir}/config/checkstyle/naver-checkstyle-suppressions.xml")]
+}
+
+// 태스크 타입으로 설정
+tasks.withType(Checkstyle).configureEach {
+    if (name == 'checkstyle') {
+        dependsOn tasks.named('compileJava')
+        dependsOn tasks.named('compileTestJava')
+    } else if (name == 'checkstyleMain') {
+        dependsOn tasks.named('compileJava')
+    } else if (name == 'checkstyleTest') {
+        dependsOn tasks.named('compileTestJava')
+    }
 }
