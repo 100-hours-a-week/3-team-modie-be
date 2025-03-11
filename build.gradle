@@ -34,8 +34,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation:3.4.3' // 유효성 검증을 위한 validation 라이브러리
 
 
-    implementation 'org.jacoco:jacoco-maven-plugin:0.8.8'    // jacoco
-    implementation 'com.puppycrawl.tools:checkstyle:10.18.0' // checkstyle
+//    implementation 'org.jacoco:jacoco-maven-plugin:0.8.8'    // jacoco
+//    implementation 'com.puppycrawl.tools:checkstyle:10.18.0' // checkstyle
 
 }
 
