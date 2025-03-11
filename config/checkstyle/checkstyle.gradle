@@ -1,9 +1,5 @@
-// 빌드 스크립트 상단에 변수 정의
-def checkstyleVersion = '10.18.0' // 사용 중인 버전으로 업데이트
-def checkstylePath = 'config/checkstyle'
-
-compileJava.options.encoding = 'UTF-8'
-compileTestJava.options.encoding = 'UTF-8'
+// 체크스타일 버전 정의
+def checkstyleVersion = '10.18.0'
 
 checkstyle {
     toolVersion = checkstyleVersion
