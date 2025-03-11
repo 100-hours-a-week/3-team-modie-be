@@ -1,0 +1,12 @@
+apply plugin: 'checkstyle'
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+checkstyle {
+    toolVersion = "${checkstyleVersion}"
+    maxWarnings = 0
+    maxErrors = 0
+    configFile = file(rootProject.projectDir.absolutePath + "/${checkstylePath}" + '/naver-checkstyle-rules.xml')
+    configProperties = [suppressionFile: file("${checkstylePath}" + '/naver-checkstyle-suppressions.xml')]
+}

@@ -35,7 +35,7 @@ dependencies {
 
 
     implementation 'org.jacoco:jacoco-maven-plugin:0.8.8'    // jacoco
-
+    implementation 'com.puppycrawl.tools:checkstyle:10.18.0' // checkstyle
 
 }
 

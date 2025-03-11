@@ -1,0 +1,8 @@
+apply plugin: 'org.ec4j.editorconfig'
+
+// editorconfigCheck 후 checkstyle 진행
+check.dependsOn editorconfigCheck
+editorconfig {
+    includes = ['src/**']
+    excludes = ['build']
+}
