@@ -32,6 +32,11 @@ dependencies {
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4' // springdoc
     implementation 'org.springframework.boot:spring-boot-starter-validation:3.4.3' // 유효성 검증을 위한 validation 라이브러리
+
+
+    implementation 'org.jacoco:jacoco-maven-plugin:0.8.8'    // jacoco
+
+
 }
 
 tasks.named('test') {
