@@ -31,6 +31,7 @@ apply from: "${rootDir}/config/editorconfig/editorconfig.gradle"
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -39,8 +40,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'  // lombok 어노테이션 프로세서
 
     // DB
-//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.4.3' // jpa
-//    implementation 'com.mysql:mysql-connector-j' // MySQL Driver
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.4.3' // jpa
+    implementation 'com.mysql:mysql-connector-j' // MySQL Driver
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4' // springdoc
     implementation 'org.springframework.boot:spring-boot-starter-validation:3.4.3' // 유효성 검증을 위한 validation 라이브러리
