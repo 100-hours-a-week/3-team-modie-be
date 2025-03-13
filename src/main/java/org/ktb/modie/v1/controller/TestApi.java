@@ -23,23 +23,23 @@ public interface TestApi {
 
     @Operation(summary = "스웨거 테스트 API", description = "스웨거 테스트")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "성공적으로 스웨거가 보였습니다.")
+        @ApiResponse(responseCode = "200", description = "성공적으로 스웨거가 보였습니다.")
 
     })
     @GetMapping(value = "/api/v1/test/{code}")
     int test(
-            @Parameter(description = "코드 (최대 10자리)")
-            @PathVariable("code")
-            @Size(max = 10, message = "코드는 10자리 이하여야 합니다")
-            @Pattern(regexp = "^[A-Z0-9]+$", message = "코드는 영문 대문자와 숫자만 허용됩니다")
-            String code,
+        @Parameter(description = "코드 (최대 10자리)")
+        @PathVariable("code")
+        @Size(max = 10, message = "코드는 10자리 이하여야 합니다")
+        @Pattern(regexp = "^[A-Z0-9]+$", message = "코드는 영문 대문자와 숫자만 허용됩니다")
+        String code,
 
-            @Parameter(description = "시작 날짜 (yyyy-MM-dd)")
-            @RequestParam("date")
-            @DateTimeFormat(pattern = "yyyy-MM-dd")
-            @NotNull(message = "날짜는 필수입니다")
-            @Past(message = "날짜는 과거 날짜여야 합니다")
-            LocalDate date
+        @Parameter(description = "시작 날짜 (yyyy-MM-dd)")
+        @RequestParam("date")
+        @DateTimeFormat(pattern = "yyyy-MM-dd")
+        @NotNull(message = "날짜는 필수입니다")
+        @Past(message = "날짜는 과거 날짜여야 합니다")
+        LocalDate date
     );
 
 }
