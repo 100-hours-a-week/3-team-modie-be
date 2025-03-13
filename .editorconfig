@@ -14,8 +14,7 @@ max_line_length = 120
 # Java 파일 특정 설정
 [*.java]
 indent_size = 4
-continuation_indent_size = 8
-# 네이버 코딩 스타일은 들여쓰기에 4칸 공백 사용
+# continuation_indent_size 속성은 제거
 
 # 특정 파일 타입 설정
 [*.{xml,xsd}]
