@@ -41,8 +41,8 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi meetApi() {
         return GroupedOpenApi.builder()
-            .group("모임 API")
-            .pathsToMatch("/api/v1/meets/**")
+            .group("API")
+            .pathsToMatch("/api/v1/**")
             .packagesToScan("org.ktb.modie.v1.controller")
             .build();
     }
