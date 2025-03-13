@@ -1,6 +1,7 @@
 package org.ktb.modie.v1.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -328,18 +329,17 @@ public class ChatController {
         return "Subscribe to the WebSocket endpoint wss://modie.com/ws/v1/meets/{meetId}/chat for receiving messages.";
     }
 
-    // 채팅 내역 불러오기
     @Operation(
         summary = "채팅 내역 불러오기",
         description = """
-            **채팅방 내역을 페이지별로 불러오는 API**.
+            **채팅방 내역을 `message_id` 기준으로 불러오는 API**.
 
-            - `page`: 조회할 페이지 번호 (기본값은 1)
+            - `lastMessageId`: 마지막으로 조회한 메시지 ID (기본값은 가장 최근 메시지부터 조회)
             - `size`: 페이지당 메시지 수 (기본값은 25, 최대값은 100)
 
             **요청 예시**
             ```bash
-            GET /api/v1/meets/{meetId}/chat?page=1&size=25
+            GET /api/v1/meets/{meetId}/chat?lastMessageId=10&size=25
             Authorization: Bearer {ACCESS_TOKEN}
             ```
             """
@@ -353,24 +353,22 @@ public class ChatController {
                   "data": {
                     "messages": [
                       {
-                        "message_id": 1,
+                        "message_id": 9,
                         "meet_id": 12345,
                         "user_id": 1,
                         "message": "마 니 안오냐",
                         "created_at": "2025-03-10 15:24"
                       },
                       {
-                        "message_id": 2,
+                        "message_id": 8,
                         "meet_id": 12345,
                         "user_id": 2,
                         "message": "가고있다 마",
                         "created_at": "2025-03-10 18:35"
                       }
                     ],
-                    "page": 1,
-                    "size": 25,
-                    "totalMessages": 100,
-                    "totalPages": 4
+                    "lastMessageId": 9,
+                    "size": 25
                   }
                 }
                 ```
@@ -426,9 +424,15 @@ public class ChatController {
     })
     @GetMapping
     public String getChatHistory(
-        @Parameter(description = "조회할 페이지 번호 (기본값은 1)") @RequestParam(defaultValue = "1") int page,
-        @Parameter(description = "페이지당 메시지 수 (기본값은 25, 최대값은 100)") @RequestParam(defaultValue = "25") int size) {
-        // 실제 로직에서는 여기서 `meetId`와 함께 DB에서 채팅 내역을 조회하여 반환하는 코드를 작성해야 합니다.
-        return String.format("Page %d, Size %d로 채팅 내역을 조회합니다.", page, size);
+        @PathVariable("meetId") Long meetId,  // meetId를 경로에서 받아옵니다.
+        @Parameter(description = "마지막으로 조회한 메시지 ID (기본값은 가장 최근 메시지부터 조회)")
+        @RequestParam(defaultValue = "0") Long lastMessageId,  // 마지막 메시지 ID
+        @Parameter(description = "페이지당 메시지 수 (기본값은 25, 최대값은 100)")
+        @RequestParam(defaultValue = "25") int size) {
+
+        // 실제 로직에서는 여기서 `meetId`, `lastMessageId`, `size`를 사용해 DB에서 메시지를 조회
+        // `lastMessageId`가 0이면 가장 최근 메시지부터 불러옵니다.
+
+        return String.format("Meet ID: %d, Last Message ID: %d, Size: %d로 채팅 내역을 조회합니다.", meetId, lastMessageId, size);
     }
 }
