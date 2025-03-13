@@ -45,7 +45,7 @@ jobs:
             COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
             
             # aws 로그인
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
             
             # Pull 최신 이미지
             docker pull 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH
