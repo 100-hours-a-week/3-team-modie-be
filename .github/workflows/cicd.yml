@@ -1,0 +1,89 @@
+name: CI/CD Pipeline for ECR and EC2
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    name: Build, Push to ECR, Deploy on EC2
+    runs-on: ubuntu-22.04
+
+    env:
+      ECR_REGISTRY: 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
+      ECR_REPOSITORY: modie/modie-be
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.ECR_USER_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.ECR_USER_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+      - name: Build, tag, and push image to Amazon ECR
+        run: |
+          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          script: |
+            COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
+            
+            # aws 로그인
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
+            
+            # Pull 최신 이미지
+            docker pull 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH
+            # Nginx 설정 파일 경로
+            NGINX_CONFIG=/etc/nginx/sites-enabled/default
+            
+            # 기존 컨테이너 확인 및 포트 설정
+            PORT=8080
+            OTHER_PORT=8081
+            if docker ps | grep -q "0.0.0.0:8081"; then
+              PORT=8080
+              OTHER_PORT=8081
+              BG_MODE=blue
+            else
+              PORT=8081
+              OTHER_PORT=8080
+              BG_MODE=green
+            fi
+            
+            # 새 컨테이너 실행
+            docker run -d -p $PORT:8080 --name modie-be-$PORT 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH
+            
+            # nginx 설정 변경
+            sudo sed -i "s|set \$active_backend backend-.*;|set \$active_backend backend-$BG_MODE;|g" $NGINX_CONFIG
+            sudo systemctl reload nginx
+
+            # 활성 백엔드 변경 (active_backend.conf 업데이트)
+            echo "set \$active_backend backend-$BG_MODE;" | sudo tee /etc/nginx/conf.d/active_backend.conf
+          
+            # Nginx 설정 테스트 후 적용
+            if sudo nginx -t; then
+              sudo systemctl reload nginx
+            else
+              echo "Nginx 설정 오류 발생! 롤백 수행"
+              exit 1
+            fi
+          
+            docker stop modie-be-$OTHER_PORT
+            docker rm modie-be-$OTHER_PORT
+            
+            echo "배포완료"
