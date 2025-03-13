@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     value = {
         @ApiResponse(responseCode = "200", description = "사용자 프로필 조회 성공.")
     })
-public interface UserAPI {
+public interface UserApi {
     @Operation(summary = "사용자 프로필 조회", description = "사용자 프로필 조회 API 호출")
     public ResponseEntity<SuccessResponse<Void>> getUserProfile(
 

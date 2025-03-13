@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class UserController implements UserAPI {
+public class UserController implements UserApi {
     @GetMapping("/api/v1/users")
     public ResponseEntity<SuccessResponse<Void>> getUserProfile() {
 
