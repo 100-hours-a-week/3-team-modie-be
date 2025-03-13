@@ -24,7 +24,7 @@ public interface TestApi {
 
     @Operation(summary = "스웨거 테스트 API", description = "스웨거 테스트")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "성공적으로 스웨거가 보였습니다.") // 졸리다
+        @ApiResponse(responseCode = "200", description = "성공적으로 스웨거가 보였습니다.")
 
     })
     @GetMapping(value = "/api/v1/test/{code}")
