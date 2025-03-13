@@ -51,7 +51,7 @@ public class SwaggerConfig {
     public GroupedOpenApi stockV1Api() {
         return GroupedOpenApi.builder()
             .group("예제용 API")
-            .pathsToMatch("/api/v1/test/**")
+            .pathsToMatch("/api/v1/**")
             .packagesToScan("org.ktb.modie.v1.controller")
             .build();
     }
