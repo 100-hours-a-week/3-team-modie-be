@@ -66,7 +66,7 @@ jobs:
               fi
             fi
 
-      echo "🚀 사용할 Docker 태그: $COMMIT_HASH"   
+            echo "🚀 사용할 Docker 태그: $COMMIT_HASH"   
             # aws 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
             
