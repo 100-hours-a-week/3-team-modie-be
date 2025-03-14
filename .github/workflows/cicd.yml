@@ -105,8 +105,8 @@ jobs:
             # nginx 설정 변경
             sudo sed -i "s|set \$active_backend backend-.*;|set \$active_backend backend-$BG_MODE;|g" $NGINX_CONFIG
 
-            # 활성 백엔드 변경 (active_backend.conf 업데이트)
-            echo "set \$active_backend backend-$BG_MODE;" | sudo tee /etc/nginx/conf.d/active_backend.conf
+            # 활성 백엔드 변경
+            udo sed -i "s|set \$active_backend backend-.*;|set \$active_backend backend-$BG_MODE;|g" /etc/nginx/conf.d/backend.conf
           
             # 🔥 Nginx 설정 테스트 후 적용 (실패 시 롤백)
             if sudo nginx -t; then
