@@ -6,6 +6,7 @@ import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.v1.dto.MeetDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,8 +53,21 @@ public interface MeetApi {
     })
     @PatchMapping
     ResponseEntity<SuccessResponse<MeetDto>> updateMeet(
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") int meetId,
         //@RequestHeader("Authorization") String authorization,
         @Valid @RequestBody MeetDto request
+    );
+
+    @Operation(summary = "모임 삭제", description = "기존 모임을 삭제합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "모임 삭제 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+        @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자"),
+        @ApiResponse(responseCode = "404", description = "존재하지 않는 모임")
+    })
+    @DeleteMapping
+    ResponseEntity<SuccessResponse<Map<String, Object>>> deleteMeet(
+        @PathVariable("meetId") int meetId
+        //@RequestHeader("Authorization") String authorization
     );
 }

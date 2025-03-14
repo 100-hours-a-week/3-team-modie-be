@@ -6,6 +6,7 @@ import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.v1.dto.MeetDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,9 +44,16 @@ public class MeetController implements MeetApi {
     }
 
     @PatchMapping("/api/v1/meets/{meetId}")
-    public ResponseEntity<SuccessResponse<MeetDto>> updateMeet(Long meetId,
+    public ResponseEntity<SuccessResponse<MeetDto>> updateMeet(int meetId,
         @RequestBody MeetDto request
     ) {
         return SuccessResponse.of(request).asHttp(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/api/v1/meets/{meetId}")
+    public ResponseEntity<SuccessResponse<Map<String, Object>>> deleteMeet(
+        @Parameter(description = "삭제할 모임 ID", example = "1") int meetId) {
+        Map<String, Object> mockData = Map.of();
+        return SuccessResponse.of(mockData).asHttp(HttpStatus.OK);
     }
 }
