@@ -74,7 +74,7 @@ jobs:
             docker pull 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH
             
             # Nginx 설정 파일 경로
-            NGINX_CONFIG=/etc/nginx/conf.d/backend.conf
+            NGINX_CONFIG=/etc/nginx/sites-enabled/default
             
             # 기존 컨테이너 확인 및 포트 설정
             PORT=8080
@@ -95,6 +95,7 @@ jobs:
               -e DB_USERNAME=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e SPRING_PROFILES_ACTIVE=prod \
+              -e DATABASE_NAME=modie \
               --restart always \
               418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH || {
                 echo "❌ Docker 컨테이너 실행 실패!"
@@ -104,9 +105,6 @@ jobs:
             
             # nginx 설정 변경
             sudo sed -i "s|set \$active_backend backend-.*;|set \$active_backend backend-$BG_MODE;|g" $NGINX_CONFIG
-
-            # 활성 백엔드 변경
-            udo sed -i "s|set \$active_backend backend-.*;|set \$active_backend backend-$BG_MODE;|g" /etc/nginx/conf.d/backend.conf
           
             # 🔥 Nginx 설정 테스트 후 적용 (실패 시 롤백)
             if sudo nginx -t; then
