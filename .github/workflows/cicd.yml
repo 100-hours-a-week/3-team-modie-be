@@ -49,8 +49,9 @@ jobs:
             
             # Pull 최신 이미지
             docker pull 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH
+            
             # Nginx 설정 파일 경로
-            NGINX_CONFIG=/etc/nginx/sites-enabled/default
+            NGINX_CONFIG=/etc/nginx/conf.d/backend.conf
             
             # 기존 컨테이너 확인 및 포트 설정
             PORT=8080
@@ -65,12 +66,17 @@ jobs:
               BG_MODE=green
             fi
             
-            # 새 컨테이너 실행
-            docker run -d -p $PORT:8080 --name modie-be-$PORT 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH
+            docker run -d -p $PORT:8080 --name modie-be-$PORT \
+              -e RDS_ENDPOINT=${{ secrets.DB_HOST }} \
+              -e RDS_PORT=${{ secrets.DB_PORT }} \
+              -e DB_USERNAME=${{ secrets.DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH
+
             
             # nginx 설정 변경
             sudo sed -i "s|set \$active_backend backend-.*;|set \$active_backend backend-$BG_MODE;|g" $NGINX_CONFIG
-            sudo systemctl reload nginx
 
             # 활성 백엔드 변경 (active_backend.conf 업데이트)
             echo "set \$active_backend backend-$BG_MODE;" | sudo tee /etc/nginx/conf.d/active_backend.conf
