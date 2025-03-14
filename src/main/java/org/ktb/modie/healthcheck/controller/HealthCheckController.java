@@ -1,4 +1,4 @@
-package org.ktb.modie.healthCheck.controller;
+package org.ktb.modie.healthcheck.controller;
 
 import java.sql.Connection;
 
