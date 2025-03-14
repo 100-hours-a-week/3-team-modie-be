@@ -19,13 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set Short COMMIT_HASH
-        run: echo "COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
-
-      - name: Debug COMMIT_HASH
-        run: echo "Shortened COMMIT_HASH is $COMMIT_HASH"
-
-      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:

@@ -37,11 +37,12 @@ public class SwaggerConfig {
      * 예제용 API (기존 API 그룹)
      * author : hyuk.kim (김상혁)
      */
+
     @Bean
-    public GroupedOpenApi stockV1Api() {
+    public GroupedOpenApi meetApi() {
         return GroupedOpenApi.builder()
-            .group("예제용 API")
-            .pathsToMatch("/api/v1/test/**")
+            .group("API")
+            .pathsToMatch("/api/v1/**")
             .packagesToScan("org.ktb.modie.v1.controller")
             .build();
     }
@@ -58,4 +59,5 @@ public class SwaggerConfig {
             .packagesToScan("org.ktb.modie.v1.controller") // WebSocket 관련 컨트롤러 포함
             .build();
     }
+
 }
