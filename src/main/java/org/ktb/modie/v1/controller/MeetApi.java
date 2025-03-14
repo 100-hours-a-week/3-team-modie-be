@@ -1,9 +1,13 @@
 package org.ktb.modie.v1.controller;
 
+import java.util.Map;
+
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.v1.dto.MeetDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -24,8 +28,19 @@ public interface MeetApi {
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
     @PostMapping
-    public ResponseEntity<SuccessResponse<Void>> createMeet(
+    public ResponseEntity<SuccessResponse<MeetDto>> createMeet(
         @Valid @RequestBody MeetDto request
+    );
+
+    @Operation(summary = "모임 조회", description = "특정 모임 정보를 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "모임 정보 반환 성공"),
+        @ApiResponse(responseCode = "404", description = "해당 모임을 찾을 수 없음")
+    })
+
+    @GetMapping
+    public ResponseEntity<SuccessResponse<Map<String, Object>>> getMeet(
+        @PathVariable("meetId") int meetId
     );
 
 }
