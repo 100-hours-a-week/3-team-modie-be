@@ -1,6 +1,8 @@
 package org.ktb.modie.healthcheck.controller;
 
 import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -19,15 +21,22 @@ public class HealthCheckController {
     private DataSource dataSource;
 
     @GetMapping
-    public ResponseEntity<String> healthCheck() {
+    public ResponseEntity<Map<String, Object>> healthCheck() {
+        Map<String, Object> response = new HashMap<>();
         try (Connection conn = dataSource.getConnection()) {
             if (conn.isValid(2)) {
-                return ResponseEntity.ok("OK");
+                response.put("status", "UP");
+                response.put("message", "DB Connection is healthy");
+                return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("DB Connection Failed");
+                response.put("status", "DOWN");
+                response.put("message", "DB Connection Failed");
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("DB Connection Error");
+            response.put("status", "DOWN");
+            response.put("message", "DB Connection Error");
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
         }
     }
 }
