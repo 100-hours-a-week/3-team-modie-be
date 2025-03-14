@@ -7,6 +7,7 @@ import org.ktb.modie.v1.dto.MeetDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,4 +44,16 @@ public interface MeetApi {
         @PathVariable("meetId") int meetId
     );
 
+    @Operation(summary = "모임 수정", description = "기존 모임 정보를 수정합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "모임 수정 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 입력값"),
+        @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
+    })
+    @PatchMapping
+    ResponseEntity<SuccessResponse<MeetDto>> updateMeet(
+        @PathVariable("meetId") Long meetId,
+        //@RequestHeader("Authorization") String authorization,
+        @Valid @RequestBody MeetDto request
+    );
 }
