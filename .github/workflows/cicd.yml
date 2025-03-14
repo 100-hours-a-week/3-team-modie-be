@@ -13,7 +13,7 @@ jobs:
     env:
       ECR_REGISTRY: 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com
       ECR_REPOSITORY: modie/modie-be
-      COMMIT_HASH: "${{ github.sha }}"  # SHA 값을 직접 사용
+      COMMIT_HASH: "${{ github.sha }}"
 
     steps:
       - name: Checkout repository
