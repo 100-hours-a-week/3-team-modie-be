@@ -1,5 +1,7 @@
 package org.ktb.modie.v1.controller;
 
+import java.util.Map;
+
 import org.ktb.modie.core.response.SuccessResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +24,7 @@ import jakarta.validation.constraints.Size;
     })
 public interface UserApi {
     @Operation(summary = "사용자 프로필 조회", description = "사용자 프로필 조회 API 호출")
-    public ResponseEntity<SuccessResponse<Void>> getUserProfile(
+    public ResponseEntity<SuccessResponse<Map<String, Object>>> getUserProfile(
     );
 
     @Operation(summary = "계좌번호 업데이트", description = "사용자 계좌번호 업데이트")
