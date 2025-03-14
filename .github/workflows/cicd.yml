@@ -15,25 +15,25 @@ jobs:
       ECR_REPOSITORY: modie/modie-be
 
     steps:
-      # - name: Checkout repository
-      #   uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v3
-      #   with:
-      #     aws-access-key-id: ${{ secrets.ECR_USER_ACCESS_KEY }}
-      #     aws-secret-access-key: ${{ secrets.ECR_USER_SECRET_ACCESS_KEY }}
-      #     aws-region: ap-northeast-2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.ECR_USER_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.ECR_USER_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
 
-      # - name: Login to Amazon ECR
-      #   run: |
-      #     aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
 
-      # - name: Build, tag, and push image to Amazon ECR
-      #   run: |
-      #     COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
-      #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH .
-      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH
+      - name: Build, tag, and push image to Amazon ECR
+        run: |
+          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
@@ -42,8 +42,10 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           script: |
+            set -e  # 🚀 오류 발생 시 즉시 종료
+
             COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
-            
+                  
             # aws 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
             
@@ -72,7 +74,11 @@ jobs:
               -e DB_USERNAME=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e SPRING_PROFILES_ACTIVE=prod \
-              418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH
+              --restart always \
+              418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH || {
+                echo "❌ Docker 컨테이너 실행 실패!"
+                exit 1
+              }
 
             
             # nginx 설정 변경
@@ -81,15 +87,19 @@ jobs:
             # 활성 백엔드 변경 (active_backend.conf 업데이트)
             echo "set \$active_backend backend-$BG_MODE;" | sudo tee /etc/nginx/conf.d/active_backend.conf
           
-            # Nginx 설정 테스트 후 적용
+            # 🔥 Nginx 설정 테스트 후 적용 (실패 시 롤백)
             if sudo nginx -t; then
               sudo systemctl reload nginx
+              echo "✅ Nginx 설정이 성공적으로 적용되었습니다!"
             else
-              echo "Nginx 설정 오류 발생! 롤백 수행"
+              echo "❌ Nginx 설정 오류 발생! 롤백 수행"
+              docker stop modie-be-$PORT
+              docker rm modie-be-$PORT
               exit 1
             fi
-          
-            docker stop modie-be-$OTHER_PORT
-            docker rm modie-be-$OTHER_PORT
-            
-            echo "배포완료"
+      
+            # 이전 컨테이너 종료 및 삭제
+            docker stop modie-be-$OTHER_PORT || true
+            docker rm modie-be-$OTHER_PORT || true
+      
+            echo "🚀 배포 완료!"
