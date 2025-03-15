@@ -27,7 +27,7 @@ jobs:
           registry-url: "https://github.com/100-hours-a-week/3-team-modie-be"
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm install --frozen-lockfile
 
       - name: Run Semantic Release
         run: npx semantic-release
