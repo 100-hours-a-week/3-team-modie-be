@@ -23,8 +23,10 @@ public class UserController implements UserApi {
         return SuccessResponse.of(mockUserProfile).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Map<String, Object>>> updateUserAccounts(String bankName, String accountNumber) {
-        Map<String,Object> mockData = Map.of();
+    public ResponseEntity<SuccessResponse<Map<String, Object>>> updateUserAccounts(
+        String bankName,
+        String accountNumber) {
+        Map<String, Object> mockData = Map.of();
 
         return SuccessResponse.of(mockData).asHttp(HttpStatus.OK);
     }
