@@ -18,9 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
-          registry-url: "https://github.com/100-hours-a-week/3-team-modie-be"
+          registry-url: 'https://npm.pkg.github.com/'
       - run: npm install
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
