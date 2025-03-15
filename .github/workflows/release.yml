@@ -1,5 +1,5 @@
 name: Develop Branch Semantic Release
-
+# 자동 코멘트 테스트
 on:
   push:
     branches:
