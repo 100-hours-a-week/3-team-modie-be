@@ -22,9 +22,9 @@ import jakarta.validation.constraints.Size;
 @Tag(name = "User API", description = "유저 테스트")
 @Validated
 @ApiResponses(
-value = {
-    @ApiResponse(responseCode = "200", description = "사용자 프로필 조회 성공.")
-})
+    value = {
+        @ApiResponse(responseCode = "200", description = "사용자 프로필 조회 성공.")
+    })
 @RequestMapping("/api/v1/users")
 public interface UserApi {
 
