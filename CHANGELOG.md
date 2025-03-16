@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.1.0 (2025-03-16)
+
+* fix: checkstyle rule 수정 (#10) ([3b99e06](https://github.com/100-hours-a-week/3-team-modie-be/commit/3b99e06)), closes [#10](https://github.com/100-hours-a-week/3-team-modie-be/issues/10)
+* fix: husky 설정 변경 ([379287f](https://github.com/100-hours-a-week/3-team-modie-be/commit/379287f))
+* feat: healthcheck api 추가 ([c280f98](https://github.com/100-hours-a-week/3-team-modie-be/commit/c280f98))
+* test: realease.yml (#8) ([c10d1d8](https://github.com/100-hours-a-week/3-team-modie-be/commit/c10d1d8)), closes [#8](https://github.com/100-hours-a-week/3-team-modie-be/issues/8)
+
 ## 1.0.0 (2025-03-15)
 
 * fix: checkstyle, editconfig 적용 ([7e408b3](https://github.com/100-hours-a-week/3-team-modie-be/commit/7e408b3))
