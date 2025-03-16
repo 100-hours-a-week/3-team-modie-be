@@ -1,18 +1,13 @@
 package org.ktb.modie.v1.controller;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.v1.dto.MeetDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
@@ -54,6 +49,18 @@ public class MeetController implements MeetApi {
     public ResponseEntity<SuccessResponse<Map<String, Object>>> deleteMeet(
         @Parameter(description = "삭제할 모임 ID", example = "1") int meetId) {
         Map<String, Object> mockData = Map.of();
+        return SuccessResponse.of(mockData).asHttp(HttpStatus.OK);
+    }
+
+    public ResponseEntity<SuccessResponse<Map<String, Object>>> updatePayments(
+        @PathVariable int meetId,
+        @RequestParam int userId,
+        @RequestBody int isPayed){
+
+        Map<String, Object> mockData = new LinkedHashMap<>();
+        mockData.put("userId", userId);
+        mockData.put("isPayed", isPayed); // service logic에 0->1 , 1->0 구현예정
+
         return SuccessResponse.of(mockData).asHttp(HttpStatus.OK);
     }
 }
