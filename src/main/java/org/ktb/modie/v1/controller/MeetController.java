@@ -7,9 +7,9 @@ import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.v1.dto.MeetDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class MeetController implements MeetApi {
