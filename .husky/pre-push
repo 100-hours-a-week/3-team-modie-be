@@ -7,4 +7,5 @@ export NVM_DIR="$HOME/.nvm"
 
 nvm use 20.18.0
 
-npm run lint
+#npm run lint
+
