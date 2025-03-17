@@ -3,7 +3,7 @@ plugins {
     id 'org.springframework.boot' version "${springVersion}"
     id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
     id 'org.ec4j.editorconfig' version "${editorconfigVersion}"
-    id 'checkstyle'
+    id 'checkstyle' version "${checkstyleVersion}"
     id 'jacoco'
 }
 
