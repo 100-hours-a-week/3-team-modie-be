@@ -30,7 +30,6 @@ public class UserService {
 
     // 카카오 로그인 후 Access Token을 가져오는 메서드
     public User getKakaoUserInfo(String code) {
-        System.out.println("code는 여기서 보자..." + code);
         // Step 1: Access Token을 얻기 위한 요청
         String tokenUrl = KAKAO_TOKEN_URL + "?grant_type=authorization_code"
             + "&client_id=" + KAKAO_CLIENT_ID

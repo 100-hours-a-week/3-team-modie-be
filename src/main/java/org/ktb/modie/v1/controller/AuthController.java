@@ -30,7 +30,6 @@ public class AuthController {
     public String kakaoCallback(@RequestParam("code") String code, Model model) {
         // 카카오 로그인 콜백에서 받은 code로 사용자 정보 조회
         User user = userService.getKakaoUserInfo(code);
-        System.out.println(user.getUserId());
         // 세션에 사용자 정보 저장
         model.addAttribute("user", user); // @SessionAttributes가 자동으로 세션에 저장
 
