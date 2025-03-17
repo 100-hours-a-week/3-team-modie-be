@@ -15,14 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class MeetController implements MeetApi {
-    @Override
+
     public ResponseEntity<SuccessResponse<MeetDto>> createMeet(
         @RequestBody MeetDto request
     ) {
         return SuccessResponse.of(request).asHttp(HttpStatus.OK);
     }
 
-    @Override
     public ResponseEntity<SuccessResponse<MeetDto>> getMeet(int meetId
     ) {
         MeetDto meetDto = new MeetDto(
@@ -38,20 +37,17 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(meetDto).asHttp(HttpStatus.OK);
     }
 
-    @Override
     public ResponseEntity<SuccessResponse<MeetDto>> updateMeet(int meetId,
         @RequestBody MeetDto request
     ) {
         return SuccessResponse.of(request).asHttp(HttpStatus.OK);
     }
 
-    @Override
     public ResponseEntity<SuccessResponse<Void>> deleteMeet(int meetId) {
         Map<String, Object> mockData = Map.of();
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    @Override
     public ResponseEntity<SuccessResponse<MeetListResponseDto>> getMeetList(String category, Integer completed,
         Integer page) {
         MeetListResponseDto meetListResponseDto = new MeetListResponseDto(
@@ -88,17 +84,14 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(meetListResponseDto).asHttp(HttpStatus.OK);
     }
 
-    @Override
     public ResponseEntity<SuccessResponse<Void>> joinMeet(int meetId) {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    @Override
     public ResponseEntity<SuccessResponse<Void>> exitMeet(int meetId) {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
-
-    @Override
+    
     public ResponseEntity<SuccessResponse<Void>> completeMeet(int meetId) {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
