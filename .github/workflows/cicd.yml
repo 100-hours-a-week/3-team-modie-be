@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      ECR_REGISTRY: 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
+      ECR_REGISTRY: 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com
       ECR_REPOSITORY: modie/modie-be
 
     steps:
