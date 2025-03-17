@@ -1,5 +1,7 @@
 package org.ktb.modie.v1.controller;
 
+import java.util.Map;
+
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.v1.dto.MeetDto;
 import org.ktb.modie.v1.dto.MeetListResponseDto;
@@ -117,11 +119,12 @@ public interface MeetApi {
         @ApiResponse(responseCode = "404", description = "해당 모임을 찾을 수 없음"),
         @ApiResponse(responseCode = "409", description = "정산 완료 후 종료 가능")
     })
-  
+
     @PatchMapping("/{meetId}/complete")
     ResponseEntity<SuccessResponse<Void>> completeMeet(
         @PathVariable("meetId") int meetId
-      
+    );
+
     @Operation(summary = "정산내역 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
     @PatchMapping("/{meetId}/payments")
     public ResponseEntity<SuccessResponse<Map<String, Object>>> updatePayments(

@@ -1,8 +1,8 @@
 package org.ktb.modie.core.exception;
 
-import lombok.RequiredArgsConstructor;
-
 import java.text.MessageFormat;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum CustomErrorCode implements ErrorCode {
@@ -20,7 +20,6 @@ public enum CustomErrorCode implements ErrorCode {
     // 404 Not Found
     API_NOT_FOUND(404, "E201", CustomErrorMessage.API_NOT_FOUND),
     RESOURCE_NOT_FOUND(404, "E202", CustomErrorMessage.RESOURCE_NOT_FOUND),
-    COMPANY_NOT_FOUND(404, "E203", CustomErrorMessage.COMPANY_NOT_FOUND),
 
     // 429 Too Many Requests
     RATE_LIMIT_EXCEEDED(429, "E301", CustomErrorMessage.RATE_LIMIT_EXCEEDED),
