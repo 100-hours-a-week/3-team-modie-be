@@ -108,4 +108,16 @@ public interface MeetApi {
     ResponseEntity<SuccessResponse<Void>> exitMeet(
         @PathVariable("meetId") int meetId
     );
+
+    @Operation(summary = "모임 종료", description = "모임을 종료합니다. 정산이 완료된 상태에서만 가능합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "모임 종료 성공"),
+        @ApiResponse(responseCode = "403", description = "모임 생성자만 모임을 종료할 수 있음"),
+        @ApiResponse(responseCode = "404", description = "해당 모임을 찾을 수 없음"),
+        @ApiResponse(responseCode = "409", description = "정산 완료 후 종료 가능")
+    })
+    @PatchMapping("/{meetId}/complete")
+    ResponseEntity<SuccessResponse<Void>> completeMeet(
+        @PathVariable("meetId") int meetId
+    );
 }
