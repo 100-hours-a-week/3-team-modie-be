@@ -12,21 +12,23 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
+@RequestMapping("/api/v1/meets")
 public class MeetController implements MeetApi {
 
-    @PostMapping("/api/v1/meets")
+    @PostMapping
     public ResponseEntity<SuccessResponse<MeetDto>> createMeet(
         @RequestBody MeetDto request
     ) {
         return SuccessResponse.of(request).asHttp(HttpStatus.OK);
     }
 
-    @GetMapping("/api/v1/meets/{meetId}")
+    @GetMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Map<String, Object>>> getMeet(
         @Parameter(description = "조회할 모임 ID", example = "1")
         @PathVariable("meetId") int meetId
@@ -43,14 +45,14 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(mockData).asHttp(HttpStatus.OK);
     }
 
-    @PatchMapping("/api/v1/meets/{meetId}")
+    @PatchMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<MeetDto>> updateMeet(int meetId,
         @RequestBody MeetDto request
     ) {
         return SuccessResponse.of(request).asHttp(HttpStatus.OK);
     }
 
-    @DeleteMapping("/api/v1/meets/{meetId}")
+    @DeleteMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Map<String, Object>>> deleteMeet(
         @Parameter(description = "삭제할 모임 ID", example = "1") int meetId) {
         Map<String, Object> mockData = Map.of();
