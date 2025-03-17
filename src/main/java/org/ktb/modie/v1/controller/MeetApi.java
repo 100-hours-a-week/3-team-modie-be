@@ -85,5 +85,16 @@ public interface MeetApi {
         @RequestParam(value = "completed", required = false, defaultValue = "0") Integer completed,
         @RequestParam(value = "page", required = false, defaultValue = "1") Integer page
     );
-    
+
+    @Operation(summary = "모임 참여", description = "해당 모임에 참여합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "모임이 성공적으로 생성됨"),
+        @ApiResponse(responseCode = "400", description = "잘못된 입력값"),
+        @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
+    })
+    @PostMapping("/{meetId}")
+    public ResponseEntity<SuccessResponse<Void>> joinMeet(
+        @PathVariable("meetId") int meetId
+    );
+
 }

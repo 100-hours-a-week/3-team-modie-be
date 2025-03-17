@@ -87,4 +87,9 @@ public class MeetController implements MeetApi {
         );
         return SuccessResponse.of(meetListResponseDto).asHttp(HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<SuccessResponse<Void>> joinMeet(int meetId) {
+        return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
+    }
 }
