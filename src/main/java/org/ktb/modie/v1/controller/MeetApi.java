@@ -97,4 +97,15 @@ public interface MeetApi {
         @PathVariable("meetId") int meetId
     );
 
+    @Operation(summary = "모임 나가기", description = "사용자가 특정 모임에서 나갑니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "모임 나가기 성공"),
+        @ApiResponse(responseCode = "403", description = "모임 참여자만 탈퇴할 수 있음"),
+        @ApiResponse(responseCode = "404", description = "해당 모임을 찾을 수 없음"),
+        @ApiResponse(responseCode = "409", description = "종료된 모임은 나갈 수 없음")
+    })
+    @PatchMapping("/{meetId}/exit")
+    ResponseEntity<SuccessResponse<Void>> exitMeet(
+        @PathVariable("meetId") int meetId
+    );
 }
