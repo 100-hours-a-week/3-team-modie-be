@@ -1,25 +1,51 @@
 name: Develop Branch Semantic Release
-
+# 자동 코멘트 테스트
 on:
   push:
     branches:
       - main
-      - develop
+      - dev
   pull_request:
     branches:
       - main
-      - develop
+      - dev
+
+permissions:
+  contents: write      # 저장소 콘텐츠 쓰기 권한
+  issues: write        # 이슈 생성 권한
+  pull-requests: write # PR 관련 권한
 
 jobs:
   semantic-release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 전체 git 히스토리를 가져옵니다 (semantic-release에 필요)
+          persist-credentials: false  # semantic-release에서 사용자 인증 정보를 재설정합니다
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: '20.18.0'  # husky가 요구하는 Node 버전 설치
           registry-url: 'https://npm.pkg.github.com/'
-      - run: npm install
-      - run: npx semantic-release
+
+      # husky 훅 비활성화
+      - name: Disable Husky
+        run: |
+          npm pkg set scripts.prepare="echo no-prepare"
+          git config --local core.hooksPath /dev/null
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          # husky 환경 변수 비활성화 (이중 안전장치)
+          HUSKY: "0"
+        run: npx semantic-release

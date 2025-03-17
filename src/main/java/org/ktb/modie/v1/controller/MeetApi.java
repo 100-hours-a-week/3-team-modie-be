@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
 
 @Tag(name = "Meet API", description = "모임 관련 API")
 @Validated
@@ -116,8 +117,25 @@ public interface MeetApi {
         @ApiResponse(responseCode = "404", description = "해당 모임을 찾을 수 없음"),
         @ApiResponse(responseCode = "409", description = "정산 완료 후 종료 가능")
     })
+  
     @PatchMapping("/{meetId}/complete")
     ResponseEntity<SuccessResponse<Void>> completeMeet(
         @PathVariable("meetId") int meetId
+      
+    @Operation(summary = "정산내역 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
+    @PatchMapping("/{meetId}/payments")
+    public ResponseEntity<SuccessResponse<Map<String, Object>>> updatePayments(
+        @Parameter(description = "정산 관리할 모임의 Id 값")
+        @PathVariable(value = "meetId")
+        @Digits(integer = 10000, fraction = 0, message = "모임ID")
+        int meetId,
+
+        @Parameter(description = "정산한 유저 Id")
+        @RequestParam(value = "userId", defaultValue = "12345")
+        int userId,
+
+        @Parameter(description = "정산 여부")
+        @RequestParam(value = "isPayed", defaultValue = "1")
+        int isPayed
     );
 }
