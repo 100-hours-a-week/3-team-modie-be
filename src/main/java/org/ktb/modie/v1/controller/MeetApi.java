@@ -12,15 +12,18 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "모임 API", description = "모임 관련 API")
+@Tag(name = "Meet API", description = "모임 관련 API")
 @Validated
+@RequestMapping("/api/v1/meets")
 public interface MeetApi {
 
     @Operation(summary = "모임 생성", description = "새로운 모임을 생성합니다.")
@@ -39,9 +42,9 @@ public interface MeetApi {
         @ApiResponse(responseCode = "200", description = "모임 정보 반환 성공"),
         @ApiResponse(responseCode = "404", description = "해당 모임을 찾을 수 없음")
     })
-
-    @GetMapping
+    @GetMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Map<String, Object>>> getMeet(
+        @Parameter(description = "조회할 모임 ID", example = "1")
         @PathVariable("meetId") int meetId
     );
 
@@ -51,7 +54,7 @@ public interface MeetApi {
         @ApiResponse(responseCode = "400", description = "잘못된 입력값"),
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
-    @PatchMapping
+    @PatchMapping("/{meetId}")
     ResponseEntity<SuccessResponse<MeetDto>> updateMeet(
         @PathVariable("meetId") int meetId,
         //@RequestHeader("Authorization") String authorization,
@@ -65,8 +68,8 @@ public interface MeetApi {
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자"),
         @ApiResponse(responseCode = "404", description = "존재하지 않는 모임")
     })
-    @DeleteMapping
-    ResponseEntity<SuccessResponse<Map<String, Object>>> deleteMeet(
+    @DeleteMapping("/{meetId}")
+    ResponseEntity<SuccessResponse<Void>> deleteMeet(
         @PathVariable("meetId") int meetId
         //@RequestHeader("Authorization") String authorization
     );
