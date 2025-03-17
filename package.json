@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "./gradlew checkstyleMain checkstyleTest",
-    "prepare": "husky install",
+    "prepare": "echo no-prepare",
     "semantic-release": "semantic-release"
   },
   "repository": {
