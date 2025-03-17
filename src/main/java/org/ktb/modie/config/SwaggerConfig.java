@@ -1,11 +1,12 @@
 package org.ktb.modie.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class SwaggerConfig {
@@ -33,24 +34,30 @@ public class SwaggerConfig {
     }
 
     /*
-     * !!할일 : API 구현 후 그룹화 진행 필요!!
+     * 예제용 API (기존 API 그룹)
      * author : hyuk.kim (김상혁)
      */
+
     @Bean
-    public GroupedOpenApi stockV1Api() {
+    public GroupedOpenApi meetApi() {
         return GroupedOpenApi.builder()
-            .group("예제용 API")
-            .pathsToMatch("/api/v1/test/**")
+            .group("API")
+            .pathsToMatch("/api/v1/**")
             .packagesToScan("org.ktb.modie.v1.controller")
             .build();
     }
 
+    /*
+     * 웹소켓 API 그룹화
+     * author : jade.lee (이태현)
+     */
     @Bean
-    public GroupedOpenApi stockV2Api() {
+    public GroupedOpenApi chatSendV1Api() {
         return GroupedOpenApi.builder()
-            .group("예제용 API v2")
-            .pathsToMatch("/api/v1/test/**")
-            .packagesToScan("org.ktb.modie.v1.controller")
+            .group("웹소켓 API")
+            .pathsToMatch("/ws/**") // WebSocket 엔드포인트 경로
+            .packagesToScan("org.ktb.modie.v1.controller") // WebSocket 관련 컨트롤러 포함
             .build();
     }
+
 }
