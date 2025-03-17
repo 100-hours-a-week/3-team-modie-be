@@ -1,9 +1,9 @@
 package org.ktb.modie.core.handler;
 
-import jakarta.validation.ConstraintViolationException;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.exception.ErrorCode;
@@ -20,9 +20,10 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.stream.Collectors;
+import jakarta.validation.ConstraintViolationException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
 @Slf4j
@@ -39,7 +40,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
         log.error(LOG_FORMAT, "BusinessException", ex.getMessage(), ex);
         return createErrorResponse(ex.getErrorCode(),
-            ErrorResponse.of(ex.getErrorCode(), ex.getMessage()));
+            ErrorResponse.of(ex.getErrorCode(), null, ex.getMessage()));
     }
 
     /**

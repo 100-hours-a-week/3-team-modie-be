@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>홈</title>
+</head>
+<body>
+<h2>환영합니다, <span th:text="${user.userName}">사용자 이름</span>님!</h2> <!-- 사용자 이름을 출력 -->
+
+<!-- 세션에 사용자가 없다면 로그인 버튼 표시 -->
+<div th:if="${user == null}">
+    <a href="/auth/kakao/login">카카오 로그인</a>
+</div>
+
+<!-- 세션에 사용자가 있다면 로그아웃 버튼 표시 -->
+<div th:if="${user != null}">
+    <a href="/auth/kakao/logout">로그아웃</a>
+</div>
+</body>
+</html>

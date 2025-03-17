@@ -1,6 +1,9 @@
 spring:
   application:
     name: modie
+  output:
+    ansi:
+      enabled: ALWAYS
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -23,3 +26,8 @@ spring:
         default_batch_fetch_size: 100
     open-in-view: false
 
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
