@@ -1,9 +1,8 @@
 package org.ktb.modie.v1.controller;
 
-import java.util.Map;
-
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.v1.dto.MeetDto;
+import org.ktb.modie.v1.dto.MeetListResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,7 +43,7 @@ public interface MeetApi {
         @ApiResponse(responseCode = "404", description = "해당 모임을 찾을 수 없음")
     })
     @GetMapping("/{meetId}")
-    public ResponseEntity<SuccessResponse<Map<String, Object>>> getMeet(
+    public ResponseEntity<SuccessResponse<MeetDto>> getMeet(
         @Parameter(description = "조회할 모임 ID", example = "1")
         @PathVariable("meetId") int meetId
     );
@@ -73,4 +73,17 @@ public interface MeetApi {
         @PathVariable("meetId") int meetId
         //@RequestHeader("Authorization") String authorization
     );
+
+    @Operation(summary = "모임 목록 조회", description = "카테고리, 완료 여부, 페이지 번호로 필터링하여 모임 목록을 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "모임 목록 조회 성공"),
+        @ApiResponse(responseCode = "400", description = "페이지 번호 또는 크기가 유효하지 않습니다.")
+    })
+    @GetMapping
+    ResponseEntity<SuccessResponse<MeetListResponseDto>> getMeetList(
+        @RequestParam(value = "category", required = false, defaultValue = "전체") String category,
+        @RequestParam(value = "completed", required = false, defaultValue = "0") Integer completed,
+        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page
+    );
+    
 }
