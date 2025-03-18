@@ -97,7 +97,7 @@ public interface MeetApi {
     })
     @PostMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Void>> joinMeet(
-        @PathVariable("userId") String userId,
+        @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
