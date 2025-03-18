@@ -25,7 +25,7 @@ public class MeetService {
             .meetAt(request.meetAt())
             .totalCost(request.totalCost())
             .memberLimit(request.memberLimit())
-            .ownerId(3966242908L)
+            .owner(null)
             .build();
 
         Meet savedMeet = meetRepository.save(meet);

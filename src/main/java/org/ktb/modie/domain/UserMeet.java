@@ -45,6 +45,4 @@ public class UserMeet {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-
-    // Getters and Setters
 }

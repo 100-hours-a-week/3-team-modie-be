@@ -2,11 +2,16 @@ package org.ktb.modie.domain;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -24,12 +29,10 @@ public class Meet {
     @Column(name = "meet_id", nullable = false)
     private Long meetId;
 
-    // @ManyToOne
-    // @JoinColumn(name = "user_id", nullable = false)
-    // @OnDelete(action = OnDeleteAction.CASCADE)
-    // private User owner;
-    @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User owner;
 
     @Column(name = "meet_intro", nullable = false)
     private String meetIntro;
@@ -67,7 +70,7 @@ public class Meet {
     @Builder
     public Meet(String meetIntro, String meetType, String address,
         String addressDescription, LocalDateTime meetAt,
-        Long totalCost, Long memberLimit, Long ownerId) {
+        Long totalCost, Long memberLimit, User owner) {
         this.meetIntro = meetIntro;
         this.meetType = meetType;
         this.address = address;
@@ -75,15 +78,11 @@ public class Meet {
         this.meetAt = meetAt;
         this.totalCost = totalCost;
         this.memberLimit = memberLimit;
-        this.ownerId = ownerId;
+        this.owner = owner;
     }
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-    }
-
-    public Long getMeetId() {
-        return meetId;
     }
 }

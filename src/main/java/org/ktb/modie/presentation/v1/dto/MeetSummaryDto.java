@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record MeetSummary(
+public record MeetSummaryDto(
     @Schema(description = "모임 ID", example = "1")
-    Integer id,
+    Long meetId,
 
     @Schema(description = "모임 소개", example = "제주 올레길 탐방")
     String meetIntro,
@@ -15,7 +15,7 @@ public record MeetSummary(
     String type,
 
     @Schema(description = "모임 시작 시간", example = "2025-03-20T10:00:00")
-    LocalDateTime meetDt,
+    LocalDateTime meetAt,
 
     @Schema(description = "주소", example = "제주특별자치도 제주시 월성로 4길 19")
     String address,

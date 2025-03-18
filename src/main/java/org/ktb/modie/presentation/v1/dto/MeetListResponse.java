@@ -15,6 +15,6 @@ public record MeetListResponse(
     long totalElements,
 
     @Schema(description = "모임 리스트")
-    List<MeetSummary> meets
+    List<MeetSummaryDto> meets
 ) {
 }
