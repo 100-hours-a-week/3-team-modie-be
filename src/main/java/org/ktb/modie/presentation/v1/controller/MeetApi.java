@@ -142,6 +142,6 @@ public interface MeetApi {
 
         @Parameter(description = "정산 여부")
         @RequestParam(value = "isPayed", defaultValue = "1")
-        int isPayed
+        boolean isPayed
     );
 }

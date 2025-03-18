@@ -35,7 +35,7 @@ public class UserMeet {
     private Meet meet;
 
     @Column(name = "is_payed", nullable = false)
-    private Boolean isPayed;
+    private boolean isPayed;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

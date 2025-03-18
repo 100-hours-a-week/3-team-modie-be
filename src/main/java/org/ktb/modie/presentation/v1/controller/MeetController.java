@@ -114,7 +114,7 @@ public class MeetController implements MeetApi {
     public ResponseEntity<SuccessResponse<Map<String, Object>>> updatePayments(
         @PathVariable Long meetId,
         @RequestParam Long userId,
-        @RequestBody int isPayed) {
+        @RequestBody boolean isPayed) {
 
         Map<String, Object> mockData = new LinkedHashMap<>();
         mockData.put("userId", userId);
