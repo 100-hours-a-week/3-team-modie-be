@@ -1,7 +1,5 @@
 package org.ktb.modie.service;
 
-import java.time.LocalDateTime;
-
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Meet;
@@ -27,13 +25,6 @@ public class MeetService {
 
 	@Transactional
 	public CreateMeetResponse createMeet(CreateMeetRequest request) {
-		User user = User.builder()
-			.userId("3966242908")
-			.createdAt(LocalDateTime.now())
-			.profileImageUrl("http://k.kakaocdn.net/dn/FDstZ/btsMylYzxgF/5j3m3aiBpxQfYe7avDR0RK/img_640x640.jpg")
-			.userName("제이드")
-			.build();
-
 		// User owner = userRepository.findById(userId)
 		// 	.orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
 
