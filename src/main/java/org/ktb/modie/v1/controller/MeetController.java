@@ -1,36 +1,43 @@
 package org.ktb.modie.v1.controller;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.ktb.modie.core.response.SuccessResponse;
+import org.ktb.modie.presentation.dto.CreateMeetRequestDto;
+import org.ktb.modie.presentation.dto.CreateMeetResponseDto;
+import org.ktb.modie.service.MeetService;
 import org.ktb.modie.v1.dto.MeetDto;
 import org.ktb.modie.v1.dto.MeetListResponseDto;
 import org.ktb.modie.v1.dto.MeetSummaryDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.Parameter;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @RestController
 public class MeetController implements MeetApi {
 
-    public ResponseEntity<SuccessResponse<MeetDto>> createMeet(
-        @RequestBody MeetDto request
+    private final MeetService meetService;
+
+    public ResponseEntity<SuccessResponse<CreateMeetResponseDto>> createMeet(
+        //@RequestHeader("Authorization") String authToken,
+        @RequestBody CreateMeetRequestDto request
     ) {
-        return SuccessResponse.of(request).asHttp(HttpStatus.OK);
+        CreateMeetResponseDto response = meetService.createMeet(request);
+
+        //String userId = userService.getKakao
+        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<MeetDto>> getMeet(int meetId
+    public ResponseEntity<SuccessResponse<MeetDto>> getMeet(long meetId
     ) {
         MeetDto meetDto = new MeetDto(
             meetId,
@@ -45,13 +52,13 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(meetDto).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<MeetDto>> updateMeet(int meetId,
+    public ResponseEntity<SuccessResponse<MeetDto>> updateMeet(long meetId,
         @RequestBody MeetDto request
     ) {
         return SuccessResponse.of(request).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> deleteMeet(int meetId) {
+    public ResponseEntity<SuccessResponse<Void>> deleteMeet(long meetId) {
         Map<String, Object> mockData = Map.of();
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
@@ -92,15 +99,15 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(meetListResponseDto).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> joinMeet(int meetId) {
+    public ResponseEntity<SuccessResponse<Void>> joinMeet(long meetId) {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> exitMeet(int meetId) {
+    public ResponseEntity<SuccessResponse<Void>> exitMeet(long meetId) {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
-    
-    public ResponseEntity<SuccessResponse<Void>> completeMeet(int meetId) {
+
+    public ResponseEntity<SuccessResponse<Void>> completeMeet(long meetId) {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
