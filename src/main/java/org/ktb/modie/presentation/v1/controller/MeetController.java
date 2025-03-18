@@ -99,8 +99,8 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(meetListResponseDto).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> joinMeet(Long meetId) {
-        meetService.joinMeet(meetId);
+    public ResponseEntity<SuccessResponse<Void>> joinMeet(String userId, Long meetId) {
+        meetService.joinMeet(userId, meetId);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
