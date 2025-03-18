@@ -100,6 +100,8 @@ public interface MeetApi {
     })
     @PostMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Void>> joinMeet(
+        //@RequestHeader("Authorization") String authorization
+        @PathVariable("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
