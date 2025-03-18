@@ -24,9 +24,9 @@ public class MeetService {
 	private final MeetRepository meetRepository;
 
 	@Transactional
-	public CreateMeetResponse createMeet(CreateMeetRequest request) {
-		// User owner = userRepository.findById(userId)
-		// 	.orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
+	public CreateMeetResponse createMeet(String userId, CreateMeetRequest request) {
+		User owner = userRepository.findById(userId)
+			.orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
 
 		Meet meet = Meet.builder()
 			.meetIntro(request.meetIntro())
@@ -36,7 +36,7 @@ public class MeetService {
 			.meetAt(request.meetAt())
 			.totalCost(request.totalCost())
 			.memberLimit(request.memberLimit())
-			.owner(user)
+			.owner(owner)
 			.build();
 
 		Meet savedMeet = meetRepository.save(meet);
