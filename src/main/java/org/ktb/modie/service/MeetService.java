@@ -58,6 +58,12 @@ public class MeetService {
 		Meet meet = meetRepository.findById(5L)
 			.orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
 
+		// 모임 인원 초과 방지
+		long currentMemberCount = userMeetRepository.countByMeet(meet.getMeetId());
+		if (currentMemberCount >= meet.getMemberLimit()) {
+			throw new BusinessException(CustomErrorCode.MEETING_CAPACITY_FULL);
+		}
+
 		// 중복 참여 방지
 		if (userMeetRepository.isExistsByUserAndMeet(user.getUserId(), meet.getMeetId())) {
 			throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
