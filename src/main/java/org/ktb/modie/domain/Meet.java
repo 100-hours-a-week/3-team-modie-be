@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -27,6 +28,8 @@ public class Meet {
     // @JoinColumn(name = "user_id", nullable = false)
     // @OnDelete(action = OnDeleteAction.CASCADE)
     // private User owner;
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
 
     @Column(name = "meet_intro", nullable = false)
     private String meetIntro;
@@ -64,7 +67,7 @@ public class Meet {
     @Builder
     public Meet(String meetIntro, String meetType, String address,
         String addressDescription, LocalDateTime meetAt,
-        Long totalCost, Long memberLimit) {
+        Long totalCost, Long memberLimit, Long ownerId) {
         this.meetIntro = meetIntro;
         this.meetType = meetType;
         this.address = address;
@@ -72,5 +75,15 @@ public class Meet {
         this.meetAt = meetAt;
         this.totalCost = totalCost;
         this.memberLimit = memberLimit;
+        this.ownerId = ownerId;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Long getMeetId() {
+        return meetId;
     }
 }
