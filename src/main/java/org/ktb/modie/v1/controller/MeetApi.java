@@ -3,10 +3,10 @@ package org.ktb.modie.v1.controller;
 import java.util.Map;
 
 import org.ktb.modie.core.response.SuccessResponse;
-import org.ktb.modie.presentation.dto.CreateMeetRequestDto;
-import org.ktb.modie.presentation.dto.CreateMeetResponseDto;
+import org.ktb.modie.presentation.dto.CreateMeetRequest;
+import org.ktb.modie.presentation.dto.CreateMeetResponse;
 import org.ktb.modie.v1.dto.MeetDto;
-import org.ktb.modie.v1.dto.MeetListResponseDto;
+import org.ktb.modie.v1.dto.MeetListResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,9 +38,9 @@ public interface MeetApi {
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
     @PostMapping
-    public ResponseEntity<SuccessResponse<CreateMeetResponseDto>> createMeet(
+    public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(
         //@RequestHeader("Authorizaition") String authToken,
-        @Valid @RequestBody CreateMeetRequestDto request
+        @Valid @RequestBody CreateMeetRequest request
     );
 
     @Operation(summary = "모임 조회", description = "특정 모임 정보를 조회합니다.")
@@ -51,7 +51,7 @@ public interface MeetApi {
     @GetMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<MeetDto>> getMeet(
         @Parameter(description = "조회할 모임 ID", example = "1")
-        @PathVariable("meetId") long meetId
+        @PathVariable("meetId") Long meetId
     );
 
     @Operation(summary = "모임 수정", description = "기존 모임 정보를 수정합니다.")
@@ -62,7 +62,7 @@ public interface MeetApi {
     })
     @PatchMapping("/{meetId}")
     ResponseEntity<SuccessResponse<MeetDto>> updateMeet(
-        @PathVariable("meetId") long meetId,
+        @PathVariable("meetId") Long meetId,
         //@RequestHeader("Authorization") String authorization,
         @Valid @RequestBody MeetDto request
     );
@@ -76,7 +76,7 @@ public interface MeetApi {
     })
     @DeleteMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> deleteMeet(
-        @PathVariable("meetId") long meetId
+        @PathVariable("meetId") Long meetId
         //@RequestHeader("Authorization") String authorization
     );
 
@@ -86,7 +86,7 @@ public interface MeetApi {
         @ApiResponse(responseCode = "400", description = "페이지 번호 또는 크기가 유효하지 않습니다.")
     })
     @GetMapping
-    ResponseEntity<SuccessResponse<MeetListResponseDto>> getMeetList(
+    ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(
         @RequestParam(value = "category", required = false, defaultValue = "전체") String category,
         @RequestParam(value = "completed", required = false, defaultValue = "0") Integer completed,
         @RequestParam(value = "page", required = false, defaultValue = "1") Integer page
@@ -100,7 +100,7 @@ public interface MeetApi {
     })
     @PostMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Void>> joinMeet(
-        @PathVariable("meetId") long meetId
+        @PathVariable("meetId") Long meetId
     );
 
     @Operation(summary = "모임 나가기", description = "사용자가 특정 모임에서 나갑니다.")
@@ -112,7 +112,7 @@ public interface MeetApi {
     })
     @PatchMapping("/{meetId}/exit")
     ResponseEntity<SuccessResponse<Void>> exitMeet(
-        @PathVariable("meetId") long meetId
+        @PathVariable("meetId") Long meetId
     );
 
     @Operation(summary = "모임 종료", description = "모임을 종료합니다. 정산이 완료된 상태에서만 가능합니다.")
@@ -125,7 +125,7 @@ public interface MeetApi {
 
     @PatchMapping("/{meetId}/complete")
     ResponseEntity<SuccessResponse<Void>> completeMeet(
-        @PathVariable("meetId") long meetId
+        @PathVariable("meetId") Long meetId
     );
 
     @Operation(summary = "정산내역 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
@@ -134,11 +134,11 @@ public interface MeetApi {
         @Parameter(description = "정산 관리할 모임의 Id 값")
         @PathVariable(value = "meetId")
         @Digits(integer = 10000, fraction = 0, message = "모임ID")
-        int meetId,
+        Long meetId,
 
         @Parameter(description = "정산한 유저 Id")
         @RequestParam(value = "userId", defaultValue = "12345")
-        int userId,
+        Long userId,
 
         @Parameter(description = "정산 여부")
         @RequestParam(value = "isPayed", defaultValue = "1")
