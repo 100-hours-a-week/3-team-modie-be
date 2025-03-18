@@ -1,6 +1,10 @@
 package org.ktb.modie.v1.controller;
 
+import java.util.Map;
+
 import org.ktb.modie.core.response.SuccessResponse;
+import org.ktb.modie.presentation.dto.CreateMeetRequestDto;
+import org.ktb.modie.presentation.dto.CreateMeetResponseDto;
 import org.ktb.modie.v1.dto.MeetDto;
 import org.ktb.modie.v1.dto.MeetListResponseDto;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +38,9 @@ public interface MeetApi {
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
     @PostMapping
-    public ResponseEntity<SuccessResponse<MeetDto>> createMeet(
-        @Valid @RequestBody MeetDto request
+    public ResponseEntity<SuccessResponse<CreateMeetResponseDto>> createMeet(
+        //@RequestHeader("Authorizaition") String authToken,
+        @Valid @RequestBody CreateMeetRequestDto request
     );
 
     @Operation(summary = "모임 조회", description = "특정 모임 정보를 조회합니다.")
@@ -46,7 +51,7 @@ public interface MeetApi {
     @GetMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<MeetDto>> getMeet(
         @Parameter(description = "조회할 모임 ID", example = "1")
-        @PathVariable("meetId") int meetId
+        @PathVariable("meetId") long meetId
     );
 
     @Operation(summary = "모임 수정", description = "기존 모임 정보를 수정합니다.")
@@ -57,7 +62,7 @@ public interface MeetApi {
     })
     @PatchMapping("/{meetId}")
     ResponseEntity<SuccessResponse<MeetDto>> updateMeet(
-        @PathVariable("meetId") int meetId,
+        @PathVariable("meetId") long meetId,
         //@RequestHeader("Authorization") String authorization,
         @Valid @RequestBody MeetDto request
     );
@@ -71,7 +76,7 @@ public interface MeetApi {
     })
     @DeleteMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> deleteMeet(
-        @PathVariable("meetId") int meetId
+        @PathVariable("meetId") long meetId
         //@RequestHeader("Authorization") String authorization
     );
 
@@ -95,7 +100,7 @@ public interface MeetApi {
     })
     @PostMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Void>> joinMeet(
-        @PathVariable("meetId") int meetId
+        @PathVariable("meetId") long meetId
     );
 
     @Operation(summary = "모임 나가기", description = "사용자가 특정 모임에서 나갑니다.")
@@ -107,7 +112,7 @@ public interface MeetApi {
     })
     @PatchMapping("/{meetId}/exit")
     ResponseEntity<SuccessResponse<Void>> exitMeet(
-        @PathVariable("meetId") int meetId
+        @PathVariable("meetId") long meetId
     );
 
     @Operation(summary = "모임 종료", description = "모임을 종료합니다. 정산이 완료된 상태에서만 가능합니다.")
@@ -117,11 +122,12 @@ public interface MeetApi {
         @ApiResponse(responseCode = "404", description = "해당 모임을 찾을 수 없음"),
         @ApiResponse(responseCode = "409", description = "정산 완료 후 종료 가능")
     })
-  
+
     @PatchMapping("/{meetId}/complete")
     ResponseEntity<SuccessResponse<Void>> completeMeet(
-        @PathVariable("meetId") int meetId
-      
+        @PathVariable("meetId") long meetId
+    );
+
     @Operation(summary = "정산내역 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
     @PatchMapping("/{meetId}/payments")
     public ResponseEntity<SuccessResponse<Map<String, Object>>> updatePayments(
