@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "모임 생성 요청 DTO")
-public record CreateMeetRequestDto(
+public record CreateMeetRequest(
     @Schema(description = "모임 설명", example = "제주 올레길 탐방")
     @NotBlank
     @Size(max = 30)
