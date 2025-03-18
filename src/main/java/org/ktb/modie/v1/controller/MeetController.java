@@ -63,8 +63,8 @@ public class MeetController implements MeetApi {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(String category, Integer completed,
-        Integer page) {
+    public ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(String category, boolean completed,
+        int page) {
         MeetListResponse meetListResponseDto = new MeetListResponse(
             1,
             10,
@@ -116,10 +116,11 @@ public class MeetController implements MeetApi {
         @RequestParam Long userId,
         @RequestBody int isPayed) {
 
+
         Map<String, Object> mockData = new LinkedHashMap<>();
         mockData.put("userId", userId);
         mockData.put("isPayed", isPayed); // service logic에 0->1 , 1->0 구현예정
 
         return SuccessResponse.of(mockData).asHttp(HttpStatus.OK);
-    }
+	}
 }
