@@ -100,6 +100,7 @@ public class MeetController implements MeetApi {
     }
 
     public ResponseEntity<SuccessResponse<Void>> joinMeet(Long meetId) {
+        meetService.joinMeet(meetId);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
