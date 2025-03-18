@@ -30,7 +30,7 @@ public enum CustomErrorMessage {
     // 404 Not Found
     API_NOT_FOUND("요청한 API를 찾을 수 없습니다"),
     RESOURCE_NOT_FOUND("요청한 리소스를 찾을 수 없습니다"),
-    USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
+    USER_NOT_FOUND("해당 유저를 찾을 수 없습니다.."),
     MEETING_NOT_FOUND("해당 모임을 찾을 수 없습니다."),
 
     // 409 Conflict
