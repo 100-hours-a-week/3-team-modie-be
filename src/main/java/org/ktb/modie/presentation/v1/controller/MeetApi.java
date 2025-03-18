@@ -85,7 +85,7 @@ public interface MeetApi {
     })
     @GetMapping
     ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(
-        @RequestParam(value = "category", required = false, defaultValue = "전체") String category,
+        @RequestParam(value = "category", required = false) String category,
         @RequestParam(value = "completed", required = false, defaultValue = "0") boolean completed,
         @RequestParam(value = "page", required = false, defaultValue = "1") int page
     );
