@@ -29,9 +29,10 @@ public class MeetController implements MeetApi {
 
     public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(
         //@RequestHeader("Authorization") String authToken,
+        @RequestParam String userId,
         @RequestBody CreateMeetRequest request
     ) {
-        CreateMeetResponse response = meetService.createMeet(request);
+        CreateMeetResponse response = meetService.createMeet(userId, request);
 
         //String userId = userService.getKakao
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);

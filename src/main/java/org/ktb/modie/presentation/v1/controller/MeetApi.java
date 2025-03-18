@@ -39,6 +39,7 @@ public interface MeetApi {
     })
     @PostMapping
     public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(
+        @RequestParam("userId") String userId,
         @Valid @RequestBody CreateMeetRequest request
     );
 
