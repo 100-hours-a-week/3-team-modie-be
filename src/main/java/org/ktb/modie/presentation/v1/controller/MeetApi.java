@@ -39,7 +39,6 @@ public interface MeetApi {
     })
     @PostMapping
     public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(
-        //@RequestHeader("Authorizaition") String authToken,
         @Valid @RequestBody CreateMeetRequest request
     );
 
@@ -63,7 +62,6 @@ public interface MeetApi {
     @PatchMapping("/{meetId}")
     ResponseEntity<SuccessResponse<MeetDto>> updateMeet(
         @PathVariable("meetId") Long meetId,
-        //@RequestHeader("Authorization") String authorization,
         @Valid @RequestBody MeetDto request
     );
 
@@ -77,7 +75,6 @@ public interface MeetApi {
     @DeleteMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> deleteMeet(
         @PathVariable("meetId") Long meetId
-        //@RequestHeader("Authorization") String authorization
     );
 
     @Operation(summary = "모임 목록 조회", description = "카테고리, 완료 여부, 페이지 번호로 필터링하여 모임 목록을 조회합니다.")
@@ -100,7 +97,6 @@ public interface MeetApi {
     })
     @PostMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Void>> joinMeet(
-        //@RequestHeader("Authorization") String authorization
         @PathVariable("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
