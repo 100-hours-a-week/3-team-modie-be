@@ -77,9 +77,6 @@ public class MeetService {
 	}
 
 	public MeetListResponse getMeetList(String meetType, Boolean isCompleted, int page) {
-		System.out.println("🔹 meetType: " + meetType);
-		System.out.println("🔹 isCompleted: " + isCompleted);
-		System.out.println("🔹 Pageable: " + page);
 		if (meetType != null && meetType.length() > 10) {
 			throw new BusinessException(CustomErrorCode.INVALID_INPUT_PAGE); // meetType이 10자를 초과하면 예외 발생
 		}
