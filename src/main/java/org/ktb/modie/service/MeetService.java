@@ -2,6 +2,8 @@ package org.ktb.modie.service;
 
 import java.time.LocalDateTime;
 
+import org.ktb.modie.core.exception.BusinessException;
+import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
 import org.ktb.modie.domain.UserMeet;
@@ -19,59 +21,64 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MeetService {
 
-    private final UserMeetRepository userMeetRepository;
-    private final UserRepository userRepository;
-    private final MeetRepository meetRepository;
+	private final UserMeetRepository userMeetRepository;
+	private final UserRepository userRepository;
+	private final MeetRepository meetRepository;
 
-    @Transactional
-    public CreateMeetResponse createMeet(CreateMeetRequest request) {
-        User user = User.builder()
-            .userId("3966242908")
-            .createdAt(LocalDateTime.now())
-            .profileImageUrl("http://k.kakaocdn.net/dn/FDstZ/btsMylYzxgF/5j3m3aiBpxQfYe7avDR0RK/img_640x640.jpg")
-            .userName("제이드")
-            .build();
-        //
-        // User owner = userRepository.findById(userId)
-        //     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+	@Transactional
+	public CreateMeetResponse createMeet(CreateMeetRequest request) {
+		User user = User.builder()
+			.userId("3966242908")
+			.createdAt(LocalDateTime.now())
+			.profileImageUrl("http://k.kakaocdn.net/dn/FDstZ/btsMylYzxgF/5j3m3aiBpxQfYe7avDR0RK/img_640x640.jpg")
+			.userName("제이드")
+			.build();
 
-        Meet meet = Meet.builder()
-            .meetIntro(request.meetIntro())
-            .meetType(request.meetType())
-            .address(request.address())
-            .addressDescription(request.addressDescription())
-            .meetAt(request.meetAt())
-            .totalCost(request.totalCost())
-            .memberLimit(request.memberLimit())
-            .owner(user)
-            .build();
+		// User owner = userRepository.findById(userId)
+		// 	.orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
 
-        Meet savedMeet = meetRepository.save(meet);
+		Meet meet = Meet.builder()
+			.meetIntro(request.meetIntro())
+			.meetType(request.meetType())
+			.address(request.address())
+			.addressDescription(request.addressDescription())
+			.meetAt(request.meetAt())
+			.totalCost(request.totalCost())
+			.memberLimit(request.memberLimit())
+			.owner(user)
+			.build();
 
-        return new CreateMeetResponse(savedMeet.getMeetId());
-    }
+		Meet savedMeet = meetRepository.save(meet);
 
-    @Transactional
-    public void joinMeet(String userId, Long meetId) {
-        // Token 받아오면 userId로 변환하는 과정 필요
-        // User user = userRepository.findById(userId)
-        //     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+		return new CreateMeetResponse(savedMeet.getMeetId());
+	}
 
-        Meet meet = meetRepository.findById(1L)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 모임입니다."));
+	@Transactional
+	public void joinMeet(String userId, Long meetId) {
+		// Token 받아오면 userId로 변환하는 과정 필요
+		// User user = userRepository.findById(userId)
+		//     .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
+		User user = User.builder()
+			.userId("3966242908")
+			.profileImageUrl("http://k.kakaocdn.net/dn/FDstZ/btsMylYzxgF/5j3m3aiBpxQfYe7avDR0RK/img_640x640.jpg")
+			.userName("제이드")
+			.build();
 
-        // 중복 참여 방지
-        if (userMeetRepository.existsByUserAndMeet(user, meet)) {
-            throw new IllegalStateException("이미 참여한 모임입니다.");
-        }
+		Meet meet = meetRepository.findById(5L)
+			.orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
 
-        // 참여 정보 저장
-        UserMeet userMeet = UserMeet.builder()
-            .user(user)
-            .meet(meet)
-            .isPayed(false)
-            .build();
+		// 중복 참여 방지
+		if (userMeetRepository.isExistsByUserAndMeet(user.getUserId(), meet.getMeetId())) {
+			throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
+		}
 
-        userMeetRepository.save(userMeet);
-    }
+		// 참여 정보 저장
+		UserMeet userMeet = UserMeet.builder()
+			.user(user)
+			.meet(meet)
+			.isPayed(false)
+			.build();
+
+		userMeetRepository.save(userMeet);
+	}
 }
