@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record MeetListResponseDto(
+public record MeetListResponse(
     @Schema(description = "페이지 번호", example = "1")
     int page,
 
@@ -15,6 +15,6 @@ public record MeetListResponseDto(
     long totalElements,
 
     @Schema(description = "모임 리스트")
-    List<MeetSummaryDto> meets
+    List<MeetSummary> meets
 ) {
 }

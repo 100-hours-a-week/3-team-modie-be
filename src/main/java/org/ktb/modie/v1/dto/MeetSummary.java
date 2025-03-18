@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record MeetSummaryDto(
+public record MeetSummary(
     @Schema(description = "모임 ID", example = "1")
     Integer id,
 
