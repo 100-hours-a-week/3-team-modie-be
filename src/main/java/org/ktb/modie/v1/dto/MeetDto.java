@@ -12,8 +12,8 @@ import jakarta.validation.constraints.Size;
 
 public record MeetDto(
     @Schema(description = "모임 ID", example = "1")
-    Integer id,
-    
+    Long id,
+
     @Schema(description = "모임 소개", example = "제주 해안 드라이브")
     @NotNull
     @Size(max = 30)
