@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -23,10 +25,9 @@ public class Meet {
     @Column(name = "meet_id", nullable = false)
     private Long meetId;
 
-    // @ManyToOne
-    // @JoinColumn(name = "user_id", nullable = false)
-    // @OnDelete(action = OnDeleteAction.CASCADE)
-    // private User owner;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
 
     @Column(name = "meet_intro", nullable = false)
     private String meetIntro;
