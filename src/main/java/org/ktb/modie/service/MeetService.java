@@ -1,8 +1,8 @@
 package org.ktb.modie.service;
 
 import org.ktb.modie.domain.Meet;
-import org.ktb.modie.presentation.dto.CreateMeetRequestDto;
-import org.ktb.modie.presentation.dto.CreateMeetResponseDto;
+import org.ktb.modie.presentation.dto.CreateMeetRequest;
+import org.ktb.modie.presentation.dto.CreateMeetResponse;
 import org.ktb.modie.repository.MeetRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ public class MeetService {
     private final MeetRepository meetRepository;
 
     @Transactional
-    public CreateMeetResponseDto createMeet(CreateMeetRequestDto request) {
+    public CreateMeetResponse createMeet(CreateMeetRequest request) {
         Meet meet = Meet.builder()
             .meetIntro(request.meetIntro())
             .meetType(request.meetType())
@@ -30,6 +30,6 @@ public class MeetService {
 
         Meet savedMeet = meetRepository.save(meet);
 
-        return new CreateMeetResponseDto(savedMeet.getMeetId());
+        return new CreateMeetResponse(savedMeet.getMeetId());
     }
 }
