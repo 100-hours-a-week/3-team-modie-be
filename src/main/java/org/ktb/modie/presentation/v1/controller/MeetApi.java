@@ -1,12 +1,12 @@
-package org.ktb.modie.v1.controller;
+package org.ktb.modie.presentation.v1.controller;
 
 import java.util.Map;
 
 import org.ktb.modie.core.response.SuccessResponse;
-import org.ktb.modie.presentation.dto.CreateMeetRequest;
-import org.ktb.modie.presentation.dto.CreateMeetResponse;
-import org.ktb.modie.v1.dto.MeetDto;
-import org.ktb.modie.v1.dto.MeetListResponse;
+import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
+import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
+import org.ktb.modie.presentation.v1.dto.MeetDto;
+import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;

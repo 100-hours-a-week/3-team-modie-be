@@ -1,4 +1,4 @@
-package org.ktb.modie.presentation.dto;
+package org.ktb.modie.presentation.v1.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

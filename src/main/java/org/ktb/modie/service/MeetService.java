@@ -1,8 +1,8 @@
 package org.ktb.modie.service;
 
 import org.ktb.modie.domain.Meet;
-import org.ktb.modie.presentation.dto.CreateMeetRequest;
-import org.ktb.modie.presentation.dto.CreateMeetResponse;
+import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
+import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.repository.MeetRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

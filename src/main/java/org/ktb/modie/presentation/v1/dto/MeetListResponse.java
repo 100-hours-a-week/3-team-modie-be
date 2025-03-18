@@ -1,4 +1,4 @@
-package org.ktb.modie.v1.dto;
+package org.ktb.modie.presentation.v1.dto;
 
 import java.util.List;
 

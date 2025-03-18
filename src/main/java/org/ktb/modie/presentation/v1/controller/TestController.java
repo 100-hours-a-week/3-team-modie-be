@@ -1,8 +1,8 @@
-package org.ktb.modie.v1.controller;
-
-import org.springframework.web.bind.annotation.RestController;
+package org.ktb.modie.presentation.v1.controller;
 
 import java.time.LocalDate;
+
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TestController implements TestApi {
