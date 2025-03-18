@@ -7,9 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +18,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Chat {
 
     @Id
@@ -26,13 +26,9 @@ public class Chat {
     @Column(name = "message_id")
     private Integer messageId;
 
-    @ManyToOne
-    @JoinColumn(name = "meet_id")  // meetId로 외래 키 연결
-    private Meet meet;
+    private Long meetId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")  // userId로 외래 키 연결
-    private User user;
+    private String userId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

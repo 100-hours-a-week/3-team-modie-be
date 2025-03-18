@@ -4,18 +4,142 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>홈</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <script>
+        let stompClient = null;
+        let currentMeetId = null;
+        let lastChatId = null;
+
+        function getCookie(name) {
+            const cookies = document.cookie.split('; ');
+            for (let i = 0; i < cookies.length; i++) {
+                const parts = cookies[i].split('=');
+                if (parts[0] === name) {
+                    return decodeURIComponent(parts[1]);
+                }
+            }
+            return null;
+        }
+
+        const userId = getCookie("userId");
+        const userName = getCookie("userName");
+
+        function loadPreviousChats(meetId) {
+            if (!lastChatId) {
+                lastChatId = 0;
+            }
+
+            fetch(`/api/chat/${meetId}?lastChatId=${lastChatId}`)
+                .then(response => response.json())
+                .then(chatDtos => {
+                    console.log(chatDtos);
+                    if (chatDtos.length > 0) {
+                        chatDtos.reverse().forEach(chatDto => {
+                            const formattedTime = new Date(chatDto.createdAt).toLocaleString();
+                            const senderName = chatDto.userName || "알 수 없는 사용자";
+
+                            const chatElement = document.createElement('p');
+                            chatElement.innerHTML = `
+                                <strong>${senderName}</strong> [${formattedTime}]: ${chatDto.messageContent}
+                            `;
+                            document.getElementById("chat-box").insertBefore(chatElement, document.getElementById("chat-box").firstChild);
+                        });
+
+                        lastChatId = chatDtos[chatDtos.length - 1].messageId;
+                    }
+                })
+                .catch(error => console.error('Error loading chat history:', error));
+        }
+
+        function connect(meetId) {
+            loadPreviousChats(meetId);
+            if (stompClient) {
+                stompClient.disconnect(() => {
+                    console.log(`Disconnected from meetId: ${currentMeetId}`);
+                });
+            }
+            let socket = new SockJS('http://localhost:8080/ws', null, {withCredentials: true});
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function () {
+                console.log(`Connected to meetId: ${meetId}`);
+                stompClient.subscribe(`/topic/chat/${meetId}`, function (message) {
+                    const content = JSON.parse(message.body);
+                    if (content.userId === userId) {
+                        return;
+                    }
+                    const formattedTime = new Date(content.createdAt).toLocaleString();
+                    const senderName = content.userName || "알 수 없는 사용자";
+
+                    document.getElementById("chat-box").innerHTML += `
+                        <p><strong>${senderName}</strong> [${formattedTime}]: ${content.messageContent}</p>
+                    `;
+                });
+            });
+        }
+
+        function sendMessage(meetId) {
+            const messageContent = document.getElementById("message-input").value;
+            if (messageContent && stompClient) {
+                const chatMessage = {
+                    messageContent: messageContent,
+                    userId: userId,
+                    userName: userName,
+                    createdAt: new Date(),
+                    meetId: meetId
+                };
+                stompClient.send(`/app/chat/${meetId}`, {}, JSON.stringify(chatMessage));
+
+                document.getElementById("chat-box").innerHTML += `
+                    <p><strong>${userName}</strong> [${new Date().toLocaleString()}]: ${messageContent}</p>
+                `;
+                document.getElementById("message-input").value = "";
+            }
+        }
+
+        window.onload = function () {
+            const welcomeText = document.getElementById("welcome-text");
+            const loginBtn = document.getElementById("login-btn");
+            const logoutBtn = document.getElementById("logout-btn");
+
+            if (userName) {
+                welcomeText.innerText = `환영합니다, ${userName}님`;
+            } else {
+                welcomeText.innerText = "환영합니다!";
+            }
+
+            if (userId) {
+                loginBtn.style.display = "none";
+                logoutBtn.style.display = "block";
+            } else {
+                loginBtn.style.display = "block";
+                logoutBtn.style.display = "none";
+            }
+
+            const chatBox = document.getElementById("chat-box");
+            if (chatBox) {
+                chatBox.addEventListener("scroll", function () {
+                    if (this.scrollTop === 0) {
+                        loadPreviousChats(currentMeetId);
+                    }
+                });
+            }
+        };
+    </script>
 </head>
 <body>
-<h2>환영합니다, <span th:text="${user.userName}">사용자 이름</span>님!</h2> <!-- 사용자 이름을 출력 -->
-
-<!-- 세션에 사용자가 없다면 로그인 버튼 표시 -->
-<div th:if="${user == null}">
-    <a href="/auth/kakao/login">카카오 로그인</a>
+<h2 id="welcome-text">환영합니다!</h2>
+<div id="auth-buttons">
+    <a href="/auth/kakao/login" id="login-btn">카카오 로그인</a>
+    <a href="/auth/kakao/logout" id="logout-btn" style="display: none;">로그아웃</a>
 </div>
-
-<!-- 세션에 사용자가 있다면 로그아웃 버튼 표시 -->
-<div th:if="${user != null}">
-    <a href="/auth/kakao/logout">로그아웃</a>
-</div>
+<button onclick="connect(1)">Connect to meet 1</button>
+<button onclick="connect(2)">Connect to meet 2</button>
+<div id="chat-box"
+     style="border: 1px solid #ccc; padding: 10px; margin-top: 10px; height: 200px; overflow-y: scroll;"></div>
+<input id="message-input" placeholder="Type your message here..." type="text"/>
+<button onclick="sendMessage(1)">Send to meet 1</button>
+<button onclick="sendMessage(2)">Send to meet 2</button>
 </body>
 </html>
