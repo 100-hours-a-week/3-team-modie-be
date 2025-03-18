@@ -52,13 +52,8 @@ public class MeetService {
     }
 
     @Transactional
-    public void joinMeet(Long meetId) {
-        User user = User.builder()
-            .userId("3966242908")
-            .profileImageUrl("http://k.kakaocdn.net/dn/FDstZ/btsMylYzxgF/5j3m3aiBpxQfYe7avDR0RK/img_640x640.jpg")
-            .userName("제이드")
-            .build();
-        //
+    public void joinMeet(String userId, Long meetId) {
+        // Token 받아오면 userId로 변환하는 과정 필요
         // User user = userRepository.findById(userId)
         //     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
