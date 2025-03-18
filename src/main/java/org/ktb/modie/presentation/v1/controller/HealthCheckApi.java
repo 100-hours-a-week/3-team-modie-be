@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Health API", description = "헬스 체크 API")
 @Validated
+@RequestMapping("/api/v1/health")
 public interface HealthCheckApi {
 
     @Operation(summary = "헬스 체크", description = "서버 및 DB 상태를 확인합니다.")
@@ -40,5 +43,6 @@ public interface HealthCheckApi {
                 )
             )
         })
+    @GetMapping
     ResponseEntity<Map<String, Object>> healthCheck();
 }
