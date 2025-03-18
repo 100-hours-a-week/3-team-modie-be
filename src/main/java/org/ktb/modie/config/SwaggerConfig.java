@@ -59,5 +59,18 @@ public class SwaggerConfig {
             .packagesToScan("org.ktb.modie.presentation.v1.controller") // WebSocket 관련 컨트롤러 포함
             .build();
     }
+    /*
+     * health check API (기존 API 그룹)
+     * author : urung.lee (이우형)
+     */
+
+    @Bean
+    public GroupedOpenApi healthCheckApi() {
+        return GroupedOpenApi.builder()
+            .group("Health Check API")
+            .pathsToMatch("/health")
+            .packagesToScan("org.ktb.modie.presentation.v1.controller")
+            .build();
+    }
 
 }

@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Health API", description = "헬스 체크 API")
 @Validated
-@RequestMapping("/api/v1/health")
+@RequestMapping("/health")
 public interface HealthCheckApi {
 
     @Operation(summary = "헬스 체크", description = "서버 및 DB 상태를 확인합니다.")
