@@ -43,7 +43,7 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
             .group("API")
             .pathsToMatch("/api/v1/**")
-            .packagesToScan("org.ktb.modie.v1.controller")
+            .packagesToScan("org.ktb.modie.presentation.v1.controller")
             .build();
     }
 
@@ -56,7 +56,7 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
             .group("웹소켓 API")
             .pathsToMatch("/ws/**") // WebSocket 엔드포인트 경로
-            .packagesToScan("org.ktb.modie.v1.controller") // WebSocket 관련 컨트롤러 포함
+            .packagesToScan("org.ktb.modie.presentation.v1.controller") // WebSocket 관련 컨트롤러 포함
             .build();
     }
 
