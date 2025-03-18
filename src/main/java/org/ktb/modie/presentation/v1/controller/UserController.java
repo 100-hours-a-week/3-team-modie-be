@@ -1,4 +1,4 @@
-package org.ktb.modie.v1.controller;
+package org.ktb.modie.presentation.v1.controller;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,12 +7,9 @@ import org.ktb.modie.core.response.SuccessResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/users")
 public class UserController implements UserApi {
     @GetMapping
     public ResponseEntity<SuccessResponse<Map<String, Object>>> getUserProfile() {
@@ -26,9 +23,11 @@ public class UserController implements UserApi {
         return SuccessResponse.of(mockUserProfile).asHttp(HttpStatus.OK);
     }
 
-    @PatchMapping("/accounts")
-    public ResponseEntity<SuccessResponse<Void>> updateUserAccounts(String bankName, String accountNumber) {
+    public ResponseEntity<SuccessResponse<Map<String, Object>>> updateUserAccounts(
+        String bankName,
+        String accountNumber) {
+        Map<String, Object> mockData = Map.of();
 
-        return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
+        return SuccessResponse.of(mockData).asHttp(HttpStatus.OK);
     }
 }
