@@ -97,7 +97,7 @@ public interface MeetApi {
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
     @PostMapping("/{meetId}")
-    public ResponseEntity<SuccessResponse<Void>> joinMeet(
+    public ResponseEntity<SuccessResponse<Void>> createUserMeet(
         @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
