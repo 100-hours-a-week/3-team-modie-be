@@ -19,63 +19,58 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MeetService {
 
-	private final UserMeetRepository userMeetRepository;
-	private final UserRepository userRepository;
-	private final MeetRepository meetRepository;
+    private final UserMeetRepository userMeetRepository;
+    private final UserRepository userRepository;
+    private final MeetRepository meetRepository;
 
-	@Transactional
-	public CreateMeetResponse createMeet(String userId, CreateMeetRequest request) {
-		User owner = userRepository.findById(userId)
-			.orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
+    @Transactional
+    public CreateMeetResponse createMeet(String userId, CreateMeetRequest request) {
+        User owner = userRepository.findById(userId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
 
-		Meet meet = Meet.builder()
-			.meetIntro(request.meetIntro())
-			.meetType(request.meetType())
-			.address(request.address())
-			.addressDescription(request.addressDescription())
-			.meetAt(request.meetAt())
-			.totalCost(request.totalCost())
-			.memberLimit(request.memberLimit())
-			.owner(owner)
-			.build();
+        Meet meet = Meet.builder()
+            .meetIntro(request.meetIntro())
+            .meetType(request.meetType())
+            .address(request.address())
+            .addressDescription(request.addressDescription())
+            .meetAt(request.meetAt())
+            .totalCost(request.totalCost())
+            .memberLimit(request.memberLimit())
+            .owner(owner)
+            .build();
 
-		Meet savedMeet = meetRepository.save(meet);
+        Meet savedMeet = meetRepository.save(meet);
 
-		return new CreateMeetResponse(savedMeet.getMeetId());
-	}
+        return new CreateMeetResponse(savedMeet.getMeetId());
+    }
 
-	@Transactional
-	public void joinMeet(String userId, Long meetId) {
-		// Token 받아오면 userId로 변환하는 과정 필요
-		// User user = userRepository.findById(userId)
-		//     .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
-		User user = User.builder()
-			.userId("3966242908")
-			.profileImageUrl("http://k.kakaocdn.net/dn/FDstZ/btsMylYzxgF/5j3m3aiBpxQfYe7avDR0RK/img_640x640.jpg")
-			.userName("제이드")
-			.build();
+    @Transactional
+    public void joinMeet(String userId, Long meetId) {
+        // Token 받아오면 userId로 변환하는 과정 필요
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
 
-		Meet meet = meetRepository.findById(5L)
-			.orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+        Meet meet = meetRepository.findById(5L)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
 
-		// 모임 인원 초과 방지
-		long currentMemberCount = userMeetRepository.countByMeet(meet.getMeetId());
-		if (currentMemberCount >= meet.getMemberLimit()) {
-			throw new BusinessException(CustomErrorCode.MEETING_CAPACITY_FULL);
-		}
+        // 모임 인원 초과 방지
+        int currentMemberCount = userMeetRepository.countByMeet(meet.getMeetId());
+        if (currentMemberCount >= meet.getMemberLimit()) {
+            throw new BusinessException(CustomErrorCode.MEETING_CAPACITY_FULL);
+        }
 
-		// 중복 참여 방지
-		if (userMeetRepository.isExistsByUserAndMeet(user.getUserId(), meet.getMeetId())) {
-			throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
-		}
+        // 중복 참여 방지
+        if (userMeetRepository.isExistsByUserAndMeet(user.getUserId(), meet.getMeetId())) {
+            throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
+        }
 
-		// 참여 정보 저장
-		UserMeet userMeet = UserMeet.builder()
-			.user(user)
-			.meet(meet)
-			.isPayed(false)
-			.build();
+        // 참여 정보 저장
+        UserMeet userMeet = UserMeet.builder()
+            .user(user)
+            .meet(meet)
+            .isPayed(false)
+            .build();
 
-		userMeetRepository.save(userMeet);
-	}
+        userMeetRepository.save(userMeet);
+    }
 }
