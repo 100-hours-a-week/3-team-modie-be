@@ -49,7 +49,8 @@ public class MeetService {
             .orElseThrow(() -> new BusinessException(
                 CustomErrorCode.MEETING_NOT_FOUND
             ));
-        List<Object> members = new ArrayList<>(); // 모임 참여 API 개발 뒤 추가예정
+        // TODO: 모임참여 API 개발 뒤 추가예정
+        List<Object> members = new ArrayList<>();
 
         MeetDto response = MeetDto.builder()
             .meetId(meet.getMeetId())
