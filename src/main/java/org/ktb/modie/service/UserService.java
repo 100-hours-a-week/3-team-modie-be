@@ -25,8 +25,5 @@ public class UserService {
         // 계좌 정보 업데이트
         user.setBankName(request.bankName());
         user.setAccountNumber(request.accountNumber());
-
-        // 변경 사항 저장
-        userRepository.save(user);
     }
 }
