@@ -193,7 +193,5 @@ public class MeetService {
 
         // 정산 상태 변경 (true <-> false 토글)
         userMeet.setPayed(!userMeet.isPayed());
-        userMeetRepository.save(userMeet);
-
     }
 }
