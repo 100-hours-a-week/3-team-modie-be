@@ -1,5 +1,6 @@
 package org.ktb.modie.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.ktb.modie.core.exception.BusinessException;
@@ -112,5 +113,28 @@ public class MeetService {
 			meetPage.getTotalElements(), // 전체 요소 수
 			meetSummaryList             // 변환된 모임 리스트
 		);
+
+	}
+
+	@Transactional
+	public void completeMeet(String userId, Long meetId) {
+		// 모임 조회
+		Meet meet = meetRepository.findById(meetId)
+			.orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+
+		// 모임 생성자인지 확인
+		if (!meet.getOwner().getUserId().equals(userId)) {
+			throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_COMPLETED_NOT_OWNER);
+		}
+
+		// 정산 완료 여부 확인
+		Long unpaidUsers = userMeetRepository.countUnpaidUsersByMeetId(meetId);
+		if (unpaidUsers > 0) {
+			throw new BusinessException(CustomErrorCode.OPERATION_DENIED_SETTLEMENT_INCOMPLETE);
+		}
+
+		// 모임 종료 처리
+		meet.setCompletedAt(LocalDateTime.now());
+		meetRepository.save(meet);
 	}
 }
