@@ -36,14 +36,10 @@ public class Chat {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;  // User 엔티티 참조
-    
-    // private String userId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "message_content", nullable = false, length = 200)
     private String messageContent;
-
-    // Getters and Setters
 }

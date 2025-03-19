@@ -31,7 +31,7 @@
                 lastChatId = 0;
             }
 
-            fetch(`/api/chat/${meetId}?lastChatId=${lastChatId}`)
+            fetch(`/api/v1/chat/${meetId}?lastChatId=${lastChatId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`서버 응답 오류: ${response.status}`);

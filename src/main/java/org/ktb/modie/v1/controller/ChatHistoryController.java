@@ -35,7 +35,7 @@ public class ChatHistoryController {
 		this.meetRepository = meetRepository;
 	}
 
-	@GetMapping("/api/chat/{meetId}")
+	@GetMapping("/api/v1/chat/{meetId}")
 	public List<ChatDto> getChatHistory(@PathVariable Long meetId, @RequestParam(required = false) Long lastChatId,
 		HttpServletRequest request) {
 
