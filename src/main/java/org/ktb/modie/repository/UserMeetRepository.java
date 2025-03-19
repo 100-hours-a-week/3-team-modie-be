@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface UserMeetRepository extends JpaRepository<UserMeet, Long> {
     boolean isExistsByUserAndMeet(String userId, Long meetId);
 
-    long countByMeet(Long meetId);
+    int countByMeet(Long meetId);
 }
