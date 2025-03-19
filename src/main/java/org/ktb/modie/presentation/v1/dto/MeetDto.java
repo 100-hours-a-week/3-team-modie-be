@@ -63,6 +63,6 @@ public record MeetDto(
     String meetRule,
 
     @Schema(description = "참여 인원")
-    List<Object> members
+    List<UserDto> members
 ) {
 }

@@ -9,6 +9,7 @@ import org.ktb.modie.domain.Meet;
 import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
+import org.ktb.modie.presentation.v1.dto.UserDto;
 import org.ktb.modie.repository.MeetRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +51,18 @@ public class MeetService {
                 CustomErrorCode.MEETING_NOT_FOUND
             ));
         // TODO: 모임참여 API 개발 뒤 추가예정
-        List<Object> members = new ArrayList<>();
+        List<UserDto> members = new ArrayList<>();
+        members.add(UserDto.builder()
+            .userId("12345")
+            .userName("제이드")
+            .isPayed(true)
+            .build());
+
+        members.add(UserDto.builder()
+            .userId("2222")
+            .userName("게이드")
+            .isPayed(false)
+            .build());
 
         MeetDto response = MeetDto.builder()
             .meetId(meet.getMeetId())
