@@ -1,12 +1,12 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import java.util.Map;
-
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
+import org.ktb.modie.presentation.v1.dto.PaymentUpdateRequest;
+import org.ktb.modie.presentation.v1.dto.PaymentUpdateResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Digits;
 
 @Tag(name = "Meet API", description = "모임 관련 API")
 @Validated
@@ -131,18 +130,9 @@ public interface MeetApi {
 
     @Operation(summary = "정산내역 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
     @PatchMapping("/{meetId}/payments")
-    public ResponseEntity<SuccessResponse<Map<String, Object>>> updatePayments(
-        @Parameter(description = "정산 관리할 모임의 Id 값")
-        @PathVariable(value = "meetId")
-        @Digits(integer = 10000, fraction = 0, message = "모임ID")
-        Long meetId,
-
-        @Parameter(description = "정산한 유저 Id")
-        @RequestParam(value = "userId", defaultValue = "12345")
-        Long userId,
-
-        @Parameter(description = "정산 여부")
-        @RequestParam(value = "isPayed", defaultValue = "1")
-        boolean isPayed
+    public ResponseEntity<SuccessResponse<PaymentUpdateResponse>> updatePayments(
+        @RequestParam("userId") String userId,
+        @PathVariable("meetId") Long meetId,
+        @Valid @RequestBody PaymentUpdateRequest request
     );
 }
