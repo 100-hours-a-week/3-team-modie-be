@@ -32,10 +32,18 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          set -e  # 오류 발생 시 즉시 종료
+
+          echo "Building Docker image..."
+          docker build -q -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH \
+                          -t $ECR_REGISTRY/$ECR_REPOSITORY:dev .
+
+          echo "Pushing Docker image to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH &
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev &
+          wait  # 모든 Push 완료될 때까지 대기
+
+          echo "✅ Image pushed successfully!"
 
 
       - name: Deploy to EC2
