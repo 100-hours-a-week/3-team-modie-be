@@ -37,7 +37,7 @@ public interface MeetApi {
         @ApiResponse(responseCode = "400", description = "잘못된 입력값"),
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(
         @RequestParam("userId") String userId,
         @Valid @RequestBody CreateMeetRequest request
@@ -83,7 +83,7 @@ public interface MeetApi {
         @ApiResponse(responseCode = "200", description = "모임 목록 조회 성공"),
         @ApiResponse(responseCode = "400", description = "페이지 번호 또는 크기가 유효하지 않습니다.")
     })
-    @GetMapping
+    @GetMapping("/")
     ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(
         @RequestParam(value = "category", required = false) String category,
         @RequestParam(value = "completed", required = false, defaultValue = "0") boolean completed,
