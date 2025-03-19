@@ -7,6 +7,8 @@ import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
+import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
+import org.ktb.modie.presentation.v1.dto.UpdateMeetResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -61,10 +63,10 @@ public interface MeetApi {
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
     @PatchMapping("/{meetId}")
-    ResponseEntity<SuccessResponse<MeetDto>> updateMeet(
+    ResponseEntity<SuccessResponse<UpdateMeetResponse>> updateMeet(
         @PathVariable("meetId") Long meetId,
         //@RequestHeader("Authorization") String authorization,
-        @Valid @RequestBody MeetDto request
+        @Valid @RequestBody UpdateMeetRequest request
     );
 
     @Operation(summary = "모임 삭제", description = "기존 모임을 삭제합니다.")

@@ -11,6 +11,8 @@ import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.MeetSummaryDto;
+import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
+import org.ktb.modie.presentation.v1.dto.UpdateMeetResponse;
 import org.ktb.modie.service.MeetService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,10 +54,12 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(meetDto).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<MeetDto>> updateMeet(Long meetId,
-        @RequestBody MeetDto request
+    public ResponseEntity<SuccessResponse<UpdateMeetResponse>> updateMeet(Long meetId,
+        @RequestBody UpdateMeetRequest request
     ) {
-        return SuccessResponse.of(request).asHttp(HttpStatus.OK);
+        UpdateMeetResponse response = meetService.updateMeet(meetId, request);
+
+        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 
     public ResponseEntity<SuccessResponse<Void>> deleteMeet(Long meetId) {
