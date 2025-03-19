@@ -110,7 +110,7 @@ public interface MeetApi {
         @ApiResponse(responseCode = "409", description = "종료된 모임은 나갈 수 없음")
     })
     @PatchMapping("/{meetId}/exit")
-    ResponseEntity<SuccessResponse<Void>> exitMeet(
+    ResponseEntity<SuccessResponse<Void>> deleteUserMeet(
         @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );

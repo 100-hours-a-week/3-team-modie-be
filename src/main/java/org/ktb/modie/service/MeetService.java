@@ -139,7 +139,7 @@ public class MeetService {
     }
 
     @Transactional
-    public void exitMeet(String userId, Long meetId) {
+    public void deleteUserMeet(String userId, Long meetId) {
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
