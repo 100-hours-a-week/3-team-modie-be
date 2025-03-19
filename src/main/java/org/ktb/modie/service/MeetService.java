@@ -39,7 +39,8 @@ public class MeetService {
         return new CreateMeetResponse(savedMeet.getMeetId());
     }
 
-    public UpdateMeetResponse updateMeet(Long meetId, UpdateMeetRequest request) {
+    @Transactional
+    public UpdateMeetResponse updateMeet(String userId, Long meetId, UpdateMeetRequest request) {
         // NOTE: 비정상적인 meetID가 넘어온 경우
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
@@ -50,6 +51,10 @@ public class MeetService {
             .orElseThrow(() -> new BusinessException(
                 CustomErrorCode.MEETING_NOT_FOUND
             ));
+        // NOTE: 요청한 유저의 id이 ownerId와 같은지 확인 -> 토큰 구현 후 구현예정
+        if (!meet.getOwner().getUserId().equals(userId)) {
+            throw new BusinessException(CustomErrorCode.UNAUTHORIZED_USER_NOT_OWNER);
+        }
 
         meet.setMeetIntro(request.meetIntro());
         meet.setMeetType(request.meetType());

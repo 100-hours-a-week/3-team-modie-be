@@ -43,11 +43,11 @@ public record MeetDto(
     @Schema(description = "총 발생 비용 (0~10,000,000)", example = "10000")
     @Min(0)
     @Max(10_000_000)
-    Integer totalCost,
+    int totalCost,
 
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @Min(1)
     @Max(30)
-    Integer memberLimit
+    int memberLimit
 ) {
 }

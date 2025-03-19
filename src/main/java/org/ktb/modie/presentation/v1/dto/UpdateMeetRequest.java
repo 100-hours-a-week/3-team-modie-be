@@ -41,13 +41,13 @@ public record UpdateMeetRequest(
     @NotNull
     @Min(0)
     @Max(10_000_000)
-    Integer totalCost,
+    int totalCost,
 
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @NotNull
     @Min(1)
     @Max(30)
-    Integer memberLimit
+    int memberLimit
 
     // @Schema(description = "수정시각", example = "2025-03-18T18:00:00")
     // @NotNull

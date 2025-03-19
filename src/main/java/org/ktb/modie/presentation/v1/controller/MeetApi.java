@@ -8,7 +8,6 @@ import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
-import org.ktb.modie.presentation.v1.dto.UpdateMeetResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -62,9 +61,10 @@ public interface MeetApi {
         @ApiResponse(responseCode = "400", description = "잘못된 입력값"),
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
-    @PatchMapping("/{meetId}")
-    ResponseEntity<SuccessResponse<UpdateMeetResponse>> updateMeet(
+    @PatchMapping("/{meetId}/{userId}")
+    ResponseEntity<SuccessResponse<Void>> updateMeet(
         @PathVariable("meetId") Long meetId,
+        @PathVariable("userId") String userId,
         //@RequestHeader("Authorization") String authorization,
         @Valid @RequestBody UpdateMeetRequest request
     );
