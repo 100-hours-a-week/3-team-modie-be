@@ -6,7 +6,6 @@ import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
-import org.ktb.modie.presentation.v1.dto.UpdatePaymentResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -130,7 +129,7 @@ public interface MeetApi {
 
     @Operation(summary = "정산내역 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
     @PatchMapping("/{meetId}/payments")
-    public ResponseEntity<SuccessResponse<UpdatePaymentResponse>> updatePayments(
+    public ResponseEntity<SuccessResponse<Void>> updatePayments(
         @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId,
         @Valid @RequestBody UpdatePaymentRequest request

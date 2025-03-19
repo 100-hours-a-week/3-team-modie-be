@@ -9,7 +9,6 @@ import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
-import org.ktb.modie.presentation.v1.dto.UpdatePaymentResponse;
 import org.ktb.modie.service.MeetService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,10 +79,10 @@ public class MeetController implements MeetApi {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<UpdatePaymentResponse>> updatePayments(String userId, Long meetId,
+    public ResponseEntity<SuccessResponse<Void>> updatePayments(String userId, Long meetId,
         UpdatePaymentRequest request) {
-        UpdatePaymentResponse response = meetService.updatePaymentStatus(userId, meetId, request);
-        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
+        meetService.updatePaymentStatus(userId, meetId, request);
+        return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
 }

@@ -13,7 +13,6 @@ import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.MeetSummaryDto;
 import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
-import org.ktb.modie.presentation.v1.dto.UpdatePaymentResponse;
 import org.ktb.modie.repository.MeetRepository;
 import org.ktb.modie.repository.UserMeetRepository;
 import org.ktb.modie.repository.UserRepository;
@@ -170,7 +169,7 @@ public class MeetService {
     }
 
     @Transactional
-    public UpdatePaymentResponse updatePaymentStatus(String userId, Long meetId, UpdatePaymentRequest request) {
+    public void updatePaymentStatus(String userId, Long meetId, UpdatePaymentRequest request) {
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
@@ -196,7 +195,5 @@ public class MeetService {
         userMeet.setPayed(!userMeet.isPayed());
         userMeetRepository.save(userMeet);
 
-        // 응답 데이터 반환
-        return new UpdatePaymentResponse(userId, userMeet.isPayed());
     }
 }
