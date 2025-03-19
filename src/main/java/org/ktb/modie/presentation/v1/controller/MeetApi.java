@@ -111,6 +111,7 @@ public interface MeetApi {
     })
     @PatchMapping("/{meetId}/exit")
     ResponseEntity<SuccessResponse<Void>> exitMeet(
+        @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
