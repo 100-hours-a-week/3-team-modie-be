@@ -59,7 +59,8 @@ public class MeetController implements MeetApi {
     }
 
     public ResponseEntity<SuccessResponse<Void>> deleteMeet(Long meetId) {
-        Map<String, Object> mockData = Map.of();
+        meetService.deleteMeet(meetId);
+
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
