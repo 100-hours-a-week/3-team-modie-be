@@ -26,6 +26,7 @@ public enum CustomErrorMessage {
     PERMISSION_DENIED_NOT_MEMBER("모임 참여자만 탈퇴할 수 있습니다."),
     PERMISSION_DENIED_SETTLEMENT_NOT_OWNER("모임 생성자만 정산을 완료할 수 있습니다."),
     PERMISSION_DENIED_COMPLETED_NOT_OWNER("모임 생성자만 모임을 종료할 수 있습니다."),
+    SETTLEMENT_PERMISSION_DENIED_NOT_MEMBER("모임 참여자가 아닙니다."),
 
     // 404 Not Found
     API_NOT_FOUND("요청한 API를 찾을 수 없습니다"),
