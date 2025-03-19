@@ -164,6 +164,5 @@ public class MeetService {
 
         // 모임에서 나가기 처리
         userMeet.setDeletedAt(LocalDateTime.now());
-        userMeetRepository.save(userMeet);
     }
 }
