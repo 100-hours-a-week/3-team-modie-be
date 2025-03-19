@@ -124,6 +124,7 @@ public interface MeetApi {
 
     @PatchMapping("/{meetId}/complete")
     ResponseEntity<SuccessResponse<Void>> completeMeet(
+        @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
