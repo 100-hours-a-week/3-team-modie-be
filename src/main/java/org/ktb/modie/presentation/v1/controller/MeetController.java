@@ -74,10 +74,12 @@ public class MeetController implements MeetApi {
     }
 
     public ResponseEntity<SuccessResponse<Void>> exitMeet(Long meetId) {
+
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> completeMeet(Long meetId) {
+    public ResponseEntity<SuccessResponse<Void>> completeMeet(String userId, Long meetId) {
+        meetService.completeMeet(userId, meetId);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
