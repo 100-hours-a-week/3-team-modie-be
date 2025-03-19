@@ -1,6 +1,5 @@
 package org.ktb.modie.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.ktb.modie.core.exception.BusinessException;
@@ -11,6 +10,7 @@ import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.UserDto;
 import org.ktb.modie.repository.MeetRepository;
+import org.ktb.modie.repository.UserMeetRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class MeetService {
 
     private final MeetRepository meetRepository;
+    private final UserMeetRepository userMeetRepository;
 
     @Transactional
     public CreateMeetResponse createMeet(CreateMeetRequest request) {
@@ -50,19 +51,9 @@ public class MeetService {
             .orElseThrow(() -> new BusinessException(
                 CustomErrorCode.MEETING_NOT_FOUND
             ));
-        // TODO: 모임참여 API 개발 뒤 추가예정
-        List<UserDto> members = new ArrayList<>();
-        members.add(UserDto.builder()
-            .userId("12345")
-            .userName("제이드")
-            .isPayed(true)
-            .build());
 
-        members.add(UserDto.builder()
-            .userId("2222")
-            .userName("게이드")
-            .isPayed(false)
-            .build());
+        // NOTE: 참여중인 멤버
+        List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
 
         MeetDto response = MeetDto.builder()
             .meetId(meet.getMeetId())
