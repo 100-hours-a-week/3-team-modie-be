@@ -3,35 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>홈</title>
+    <title>채팅</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
     <script>
         let stompClient = null;
         let currentMeetId = null;
-        let lastChatId = null;
+        let lastChatId = 0;
 
         function getCookie(name) {
-            const cookies = document.cookie.split('; ');
-            for (let i = 0; i < cookies.length; i++) {
-                const parts = cookies[i].split('=');
-                if (parts[0] === name) {
-                    return decodeURIComponent(parts[1]);
-                }
-            }
-            return null;
+            return document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1] || null;
         }
 
         const userId = getCookie("userId");
         const userName = getCookie("userName");
 
         function loadPreviousChats(meetId) {
-            if (!lastChatId) {
+            console.log("Received meetId:", meetId, "Type:", typeof meetId);
+
+            if (!meetId) {
+                console.error("meetId가 올바르지 않습니다!", meetId);
+                return;
+            }
+
+            // lastChatId가 undefined일 경우 0으로 설정
+            if (lastChatId === null || lastChatId === undefined) {
                 lastChatId = 0;
             }
 
             fetch(`/api/chat/${meetId}?lastChatId=${lastChatId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`서버 응답 오류: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(chatDtos => {
                     console.log(chatDtos);
                     if (chatDtos.length > 0) {
@@ -40,25 +46,36 @@
                             const senderName = chatDto.userName || "알 수 없는 사용자";
 
                             const chatElement = document.createElement('p');
-                            chatElement.innerHTML = `
-                                <strong>${senderName}</strong> [${formattedTime}]: ${chatDto.messageContent}
-                            `;
+                            chatElement.innerHTML = `<strong>${senderName}</strong> [${formattedTime}]: ${chatDto.messageContent}`;
                             document.getElementById("chat-box").insertBefore(chatElement, document.getElementById("chat-box").firstChild);
                         });
 
+                        // 가장 마지막 메시지의 ID 업데이트
                         lastChatId = chatDtos[chatDtos.length - 1].messageId;
                     }
                 })
                 .catch(error => console.error('Error loading chat history:', error));
         }
 
+
         function connect(meetId) {
+            if (currentMeetId === meetId) return;
+            currentMeetId = meetId;
+            lastChatId = 0;
+            document.getElementById("chat-box").innerHTML = "";
             loadPreviousChats(meetId);
+
             if (stompClient) {
                 stompClient.disconnect(() => {
-                    console.log(`Disconnected from meetId: ${currentMeetId}`);
+                    console.log(`기존 WebSocket 연결 해제`);
+                    initializeWebSocket(meetId);
                 });
+            } else {
+                initializeWebSocket(meetId);
             }
+        }
+
+        function initializeWebSocket(meetId) {
             let socket = new SockJS('http://localhost:8080/ws', null, {withCredentials: true});
             stompClient = Stomp.over(socket);
 
@@ -66,65 +83,45 @@
                 console.log(`Connected to meetId: ${meetId}`);
                 stompClient.subscribe(`/topic/chat/${meetId}`, function (message) {
                     const content = JSON.parse(message.body);
-                    if (content.userId === userId) {
-                        return;
+                    if (content.userId !== userId) {
+                        appendMessage(content.userName, content.messageContent, content.createdAt);
                     }
-                    const formattedTime = new Date(content.createdAt).toLocaleString();
-                    const senderName = content.userName || "알 수 없는 사용자";
-
-                    document.getElementById("chat-box").innerHTML += `
-                        <p><strong>${senderName}</strong> [${formattedTime}]: ${content.messageContent}</p>
-                    `;
                 });
             });
         }
 
-        function sendMessage(meetId) {
+        function sendMessage() {
             const messageContent = document.getElementById("message-input").value;
-            if (messageContent && stompClient) {
-                const chatMessage = {
-                    messageContent: messageContent,
-                    userId: userId,
-                    userName: userName,
-                    createdAt: new Date(),
-                    meetId: meetId
-                };
-                stompClient.send(`/app/chat/${meetId}`, {}, JSON.stringify(chatMessage));
+            if (!currentMeetId || !messageContent || !stompClient) return;
 
-                document.getElementById("chat-box").innerHTML += `
-                    <p><strong>${userName}</strong> [${new Date().toLocaleString()}]: ${messageContent}</p>
-                `;
-                document.getElementById("message-input").value = "";
-            }
+            const chatMessage = {
+                messageContent,
+                userId,
+                userName,
+                createdAt: new Date(),
+                meetId: currentMeetId
+            };
+            stompClient.send(`/app/chat/${currentMeetId}`, {}, JSON.stringify(chatMessage));
+            appendMessage(userName, messageContent, new Date());
+            document.getElementById("message-input").value = "";
+        }
+
+        function appendMessage(sender, message, timestamp) {
+            const chatBox = document.getElementById("chat-box");
+            const chatElement = document.createElement("p");
+            chatElement.innerHTML = `<strong>${sender || "알 수 없는 사용자"}</strong> [${new Date(timestamp).toLocaleString()}]: ${message}`;
+            chatBox.appendChild(chatElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         window.onload = function () {
-            const welcomeText = document.getElementById("welcome-text");
-            const loginBtn = document.getElementById("login-btn");
-            const logoutBtn = document.getElementById("logout-btn");
-
-            if (userName) {
-                welcomeText.innerText = `환영합니다, ${userName}님`;
-            } else {
-                welcomeText.innerText = "환영합니다!";
-            }
-
-            if (userId) {
-                loginBtn.style.display = "none";
-                logoutBtn.style.display = "block";
-            } else {
-                loginBtn.style.display = "block";
-                logoutBtn.style.display = "none";
-            }
-
-            const chatBox = document.getElementById("chat-box");
-            if (chatBox) {
-                chatBox.addEventListener("scroll", function () {
-                    if (this.scrollTop === 0) {
-                        loadPreviousChats(currentMeetId);
-                    }
-                });
-            }
+            document.getElementById("welcome-text").innerText = userName ? `환영합니다, ${userName}님` : "환영합니다!";
+            document.getElementById("login-btn").style.display = userId ? "none" : "block";
+            document.getElementById("logout-btn").style.display = userId ? "block" : "none";
+            document.getElementById("chat-box").addEventListener("scroll", function () {
+                if (this.scrollTop === 0) loadPreviousChats(currentMeetId);
+            });
+            connect(1);
         };
     </script>
 </head>
@@ -134,12 +131,11 @@
     <a href="/auth/kakao/login" id="login-btn">카카오 로그인</a>
     <a href="/auth/kakao/logout" id="logout-btn" style="display: none;">로그아웃</a>
 </div>
-<button onclick="connect(1)">Connect to meet 1</button>
-<button onclick="connect(2)">Connect to meet 2</button>
+<button onclick="connect(1)">채팅방 1 접속</button>
+<button onclick="connect(2)">채팅방 2 접속</button>
 <div id="chat-box"
-     style="border: 1px solid #ccc; padding: 10px; margin-top: 10px; height: 200px; overflow-y: scroll;"></div>
-<input id="message-input" placeholder="Type your message here..." type="text"/>
-<button onclick="sendMessage(1)">Send to meet 1</button>
-<button onclick="sendMessage(2)">Send to meet 2</button>
+     style="border: 1px solid #ccc; padding: 10px; margin-top: 10px; height: 200px; overflow-y: auto;"></div>
+<input id="message-input" placeholder="메시지를 입력하세요..." type="text"/>
+<button onclick="sendMessage()">전송</button>
 </body>
 </html>

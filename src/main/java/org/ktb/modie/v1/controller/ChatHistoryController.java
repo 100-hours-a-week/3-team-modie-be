@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.ktb.modie.domain.Chat;
+import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
 import org.ktb.modie.repository.ChatRepository;
+import org.ktb.modie.repository.MeetRepository;
 import org.ktb.modie.repository.UserRepository;
 import org.ktb.modie.v1.dto.ChatDto;
 import org.springframework.data.domain.PageRequest;
@@ -15,51 +17,82 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 public class ChatHistoryController {
 
-    private final ChatRepository chatRepository;
-    private final UserRepository userRepository;
+	private final ChatRepository chatRepository;
+	private final UserRepository userRepository;
+	private final MeetRepository meetRepository;  // MeetRepository 추가
 
-    public ChatHistoryController(ChatRepository chatRepository, UserRepository userRepository) {
-        this.chatRepository = chatRepository;
-        this.userRepository = userRepository;
-    }
+	// 생성자 수정: MeetRepository도 주입받도록 수정
+	public ChatHistoryController(ChatRepository chatRepository, UserRepository userRepository,
+		MeetRepository meetRepository) {
+		this.chatRepository = chatRepository;
+		this.userRepository = userRepository;
+		this.meetRepository = meetRepository;
+	}
 
-    @GetMapping("/api/chat/{meetId}")
-    public List<ChatDto> getChatHistory(@PathVariable Long meetId, @RequestParam(required = false) Long lastChatId) {
+	@GetMapping("/api/chat/{meetId}")
+	public List<ChatDto> getChatHistory(@PathVariable Long meetId, @RequestParam(required = false) Long lastChatId,
+		HttpServletRequest request) {
 
-        List<Chat> chatList;
-        if (lastChatId == null || lastChatId == 0) {
-            chatList = chatRepository.findTop25ByMeetIdOrderByCreatedAtDesc(meetId);  // 최신 25개 채팅 내역 불러오기
-        } else {
-            Pageable pageable = PageRequest.of(0, 25);  // 25개씩 불러옴
-            chatList = chatRepository.findByMeetIdAndMessageIdLessThanOrderByCreatedAtDesc(meetId, lastChatId,
-                pageable);
-        }
+		// 로그인한 사용자 ID를 쿠키에서 가져오기 (로그인 정보가 쿠키에 저장되어 있다고 가정)
+		String loggedInUserId = getLoggedInUserIdFromCookies(request);
+		List<Chat> chatList;
+		Pageable pageable = PageRequest.of(0, 25);
 
-        List<ChatDto> chatDtoList = chatList.stream()
-            .map(chat -> {
-                // userId로 User 조회
-                User user = userRepository.findByUserId(chat.getUserId());
+		if (lastChatId == null || lastChatId == 0) {
+			chatList = chatRepository.findTop25ByMeetIdOrderByCreatedAtDesc(meetId, pageable);
+		} else {
+			chatList = chatRepository.findByMeetIdAndMessageIdLessThanOrderByCreatedAtDesc(meetId, lastChatId,
+				pageable);
+		}
 
-                // 만약 user가 null이라면 예외를 던짐
-                if (user == null) {
-                    throw new RuntimeException("User not found for userId: " + chat.getUserId());
-                }
+		List<ChatDto> chatDtoList = chatList.stream()
+			.map(chat -> {
+				User user = chat.getUser();
+				Meet meet = chat.getMeet();
 
-                // messageId를 Long으로 변환
-                Long messageId = Long.valueOf(chat.getMessageId());  // Integer에서 Long으로 변환
+				// 방장 여부 확인
+				boolean isOwner = meet.getOwner().getUserId().equals(chat.getUser().getUserId());
 
-                return new ChatDto(
-                    messageId, // Long 타입으로 변환된 messageId
-                    chat.getMeetId(),
-                    chat.getMessageContent(),
-                    user.getUserName(),
-                    chat.getCreatedAt());
-            })
-            .collect(Collectors.toList());
+				// 본인 여부 확인
+				boolean isSelf = chat.getUser().getUserId().equals(loggedInUserId);
 
-        return chatDtoList;
-    }
+				return new ChatDto(
+					chat.getMessageId().longValue(),
+					Long.parseLong(chat.getUser().getUserId()),
+					chat.getMessageContent(),
+					user.getUserName(),
+					chat.getCreatedAt(),
+					meetId,
+					isOwner,
+					isSelf
+				);
+			})
+			.collect(Collectors.toList());
+
+		return chatDtoList;
+	}
+
+	// 쿠키에서 로그인한 사용자 ID를 가져오는 메소드 (예시)
+	private String getLoggedInUserIdFromCookies(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+		String loggedInUserId = null;
+
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if ("userId".equals(cookie.getName())) {
+					loggedInUserId = cookie.getValue();
+					break;
+				}
+			}
+		}
+
+		return loggedInUserId; // 쿠키에서 가져온 사용자 ID 반환
+	}
+
 }
