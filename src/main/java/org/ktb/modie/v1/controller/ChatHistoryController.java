@@ -38,7 +38,7 @@ public class ChatHistoryController {
                 pageable);
         }
 
-        List<ChatDto> chatDTOList = chatList.stream()
+        List<ChatDto> chatDtoList = chatList.stream()
             .map(chat -> {
                 // userId로 User 조회
                 User user = userRepository.findByUserId(chat.getUserId());
@@ -60,6 +60,6 @@ public class ChatHistoryController {
             })
             .collect(Collectors.toList());
 
-        return chatDTOList;
+        return chatDtoList;
     }
 }
