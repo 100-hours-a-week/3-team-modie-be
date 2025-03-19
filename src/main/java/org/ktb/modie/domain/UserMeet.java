@@ -24,7 +24,7 @@ public class UserMeet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_meet_id")
-    private Integer userMeetId;
+    private Long userMeetId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -45,6 +45,4 @@ public class UserMeet {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-
-    // Getters and Setters
 }

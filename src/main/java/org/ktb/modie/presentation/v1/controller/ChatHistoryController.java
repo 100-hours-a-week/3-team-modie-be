@@ -1,4 +1,4 @@
-package org.ktb.modie.v1.controller;
+package org.ktb.modie.presentation.v1.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,7 +9,7 @@ import org.ktb.modie.domain.User;
 import org.ktb.modie.repository.ChatRepository;
 import org.ktb.modie.repository.MeetRepository;
 import org.ktb.modie.repository.UserRepository;
-import org.ktb.modie.v1.dto.ChatDto;
+import org.ktb.modie.presentation.v1.dto.ChatDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;

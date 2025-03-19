@@ -1,4 +1,4 @@
-package org.ktb.modie.v1.controller;
+package org.ktb.modie.presentation.v1.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

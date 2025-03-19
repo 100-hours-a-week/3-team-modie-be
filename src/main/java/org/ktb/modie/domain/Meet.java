@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -69,7 +70,7 @@ public class Meet {
     @Builder
     public Meet(String meetIntro, String meetType, String address,
         String addressDescription, LocalDateTime meetAt,
-        Long totalCost, Long memberLimit) {
+        Long totalCost, Long memberLimit, User owner) {
         this.meetIntro = meetIntro;
         this.meetType = meetType;
         this.address = address;
@@ -77,5 +78,11 @@ public class Meet {
         this.meetAt = meetAt;
         this.totalCost = totalCost;
         this.memberLimit = memberLimit;
+        this.owner = owner;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 }
