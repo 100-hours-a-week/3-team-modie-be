@@ -72,9 +72,10 @@ public interface MeetApi {
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자"),
         @ApiResponse(responseCode = "404", description = "존재하지 않는 모임")
     })
-    @DeleteMapping("/{meetId}")
+    @DeleteMapping("/{meetId}/{userId}")
     ResponseEntity<SuccessResponse<Void>> deleteMeet(
-        @PathVariable("meetId") Long meetId
+        @PathVariable("meetId") Long meetId,
+        @PathVariable("userId") String userId
     );
 
     @Operation(summary = "모임 목록 조회", description = "카테고리, 완료 여부, 페이지 번호로 필터링하여 모임 목록을 조회합니다.")
