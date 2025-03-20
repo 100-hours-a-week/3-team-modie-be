@@ -29,9 +29,10 @@ public class MeetController implements MeetApi {
 
     public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(
         //@RequestHeader("Authorization") String authToken,
+        @RequestParam String userId,
         @RequestBody CreateMeetRequest request
     ) {
-        CreateMeetResponse response = meetService.createMeet(request);
+        CreateMeetResponse response = meetService.createMeet(userId, request);
 
         //String userId = userService.getKakao
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
@@ -99,7 +100,8 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(meetListResponseDto).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> joinMeet(Long meetId) {
+    public ResponseEntity<SuccessResponse<Void>> joinMeet(String userId, Long meetId) {
+        meetService.joinMeet(userId, meetId);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 

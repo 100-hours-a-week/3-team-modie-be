@@ -39,7 +39,7 @@ public enum CustomErrorMessage {
     MEETING_ALREADY_ENDED("종료된 모임은 나갈 수 없습니다."),
     OPERATION_DENIED_SETTLEMENT_REQUIRED("정산 요청 후 상태 변경이 가능합니다."),
     OPERATION_DENIED_SETTLEMENT_INCOMPLETE("정산 완료 후 종료 가능합니다."),
-
+    ALREADY_JOINED_MEET("이미 모임에 참여한 사용자입니다"),
     // 429 Too Many Requests
     RATE_LIMIT_EXCEEDED("요청 제한을 초과했습니다. {0}건/{1}초 제한"),
 
