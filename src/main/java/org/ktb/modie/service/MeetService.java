@@ -287,4 +287,24 @@ public class MeetService {
         // 정산 상태 변경 (true <-> false 토글)
         userMeet.setPayed(!userMeet.isPayed());
     }
+
+    @Transactional
+    public void deleteMeet(Long meetId, String userId) {
+        // 모임 존재여부
+        Meet meet = meetRepository.findActiveByMeedId(meetId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+
+        // 모임 생성자 여부
+        if (!meet.getOwner().getUserId().equals(userId)) { // 12345 -> currentUser(controller)
+            throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_NOT_OWNER);
+        }
+        // 시작된 모임 삭제 불가
+        if (meet.getMeetAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException(CustomErrorCode.MEETING_ALREADY_STARTED);
+        }
+
+        // soft delete
+        meet.delete();
+
+    }
 }

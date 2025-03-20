@@ -87,4 +87,14 @@ public class Meet {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    // soft delete
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
+    // 삭제처리 메서드
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }

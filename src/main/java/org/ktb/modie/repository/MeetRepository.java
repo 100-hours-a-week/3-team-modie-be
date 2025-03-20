@@ -19,4 +19,8 @@ public interface MeetRepository extends JpaRepository<Meet, Long> {
     Page<Meet> findFilteredMeets(@Param("meetType") String meetType,
         @Param("isCompleted") Boolean isCompleted,
         Pageable pageable);
+
+    // soft delete
+    @Query("SELECT m FROM Meet m WHERE m.meetId = :meetId AND m.deletedAt IS NULL")
+    Optional<Meet> findActiveByMeedId(@Param("meetId") Long meetId);
 }
