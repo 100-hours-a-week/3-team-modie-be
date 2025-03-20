@@ -41,6 +41,7 @@ public record MeetDto(
 
     @Schema(description = "모임 시작 시간 (ISO 형식)", example = "2025-02-20T18:00:00")
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime meetAt,
 
     @Schema(description = "총 발생 비용 (0~10,000,000)", example = "10000")
