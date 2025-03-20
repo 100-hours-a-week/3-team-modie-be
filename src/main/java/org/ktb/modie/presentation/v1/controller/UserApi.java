@@ -1,10 +1,13 @@
-package org.ktb.modie.v1.controller;
+package org.ktb.modie.presentation.v1.controller;
 
 import java.util.Map;
 
 import org.ktb.modie.core.response.SuccessResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,13 +25,17 @@ import jakarta.validation.constraints.Size;
     value = {
         @ApiResponse(responseCode = "200", description = "사용자 프로필 조회 성공.")
     })
+@RequestMapping("/api/v1/users")
 public interface UserApi {
+
     @Operation(summary = "사용자 프로필 조회", description = "사용자 프로필 조회 API 호출")
+    @GetMapping
     public ResponseEntity<SuccessResponse<Map<String, Object>>> getUserProfile(
     );
 
     @Operation(summary = "계좌번호 업데이트", description = "사용자 계좌번호 업데이트")
-    public ResponseEntity<SuccessResponse<Void>> updateUserAccounts(
+    @PatchMapping("/accounts")
+    public ResponseEntity<SuccessResponse<Map<String, Object>>> updateUserAccounts(
         @Parameter(description = "은행명 10자 이하")
         @RequestParam(value = "bankName", defaultValue = "국민은행")
         @Size(min = 4, max = 10)
@@ -42,5 +49,4 @@ public interface UserApi {
         @NotNull(message = "계좌번호는 필수입니다.")
         String accountNumber
     );
-
 }

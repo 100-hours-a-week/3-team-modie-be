@@ -1,4 +1,10 @@
-package org.ktb.modie.v1.controller;
+package org.ktb.modie.presentation.v1.controller;
+
+import org.ktb.modie.core.response.SuccessResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -6,13 +12,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-
-import java.util.Map;
 
 @Tag(name = "Health API", description = "헬스 체크 API")
 @Validated
+@RequestMapping("/health")
 public interface HealthCheckApi {
 
     @Operation(summary = "헬스 체크", description = "서버 및 DB 상태를 확인합니다.")
@@ -39,5 +42,6 @@ public interface HealthCheckApi {
                 )
             )
         })
-    ResponseEntity<Map<String, Object>> healthCheck();
+    @GetMapping
+    ResponseEntity<SuccessResponse<Void>> healthCheck();
 }
