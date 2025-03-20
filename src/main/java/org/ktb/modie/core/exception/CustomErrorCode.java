@@ -49,6 +49,7 @@ public enum CustomErrorCode implements ErrorCode {
     ALREADY_JOINED_MEET(409, "M016", CustomErrorMessage.ALREADY_JOINED_MEET),
     OWNER_CANNOT_JOIN_MEET(409, "M018", CustomErrorMessage.OWNER_CANNOT_JOIN_MEET),
     DENIED_JOIN_ALREADY_ENDED(409, "M019", CustomErrorMessage.DENIED_JOIN_ALREADY_ENDED),
+    ALREADY_EXITED_MEET(409, "M014", CustomErrorMessage.ALREADY_EXITED_MEET),
 
     // 429 Too Many Requests
     RATE_LIMIT_EXCEEDED(429, "E301", CustomErrorMessage.RATE_LIMIT_EXCEEDED),
