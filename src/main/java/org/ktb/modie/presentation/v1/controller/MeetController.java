@@ -2,7 +2,6 @@ package org.ktb.modie.presentation.v1.controller;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.ktb.modie.core.response.SuccessResponse;
@@ -28,11 +27,10 @@ public class MeetController implements MeetApi {
 
     private final MeetService meetService;
 
-    public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(
-        //@RequestHeader("Authorization") String authToken,
-        @RequestBody CreateMeetRequest request
+    public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(String userId,
+        CreateMeetRequest request
     ) {
-        CreateMeetResponse response = meetService.createMeet(request);
+        CreateMeetResponse response = meetService.createMeet(userId, request);
 
         //String userId = userService.getKakao
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
@@ -58,51 +56,24 @@ public class MeetController implements MeetApi {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(String category, boolean completed,
-        int page) {
-        MeetListResponse meetListResponseDto = new MeetListResponse(
-            1,
-            10,
-            47,
-            List.of(
-                new MeetSummaryDto(
-                    1L,
-                    "제주 올레길 탐방",
-                    "여행",
-                    LocalDateTime.of(2025, 3, 20, 10, 0),
-                    "제주특별자치도 제주시 월성로 4길 19",
-                    "노블레스호텔 정문",
-                    true,
-                    2,
-                    3,
-                    "김박박즐"
-                ),
-                new MeetSummaryDto(
-                    2L,
-                    "내일 점심 파스타먹을사람 3명띰",
-                    "맛집",
-                    LocalDateTime.of(2025, 3, 16, 13, 30),
-                    "제주도 제주시 월성로4길 19",
-                    "노블레스 호텔 후문",
-                    false,
-                    4,
-                    10,
-                    "void.yeon(연시완)"
-                )
-            )
-        );
-        return SuccessResponse.of(meetListResponseDto).asHttp(HttpStatus.OK);
+    public ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(String category, boolean completed, int page
+    ) {
+        MeetListResponse response = meetService.getMeetList(category, completed, page);
+        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> joinMeet(Long meetId) {
+    public ResponseEntity<SuccessResponse<Void>> joinMeet(String userId, Long meetId) {
+        meetService.joinMeet(userId, meetId);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> exitMeet(Long meetId) {
+    public ResponseEntity<SuccessResponse<Void>> deleteUserMeet(String userId, Long meetId) {
+        meetService.deleteUserMeet(userId, meetId);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> completeMeet(Long meetId) {
+    public ResponseEntity<SuccessResponse<Void>> completeMeet(String userId, Long meetId) {
+        meetService.completeMeet(userId, meetId);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 

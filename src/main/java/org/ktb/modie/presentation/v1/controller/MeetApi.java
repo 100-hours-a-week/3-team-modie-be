@@ -40,7 +40,7 @@ public interface MeetApi {
     })
     @PostMapping
     public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(
-        //@RequestHeader("Authorizaition") String authToken,
+        @RequestParam("userId") String userId,
         @Valid @RequestBody CreateMeetRequest request
     );
 
@@ -64,9 +64,7 @@ public interface MeetApi {
     @PatchMapping("/{meetId}/{userId}")
     ResponseEntity<SuccessResponse<Void>> updateMeet(
         @PathVariable("meetId") Long meetId,
-        @PathVariable("userId") String userId,
-        //@RequestHeader("Authorization") String authorization,
-        @Valid @RequestBody UpdateMeetRequest request
+        @Valid @RequestBody MeetDto request
     );
 
     @Operation(summary = "모임 삭제", description = "기존 모임을 삭제합니다.")
@@ -79,7 +77,6 @@ public interface MeetApi {
     @DeleteMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> deleteMeet(
         @PathVariable("meetId") Long meetId
-        //@RequestHeader("Authorization") String authorization
     );
 
     @Operation(summary = "모임 목록 조회", description = "카테고리, 완료 여부, 페이지 번호로 필터링하여 모임 목록을 조회합니다.")
@@ -89,7 +86,7 @@ public interface MeetApi {
     })
     @GetMapping
     ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(
-        @RequestParam(value = "category", required = false, defaultValue = "전체") String category,
+        @RequestParam(value = "category", required = false) String category,
         @RequestParam(value = "completed", required = false, defaultValue = "0") boolean completed,
         @RequestParam(value = "page", required = false, defaultValue = "1") int page
     );
@@ -102,6 +99,7 @@ public interface MeetApi {
     })
     @PostMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Void>> joinMeet(
+        @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
@@ -113,7 +111,8 @@ public interface MeetApi {
         @ApiResponse(responseCode = "409", description = "종료된 모임은 나갈 수 없음")
     })
     @PatchMapping("/{meetId}/exit")
-    ResponseEntity<SuccessResponse<Void>> exitMeet(
+    ResponseEntity<SuccessResponse<Void>> deleteUserMeet(
+        @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
@@ -127,6 +126,7 @@ public interface MeetApi {
 
     @PatchMapping("/{meetId}/complete")
     ResponseEntity<SuccessResponse<Void>> completeMeet(
+        @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
