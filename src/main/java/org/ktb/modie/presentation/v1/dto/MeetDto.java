@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size;
 
 public record MeetDto(
     @Schema(description = "모임 ID", example = "1")
-    Long id,
+    Long meetId,
 
     @Schema(description = "모임 소개", example = "제주 해안 드라이브")
     @NotNull
@@ -41,11 +41,11 @@ public record MeetDto(
     @Schema(description = "총 발생 비용 (0~10,000,000)", example = "10000")
     @Min(0)
     @Max(10_000_000)
-    Integer totalCost,
+    int totalCost,
 
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @Min(1)
     @Max(30)
-    Integer memberLimit
+    int memberLimit
 ) {
 }

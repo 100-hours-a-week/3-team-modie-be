@@ -54,6 +54,5 @@ public class MeetService {
 
         // soft delete
         meet.delete();
-        meetRepository.save(meet);
     }
 }

@@ -1,7 +1,6 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import java.util.Map;
-
+import org.ktb.modie.core.response.SuccessResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,5 +43,5 @@ public interface HealthCheckApi {
             )
         })
     @GetMapping
-    ResponseEntity<Map<String, Object>> healthCheck();
+    ResponseEntity<SuccessResponse<Void>> healthCheck();
 }

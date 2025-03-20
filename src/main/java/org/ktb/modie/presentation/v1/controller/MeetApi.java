@@ -138,7 +138,7 @@ public interface MeetApi {
 
         @Parameter(description = "정산한 유저 Id")
         @RequestParam(value = "userId", defaultValue = "12345")
-        Long userId,
+        String userId,
 
         @Parameter(description = "정산 여부")
         @RequestParam(value = "isPayed", defaultValue = "1")
