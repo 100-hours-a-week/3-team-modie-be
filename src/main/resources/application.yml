@@ -27,5 +27,5 @@ spring:
     open-in-view: false
 
 kakao:
-  client-id: ${KAKAO_REST_API_KEY}  # 카카오 REST API 키
-  redirect-uri: http://localhost:5173/auth/kakao/callback  # 프론트엔드에서 설정한 리다이렉트 URI
+  client-id: ${KAKAO_REST_API_KEY}
+  redirect-uri: http://localhost:5173/auth/kakao/callback
