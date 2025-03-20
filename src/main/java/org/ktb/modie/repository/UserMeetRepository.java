@@ -3,12 +3,17 @@ package org.ktb.modie.repository;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
 import org.ktb.modie.domain.UserMeet;
+import java.util.Optional;
+import org.ktb.modie.domain.Meet;
+import org.ktb.modie.domain.UserMeet;
+import org.ktb.modie.domain.UserMeet;
+import org.ktb.modie.presentation.v1.dto.UserDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface UserMeetRepository extends JpaRepository<UserMeet, Long> {
-    boolean existsByUserAndMeet(User user, Meet meet);
+    Optional<UserMeet> findUserMeetByUser_UserIdAndMeet_MeetId(String userId, Long meetId);
 
     int countByMeet(Meet meet);
 
