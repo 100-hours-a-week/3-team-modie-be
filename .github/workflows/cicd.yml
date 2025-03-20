@@ -19,6 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set short COMMIT_HASH
+        run: echo "COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -32,10 +35,17 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          set -e  # 오류 발생 시 즉시 종료
+          echo "Building Docker image..."
+          docker build -q -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH \
+                          -t $ECR_REGISTRY/$ECR_REPOSITORY:dev .
+
+          echo "Pushing Docker image to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH &
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev &
+          wait  # 모든 Push 완료될 때까지 대기
+
+          echo "✅ Image pushed successfully!"
 
 
       - name: Deploy to EC2
@@ -47,7 +57,6 @@ jobs:
           script: |
             set -e  # 🚀 오류 발생 시 즉시 종료
             # ✅ EC2 내부에서 다시 COMMIT_HASH 설정
-            COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
             if [[ -z "$COMMIT_HASH" ]]; then
               echo "❌ COMMIT_HASH가 설정되지 않았습니다. 최신 태그를 가져옵니다."
 

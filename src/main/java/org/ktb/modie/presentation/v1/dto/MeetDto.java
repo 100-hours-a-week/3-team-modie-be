@@ -1,6 +1,7 @@
 package org.ktb.modie.presentation.v1.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -15,6 +16,9 @@ import lombok.Builder;
 public record MeetDto(
     @Schema(description = "모임 ID", example = "1")
     Long meetId,
+
+    @Schema(description = "모임 생성자", example = "김박박즐")
+    String ownerName,
 
     @Schema(description = "모임 소개", example = "제주 해안 드라이브")
     @NotNull
@@ -48,6 +52,17 @@ public record MeetDto(
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @Min(1)
     @Max(30)
-    int memberLimit
+    int memberLimit,
+
+    @Schema(description = "생성시각", example = "2025-03-18T18:00:00")
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    LocalDateTime createdAt,
+
+    @Schema(description = "유저의 상태", example = "owner")
+    String meetRule,
+
+    @Schema(description = "참여 인원")
+    List<UserDto> members
 ) {
 }

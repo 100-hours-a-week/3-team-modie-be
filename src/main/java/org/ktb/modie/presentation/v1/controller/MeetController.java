@@ -40,17 +40,9 @@ public class MeetController implements MeetApi {
 
     public ResponseEntity<SuccessResponse<MeetDto>> getMeet(Long meetId
     ) {
-        MeetDto meetDto = new MeetDto(
-            meetId,
-            "제주 해안 드라이브",
-            "여행",
-            "제주특별자치도 제주시 월성로 4길 19",
-            "노블레스 관광호텔 로비",
-            LocalDateTime.of(2025, 3, 20, 16, 13, 30),
-            5,
-            10000
-        );
-        return SuccessResponse.of(meetDto).asHttp(HttpStatus.OK);
+        MeetDto response = meetService.getMeet(meetId);
+
+        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 
     public ResponseEntity<SuccessResponse<Void>> updateMeet(Long meetId, String userId,
