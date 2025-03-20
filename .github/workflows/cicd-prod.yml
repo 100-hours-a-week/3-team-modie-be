@@ -1,0 +1,52 @@
+name: CI/CD Pipeline for ECR and ASG
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-deploy:
+    name: Build, Push to ECR, Deploy on EC2
+    runs-on: ubuntu-22.04
+
+    env:
+      ECR_REGISTRY: 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com
+      ECR_REPOSITORY: modie/modie-be-prod
+      COMMIT_HASH: "${{ github.sha }}"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set short COMMIT_HASH
+        run: echo "COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.ECR_USER_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.ECR_USER_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+      - name: Build, tag, and push image to Amazon ECR
+        run: |
+          set -e  # 오류 발생 시 즉시 종료
+
+          echo "Building Docker image..."
+          docker build -q -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH \
+                          -t $ECR_REGISTRY/$ECR_REPOSITORY:prod .
+
+          echo "Pushing Docker image to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH &
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:prod &
+          wait  # 모든 Push 완료될 때까지 대기
+
+          echo "✅ Image pushed successfully!"
+
+      - name: 기존 EC2 인스턴스 점진적 교체 (롤링 업데이트)
+        run: |
+          aws autoscaling start-instance-refresh --auto-scaling-group-name modie-be-auto
