@@ -99,6 +99,8 @@ jobs:
               -e RDS_PORT=${{ secrets.DB_PORT }} \
               -e DB_USERNAME=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }} \
               -e SPRING_PROFILES_ACTIVE=prod \
               -e DATABASE_NAME=modie \
               --restart always \
