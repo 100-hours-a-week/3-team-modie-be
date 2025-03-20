@@ -1,6 +1,8 @@
 package org.ktb.modie.service;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Meet;
@@ -25,8 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -63,14 +64,30 @@ public class MeetService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
 
+        // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+
+        // 삭제나 완료된 모임
+        if (meet.getDeletedAt() != null || meet.getCompletedAt() != null) {
+            throw new BusinessException(CustomErrorCode.DENIED_JOIN_ALREADY_ENDED);
+        }
+
+        // 방장은 참여 불가
+        if (meet.getOwner().getUserId().equals(userId)) {
+            throw new BusinessException(CustomErrorCode.OWNER_CANNOT_JOIN_MEET);
+        }
 
         // 중복 참여 방지
         if (userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId).isPresent()) {
             throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
         }
 
+        // 정원 초과 여부 체크
+        int currentMemberCount = userMeetRepository.countByMeet(meet);
+        if (currentMemberCount >= meet.getMemberLimit()) {
+            throw new BusinessException(CustomErrorCode.MEETING_CAPACITY_FULL);
+        }
         // 참여 정보 저장
         UserMeet userMeet = UserMeet.builder()
             .user(user)
@@ -153,7 +170,6 @@ public class MeetService {
 
     }
 
-
     @Transactional
     public void deleteUserMeet(String userId, Long meetId) {
         // 모임 조회
@@ -177,6 +193,10 @@ public class MeetService {
         // 사용자가 해당 모임에 참여 중인지 확인
         UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.PERMISSION_DENIED_NOT_MEMBER));
+
+        if (userMeet.getDeletedAt() != null) {
+            throw new BusinessException(CustomErrorCode.ALREADY_EXITED_MEET);
+        }
 
         // 모임에서 나가기 처리
         userMeet.setDeletedAt(LocalDateTime.now());
