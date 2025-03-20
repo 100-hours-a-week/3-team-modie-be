@@ -1,32 +1,31 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
+import lombok.RequiredArgsConstructor;
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
-import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
-import org.ktb.modie.presentation.v1.dto.MeetSummaryDto;
 import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
+import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
 import org.ktb.modie.service.MeetService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
 
-@RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 public class MeetController implements MeetApi {
 
+    @Autowired
     private final MeetService meetService;
 
     public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(String userId,
-        CreateMeetRequest request
+                                                                          CreateMeetRequest request
     ) {
         CreateMeetResponse response = meetService.createMeet(userId, request);
 
@@ -42,7 +41,7 @@ public class MeetController implements MeetApi {
     }
 
     public ResponseEntity<SuccessResponse<Void>> updateMeet(Long meetId, String userId,
-        @RequestBody UpdateMeetRequest request
+                                                            @RequestBody UpdateMeetRequest request
     ) {
         meetService.updateMeet(userId, meetId, request);
 
@@ -77,7 +76,7 @@ public class MeetController implements MeetApi {
     }
 
     public ResponseEntity<SuccessResponse<Void>> updatePayments(String userId, Long meetId,
-        UpdatePaymentRequest request) {
+                                                                UpdatePaymentRequest request) {
         meetService.updatePaymentStatus(userId, meetId, request);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
