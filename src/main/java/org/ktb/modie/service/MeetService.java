@@ -59,7 +59,7 @@ public class MeetService {
     }
 
     @Transactional
-    public void joinMeet(String userId, Long meetId) {
+    public void createUserMeet(String userId, Long meetId) {
         // Token 받아오면 userId로 변환하는 과정 필요
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
@@ -135,14 +135,20 @@ public class MeetService {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_PAGE); // meetType이 10자를 초과하면 예외 발생
         }
 
+        // 페이지 번호 검증
+        if (page < 1) {
+            throw new BusinessException(CustomErrorCode.INVALID_INPUT_PAGE);
+        }
+
         // 페이징 설정 (기본 페이지 크기 = 10)
         Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "meetAt"));
 
         // 필터링된 모임 리스트 조회
         Page<Meet> meetPage = meetRepository.findFilteredMeets(meetType, isCompleted, pageable);
 
-        if (page < 1 || page > (meetPage.getTotalElements() / 10) + 1) {
-            throw new BusinessException(CustomErrorCode.INVALID_INPUT_PAGE); // 페이지 유효성 검사
+        // 총 페이지 수를 벗어난 경우
+        if (page > (meetPage.getTotalElements() / 10) + 1) {
+            throw new BusinessException(CustomErrorCode.INVALID_INPUT_PAGE);
         }
 
         // MeetSummaryDto로 변환
