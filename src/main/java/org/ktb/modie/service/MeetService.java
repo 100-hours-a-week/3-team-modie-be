@@ -20,6 +20,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.ktb.modie.repository.MeetRepository;
+import org.ktb.modie.repository.UserMeetRepository;
+import org.ktb.modie.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
+import org.ktb.modie.presentation.v1.dto.UpdateMeetResponse;
+import org.ktb.modie.presentation.v1.dto.MeetDto;
+import org.ktb.modie.presentation.v1.dto.UserDto;
+import org.ktb.modie.repository.MeetRepository;
+import org.ktb.modie.repository.UserMeetRepository;    
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +45,7 @@ public class MeetService {
     private final UserMeetRepository userMeetRepository;
     private final UserRepository userRepository;
     private final MeetRepository meetRepository;
+    private final UserMeetRepository userMeetRepository;
 
     @Transactional
     public CreateMeetResponse createMeet(String userId, CreateMeetRequest request) {
@@ -140,7 +154,7 @@ public class MeetService {
     }
 
     @Transactional
-    public void exitMeet(String userId, Long meetId) {
+    public void deleteUserMeet(String userId, Long meetId) {
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
@@ -165,7 +179,59 @@ public class MeetService {
 
         // 모임에서 나가기 처리
         userMeet.setDeletedAt(LocalDateTime.now());
-        userMeetRepository.save(userMeet);
+
+    @Transactional
+    public UpdateMeetResponse updateMeet(String userId, Long meetId, UpdateMeetRequest request) {
+        // NOTE: 비정상적인 meetID가 넘어온 경우
+        if (meetId <= 0) {
+            throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
+        }
+  
+        // NOTE: 정상적인 meetID 이지만 Data가 없는 경우
+        Meet meet = meetRepository.findById(meetId)
+            .orElseThrow(() -> new BusinessException(
+                CustomErrorCode.MEETING_NOT_FOUND
+            ));
+
+        // NOTE: 요청한 유저의 id이 ownerId와 같은지 확인 -> 토큰 구현 후 구현예정
+        if (!meet.getOwner().getUserId().equals(userId)) {
+            throw new BusinessException(CustomErrorCode.UNAUTHORIZED_USER_NOT_OWNER);
+        }
+
+        meet.setMeetIntro(request.meetIntro());
+        meet.setMeetType(request.meetType());
+        meet.setAddress(request.address());
+        meet.setAddressDescription(request.addressDescription());
+        meet.setMeetAt(request.meetAt());
+        meet.setTotalCost(request.totalCost());
+        meet.setMemberLimit(request.memberLimit());
+        meet.setUpdatedAt(LocalDateTime.now());
+
+        meetRepository.save(meet);
+
+        return new UpdateMeetResponse(meet.getMeetId());
+    }
+
+    @Transactional
+    public void completeMeet(String userId, Long meetId) {
+      // 모임 조회
+      Meet meet = meetRepository.findById(meetId)
+        .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+
+      // 모임 생성자인지 확인
+      if (!meet.getOwner().getUserId().equals(userId)) {
+        throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_COMPLETED_NOT_OWNER);
+      }
+
+      // 정산 완료 여부 확인
+      Long unpaidUsers = userMeetRepository.countUnpaidUsersByMeetId(meetId);
+      if (unpaidUsers > 0) {
+        throw new BusinessException(CustomErrorCode.OPERATION_DENIED_SETTLEMENT_INCOMPLETE);
+      }
+
+      // 모임 종료 처리
+      meet.setCompletedAt(LocalDateTime.now());
+      meetRepository.save(meet);
     }
 
     @Transactional

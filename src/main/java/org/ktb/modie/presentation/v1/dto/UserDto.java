@@ -1,5 +1,11 @@
 package org.ktb.modie.presentation.v1.dto;
 
-public class UserDto {
+import lombok.Builder;
 
+@Builder
+public record UserDto(
+    String userId,
+    String userName,
+    boolean isPayed
+) {
 }
