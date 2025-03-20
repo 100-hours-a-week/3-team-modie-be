@@ -13,6 +13,7 @@ jobs:
       ECR_REGISTRY: 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com
       ECR_REPOSITORY: modie/modie-be-prod
       COMMIT_HASH: "${{ github.sha }}"
+      ASG_NAME: modie-be-auto
 
     steps:
       - name: Checkout repository
@@ -40,6 +41,12 @@ jobs:
           docker build -q -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH \
                           -t $ECR_REGISTRY/$ECR_REPOSITORY:prod .
 
+          echo "Saving previous stable version..."
+          aws ecr batch-get-image --repository-name $ECR_REPOSITORY --image-ids imageTag=prod \
+            --query 'images[].imageManifest' --output text > stable_manifest.json
+          aws ecr put-image --repository-name $ECR_REPOSITORY --image-tag prod-stable \
+            --image-manifest file://stable_manifest.json || echo "✅ prod-stable 태그 업데이트 완료!"
+
           echo "Pushing Docker image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH &
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:prod &
@@ -49,4 +56,30 @@ jobs:
 
       - name: 기존 EC2 인스턴스 점진적 교체 (롤링 업데이트)
         run: |
-          aws autoscaling start-instance-refresh --auto-scaling-group-name modie-be-auto
+          echo "🚀 시작: Auto Scaling Group 롤링 배포"
+          aws autoscaling start-instance-refresh --auto-scaling-group-name $ASG_NAME
+
+          echo "⏳ 롤링 배포 진행 중..."
+          sleep 10  # 배포 시작 대기
+
+          # 배포 진행 상태 확인
+          STATUS=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name $ASG_NAME \
+            --query "InstanceRefreshes[0].Status" --output text)
+
+          echo "현재 배포 상태: $STATUS"
+
+          if [[ "$STATUS" != "InProgress" && "$STATUS" != "Successful" ]]; then
+            echo "❌ 배포 실패! 자동 롤백 실행..."
+            aws autoscaling cancel-instance-refresh --auto-scaling-group-name $ASG_NAME
+
+            echo "🔄 이전 `prod-stable` 이미지로 복구"
+            aws ecr batch-get-image --repository-name $ECR_REPOSITORY --image-ids imageTag=prod-stable \
+              --query 'images[].imageManifest' --output text > rollback_manifest.json
+            aws ecr put-image --repository-name $ECR_REPOSITORY --image-tag prod \
+              --image-manifest file://rollback_manifest.json
+
+            echo "🚀 롤백 완료! 배포 종료"
+            exit 1
+          fi
+
+          echo "✅ 롤링 배포 성공!"
