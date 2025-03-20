@@ -26,6 +26,7 @@ public enum CustomErrorMessage {
     PERMISSION_DENIED_NOT_MEMBER("모임 참여자만 탈퇴할 수 있습니다."),
     PERMISSION_DENIED_SETTLEMENT_NOT_OWNER("모임 생성자만 정산을 완료할 수 있습니다."),
     PERMISSION_DENIED_COMPLETED_NOT_OWNER("모임 생성자만 모임을 종료할 수 있습니다."),
+    SETTLEMENT_PERMISSION_DENIED_NOT_MEMBER("모임 참여자가 아닙니다."),
 
     // 404 Not Found
     API_NOT_FOUND("요청한 API를 찾을 수 없습니다"),
@@ -40,6 +41,10 @@ public enum CustomErrorMessage {
     OPERATION_DENIED_SETTLEMENT_REQUIRED("정산 요청 후 상태 변경이 가능합니다."),
     OPERATION_DENIED_SETTLEMENT_INCOMPLETE("정산 완료 후 종료 가능합니다."),
     ALREADY_JOINED_MEET("이미 모임에 참여한 사용자입니다"),
+    OWNER_CANNOT_JOIN_MEET("방장은 모임에 참여할 수 없습니다."),
+    DENIED_JOIN_ALREADY_ENDED("종료되거나 완료된 모임은 나갈 수 없습니다."),
+    ALREADY_EXITED_MEET("이미 탈퇴한 모임에서는 다시 나갈 수 없습니다."),
+
     // 429 Too Many Requests
     RATE_LIMIT_EXCEEDED("요청 제한을 초과했습니다. {0}건/{1}초 제한"),
 
