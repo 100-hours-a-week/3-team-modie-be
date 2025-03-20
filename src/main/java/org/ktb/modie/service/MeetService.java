@@ -1,8 +1,6 @@
 package org.ktb.modie.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Meet;
@@ -10,33 +8,25 @@ import org.ktb.modie.domain.User;
 import org.ktb.modie.domain.UserMeet;
 import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
+import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.MeetSummaryDto;
-import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
-import org.ktb.modie.repository.MeetRepository;
-import org.ktb.modie.repository.UserMeetRepository;
-import org.ktb.modie.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.ktb.modie.repository.MeetRepository;
-import org.ktb.modie.repository.UserMeetRepository;
-import org.ktb.modie.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.UpdateMeetResponse;
-import org.ktb.modie.presentation.v1.dto.MeetDto;
+import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
 import org.ktb.modie.presentation.v1.dto.UserDto;
 import org.ktb.modie.repository.MeetRepository;
-import org.ktb.modie.repository.UserMeetRepository;    
+import org.ktb.modie.repository.UserMeetRepository;
+import org.ktb.modie.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +35,6 @@ public class MeetService {
     private final UserMeetRepository userMeetRepository;
     private final UserRepository userRepository;
     private final MeetRepository meetRepository;
-    private final UserMeetRepository userMeetRepository;
 
     @Transactional
     public CreateMeetResponse createMeet(String userId, CreateMeetRequest request) {
@@ -92,6 +81,38 @@ public class MeetService {
         userMeetRepository.save(userMeet);
     }
 
+    public MeetDto getMeet(long meetId) {
+        // NOTE: 비정상적인 meetID가 넘어온 경우
+        if (meetId <= 0) {
+            throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
+        }
+        // NOTE: 정상적인 meetID 이지만 Data가 없는 경우
+        Meet meet = meetRepository.findById(meetId)
+            .orElseThrow(() -> new BusinessException(
+                CustomErrorCode.MEETING_NOT_FOUND
+            ));
+
+        // NOTE: 참여중인 멤버
+        List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
+
+        MeetDto response = MeetDto.builder()
+            .meetId(meet.getMeetId())
+            .ownerName(meet.getOwner().getUserName())
+            .meetIntro(meet.getMeetIntro())
+            .meetType(meet.getMeetType())
+            .address(meet.getAddress())
+            .addressDescription(meet.getAddressDescription())
+            .meetAt(meet.getMeetAt())
+            .totalCost(meet.getTotalCost())
+            .memberLimit(meet.getMemberLimit())
+            .createdAt(meet.getCreatedAt())
+            .meetRule("owner")
+            .members(members)
+            .build();
+
+        return response;
+    }
+
     public MeetListResponse getMeetList(String meetType, Boolean isCompleted, int page) {
         if (meetType != null && meetType.length() > 10) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_PAGE); // meetType이 10자를 초과하면 예외 발생
@@ -103,8 +124,9 @@ public class MeetService {
         // 필터링된 모임 리스트 조회
         Page<Meet> meetPage = meetRepository.findFilteredMeets(meetType, isCompleted, pageable);
 
-        if (page < 1 || page > (meetPage.getTotalElements() / 10) + 1)
+        if (page < 1 || page > (meetPage.getTotalElements() / 10) + 1) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_PAGE); // 페이지 유효성 검사
+        }
 
         // MeetSummaryDto로 변환
         List<MeetSummaryDto> meetSummaryList = meetPage.getContent().stream()
@@ -117,7 +139,7 @@ public class MeetService {
                 meet.getAddressDescription(),
                 meet.getTotalCost() > 0, // 비용 여부 (0보다 크면 true)
                 userMeetRepository.countByMeet(meet), // 현재 참여 인원 수
-                meet.getMemberLimit().intValue(), // 최대 인원 수
+                meet.getMemberLimit(), // 최대 인원 수
                 meet.getOwner().getUserName() // 모임장 이름
             ))
             .toList();
@@ -131,27 +153,6 @@ public class MeetService {
 
     }
 
-    @Transactional
-    public void completeMeet(String userId, Long meetId) {
-        // 모임 조회
-        Meet meet = meetRepository.findById(meetId)
-            .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
-
-        // 모임 생성자인지 확인
-        if (!meet.getOwner().getUserId().equals(userId)) {
-            throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_COMPLETED_NOT_OWNER);
-        }
-
-        // 정산 완료 여부 확인
-        Long unpaidUsers = userMeetRepository.countUnpaidUsersByMeetId(meetId);
-        if (unpaidUsers > 0) {
-            throw new BusinessException(CustomErrorCode.OPERATION_DENIED_SETTLEMENT_INCOMPLETE);
-        }
-
-        // 모임 종료 처리
-        meet.setCompletedAt(LocalDateTime.now());
-        meetRepository.save(meet);
-    }
 
     @Transactional
     public void deleteUserMeet(String userId, Long meetId) {
@@ -179,6 +180,7 @@ public class MeetService {
 
         // 모임에서 나가기 처리
         userMeet.setDeletedAt(LocalDateTime.now());
+    }
 
     @Transactional
     public UpdateMeetResponse updateMeet(String userId, Long meetId, UpdateMeetRequest request) {
@@ -186,7 +188,7 @@ public class MeetService {
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
         }
-  
+
         // NOTE: 정상적인 meetID 이지만 Data가 없는 경우
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(
@@ -214,24 +216,23 @@ public class MeetService {
 
     @Transactional
     public void completeMeet(String userId, Long meetId) {
-      // 모임 조회
-      Meet meet = meetRepository.findById(meetId)
-        .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+        // 모임 조회
+        Meet meet = meetRepository.findById(meetId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
 
-      // 모임 생성자인지 확인
-      if (!meet.getOwner().getUserId().equals(userId)) {
-        throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_COMPLETED_NOT_OWNER);
-      }
+        // 모임 생성자인지 확인
+        if (!meet.getOwner().getUserId().equals(userId)) {
+            throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_COMPLETED_NOT_OWNER);
+        }
 
-      // 정산 완료 여부 확인
-      Long unpaidUsers = userMeetRepository.countUnpaidUsersByMeetId(meetId);
-      if (unpaidUsers > 0) {
-        throw new BusinessException(CustomErrorCode.OPERATION_DENIED_SETTLEMENT_INCOMPLETE);
-      }
+        // 정산 완료 여부 확인
+        Long unpaidUsers = userMeetRepository.countUnpaidUsersByMeetId(meetId);
+        if (unpaidUsers > 0) {
+            throw new BusinessException(CustomErrorCode.OPERATION_DENIED_SETTLEMENT_INCOMPLETE);
+        }
 
-      // 모임 종료 처리
-      meet.setCompletedAt(LocalDateTime.now());
-      meetRepository.save(meet);
+        // 모임 종료 처리
+        meet.setCompletedAt(LocalDateTime.now());
     }
 
     @Transactional
