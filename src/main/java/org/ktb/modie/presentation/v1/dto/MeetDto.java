@@ -1,5 +1,6 @@
 package org.ktb.modie.presentation.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -40,7 +41,6 @@ public record MeetDto(
 
     @Schema(description = "모임 시작 시간 (ISO 형식)", example = "2025-02-20T18:00:00")
     @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     LocalDateTime meetAt,
 
     @Schema(description = "총 발생 비용 (0~10,000,000)", example = "10000")
@@ -55,7 +55,7 @@ public record MeetDto(
 
     @Schema(description = "생성시각", example = "2025-03-18T18:00:00")
     @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime createdAt,
 
     @Schema(description = "유저의 상태", example = "owner")
