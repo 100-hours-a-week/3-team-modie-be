@@ -52,17 +52,6 @@ public record MeetDto(
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @Min(1)
     @Max(30)
-    int memberLimit,
-
-    @Schema(description = "생성시각", example = "2025-03-18T18:00:00")
-    @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    LocalDateTime createdAt,
-
-    @Schema(description = "유저의 상태", example = "owner")
-    String meetRule,
-
-    @Schema(description = "참여 인원")
-    List<UserDto> members
+    int memberLimit
 ) {
 }
