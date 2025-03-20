@@ -1,6 +1,5 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
@@ -15,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +24,7 @@ public class MeetController implements MeetApi {
     private final MeetService meetService;
 
     public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(String userId,
-                                                                          CreateMeetRequest request
+        CreateMeetRequest request
     ) {
         CreateMeetResponse response = meetService.createMeet(userId, request);
 
@@ -41,7 +40,7 @@ public class MeetController implements MeetApi {
     }
 
     public ResponseEntity<SuccessResponse<Void>> updateMeet(Long meetId, String userId,
-                                                            @RequestBody UpdateMeetRequest request
+        @RequestBody UpdateMeetRequest request
     ) {
         meetService.updateMeet(userId, meetId, request);
 
@@ -60,11 +59,10 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> joinMeet(String userId, Long meetId) {
-        meetService.joinMeet(userId, meetId);
+    public ResponseEntity<SuccessResponse<Void>> createUserMeet(String userId, Long meetId) {
+        meetService.createUserMeet(userId, meetId);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
-
 
     public ResponseEntity<SuccessResponse<Void>> deleteUserMeet(String userId, Long meetId) {
         meetService.deleteUserMeet(userId, meetId);
@@ -77,7 +75,7 @@ public class MeetController implements MeetApi {
     }
 
     public ResponseEntity<SuccessResponse<Void>> updatePayments(String userId, Long meetId,
-                                                                UpdatePaymentRequest request) {
+        UpdatePaymentRequest request) {
         meetService.updatePaymentStatus(userId, meetId, request);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
