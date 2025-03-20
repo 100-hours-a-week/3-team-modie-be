@@ -70,7 +70,7 @@ public class MeetService {
 
         // 삭제나 완료된 모임
         if (meet.getDeletedAt() != null || meet.getCompletedAt() != null) {
-            throw new BusinessException(CustomErrorCode.MEETING_ALREADY_ENDED);
+            throw new BusinessException(CustomErrorCode.DENIED_JOIN_ALREADY_ENDED);
         }
 
         // 방장은 참여 불가
