@@ -86,9 +86,9 @@ public interface MeetApi {
     })
     @GetMapping
     ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(
-        @RequestParam(value = "category", required = false) String category,
-        @RequestParam(value = "completed", required = false, defaultValue = "0") boolean completed,
-        @RequestParam(value = "page", required = false, defaultValue = "1") int page
+        @RequestParam(value = "category", defaultValue = "전체") String category,
+        @RequestParam(value = "completed", defaultValue = "0") boolean completed,
+        @RequestParam(value = "page", defaultValue = "1") int page
     );
 
     @Operation(summary = "모임 참여", description = "해당 모임에 참여합니다.")
@@ -98,6 +98,7 @@ public interface MeetApi {
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
     @PostMapping("/{meetId}")
+
     ResponseEntity<SuccessResponse<Void>> createUserMeet(
         @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
