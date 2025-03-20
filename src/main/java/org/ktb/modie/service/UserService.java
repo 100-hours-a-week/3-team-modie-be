@@ -6,6 +6,10 @@ import org.ktb.modie.domain.User;
 import org.ktb.modie.presentation.v1.dto.UserResponse;
 import org.ktb.modie.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.ktb.modie.presentation.v1.dto.UpdateAccountRequest;
+import org.ktb.modie.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,5 +33,15 @@ public class UserService {
             .bankName(user.getBankName())
             .accountNumber(user.getAccountNumber())
             .build();
+
+    @Transactional
+    public void updateAccount(String userId, UpdateAccountRequest request) {
+        // 사용자 조회
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
+
+        // 계좌 정보 업데이트
+        user.setBankName(request.bankName());
+        user.setAccountNumber(request.accountNumber());
     }
 }
