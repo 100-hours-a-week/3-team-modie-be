@@ -1,10 +1,10 @@
-package org.ktb.modie.v1.dto;
+package org.ktb.modie.presentation.v1.dto;
 
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record MeetListResponseDto(
+public record MeetListResponse(
     @Schema(description = "페이지 번호", example = "1")
     int page,
 

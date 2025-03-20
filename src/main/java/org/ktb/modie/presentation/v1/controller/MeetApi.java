@@ -1,12 +1,18 @@
-package org.ktb.modie.v1.controller;
+package org.ktb.modie.presentation.v1.controller;
 
-import java.util.Map;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.ktb.modie.core.response.SuccessResponse;
-import org.ktb.modie.presentation.dto.CreateMeetRequest;
-import org.ktb.modie.presentation.dto.CreateMeetResponse;
-import org.ktb.modie.v1.dto.MeetDto;
-import org.ktb.modie.v1.dto.MeetListResponse;
+import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
+import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
+import org.ktb.modie.presentation.v1.dto.MeetDto;
+import org.ktb.modie.presentation.v1.dto.MeetListResponse;
+import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
+import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,14 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Digits;
 
 @Tag(name = "Meet API", description = "모임 관련 API")
 @Validated
@@ -39,7 +37,7 @@ public interface MeetApi {
     })
     @PostMapping
     public ResponseEntity<SuccessResponse<CreateMeetResponse>> createMeet(
-        //@RequestHeader("Authorizaition") String authToken,
+        @RequestParam("userId") String userId,
         @Valid @RequestBody CreateMeetRequest request
     );
 
@@ -60,11 +58,11 @@ public interface MeetApi {
         @ApiResponse(responseCode = "400", description = "잘못된 입력값"),
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자")
     })
-    @PatchMapping("/{meetId}")
-    ResponseEntity<SuccessResponse<MeetDto>> updateMeet(
+    @PatchMapping("/{meetId}/{userId}")
+    ResponseEntity<SuccessResponse<Void>> updateMeet(
         @PathVariable("meetId") Long meetId,
-        //@RequestHeader("Authorization") String authorization,
-        @Valid @RequestBody MeetDto request
+        @PathVariable("userId") String userId,
+        @Valid @RequestBody UpdateMeetRequest request
     );
 
     @Operation(summary = "모임 삭제", description = "기존 모임을 삭제합니다.")
@@ -74,10 +72,10 @@ public interface MeetApi {
         @ApiResponse(responseCode = "403", description = "인증되지 않은 사용자"),
         @ApiResponse(responseCode = "404", description = "존재하지 않는 모임")
     })
-    @DeleteMapping("/{meetId}")
+    @DeleteMapping("/{meetId}/{userId}")
     ResponseEntity<SuccessResponse<Void>> deleteMeet(
-        @PathVariable("meetId") Long meetId
-        //@RequestHeader("Authorization") String authorization
+        @PathVariable("meetId") Long meetId,
+        @PathVariable("userId") String userId
     );
 
     @Operation(summary = "모임 목록 조회", description = "카테고리, 완료 여부, 페이지 번호로 필터링하여 모임 목록을 조회합니다.")
@@ -87,9 +85,9 @@ public interface MeetApi {
     })
     @GetMapping
     ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(
-        @RequestParam(value = "category", required = false, defaultValue = "전체") String category,
-        @RequestParam(value = "completed", required = false, defaultValue = "0") Integer completed,
-        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page
+        @RequestParam(value = "category", required = false) String category,
+        @RequestParam(value = "completed", required = false, defaultValue = "0") boolean completed,
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page
     );
 
     @Operation(summary = "모임 참여", description = "해당 모임에 참여합니다.")
@@ -100,6 +98,7 @@ public interface MeetApi {
     })
     @PostMapping("/{meetId}")
     public ResponseEntity<SuccessResponse<Void>> joinMeet(
+        @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
@@ -111,7 +110,8 @@ public interface MeetApi {
         @ApiResponse(responseCode = "409", description = "종료된 모임은 나갈 수 없음")
     })
     @PatchMapping("/{meetId}/exit")
-    ResponseEntity<SuccessResponse<Void>> exitMeet(
+    ResponseEntity<SuccessResponse<Void>> deleteUserMeet(
+        @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
@@ -125,23 +125,15 @@ public interface MeetApi {
 
     @PatchMapping("/{meetId}/complete")
     ResponseEntity<SuccessResponse<Void>> completeMeet(
+        @RequestParam("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 
     @Operation(summary = "정산내역 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
     @PatchMapping("/{meetId}/payments")
-    public ResponseEntity<SuccessResponse<Map<String, Object>>> updatePayments(
-        @Parameter(description = "정산 관리할 모임의 Id 값")
-        @PathVariable(value = "meetId")
-        @Digits(integer = 10000, fraction = 0, message = "모임ID")
-        Long meetId,
-
-        @Parameter(description = "정산한 유저 Id")
-        @RequestParam(value = "userId", defaultValue = "12345")
-        Long userId,
-
-        @Parameter(description = "정산 여부")
-        @RequestParam(value = "isPayed", defaultValue = "1")
-        int isPayed
+    public ResponseEntity<SuccessResponse<Void>> updatePayments(
+        @RequestParam("userId") String userId,
+        @PathVariable("meetId") Long meetId,
+        @Valid @RequestBody UpdatePaymentRequest request
     );
 }

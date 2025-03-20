@@ -19,6 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set short COMMIT_HASH
+        run: echo "COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -32,8 +35,18 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH
+          set -e  # 오류 발생 시 즉시 종료
+          echo "Building Docker image..."
+          docker build -q -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH \
+                          -t $ECR_REGISTRY/$ECR_REPOSITORY:dev .
+
+          echo "Pushing Docker image to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH &
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev &
+          wait  # 모든 Push 완료될 때까지 대기
+
+          echo "✅ Image pushed successfully!"
+
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
@@ -44,14 +57,13 @@ jobs:
           script: |
             set -e  # 🚀 오류 발생 시 즉시 종료
             # ✅ EC2 내부에서 다시 COMMIT_HASH 설정
-            COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
             if [[ -z "$COMMIT_HASH" ]]; then
               echo "❌ COMMIT_HASH가 설정되지 않았습니다. 최신 태그를 가져옵니다."
-              
+
               # AWS ECR에서 최신 태그 가져오기
               COMMIT_HASH=$(aws ecr describe-images --repository-name modie/modie-be \
                 --region ap-northeast-2 --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
-      
+
               # 값이 없으면 오류 처리
               if [[ -z "$COMMIT_HASH" || "$COMMIT_HASH" == "None" ]]; then
                 echo "❌ 최신 태그를 가져오지 못했습니다. 배포 중단!"
@@ -59,16 +71,16 @@ jobs:
               fi
             fi
 
-            echo "🚀 사용할 Docker 태그: $COMMIT_HASH"   
+            echo "🚀 사용할 Docker 태그: $COMMIT_HASH"
             # aws 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
-            
+
             # Pull 최신 이미지
             docker pull 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH
-            
+
             # Nginx 설정 파일 경로
             NGINX_CONFIG=/etc/nginx/sites-enabled/default
-            
+
             # 기존 컨테이너 확인 및 포트 설정
             PORT=8080
             OTHER_PORT=8081
@@ -81,7 +93,7 @@ jobs:
               OTHER_PORT=8080
               BG_MODE=green
             fi
-            
+
             docker run -d -p $PORT:8080 --name modie-be-$PORT \
               -e RDS_ENDPOINT=${{ secrets.DB_HOST }} \
               -e RDS_PORT=${{ secrets.DB_PORT }} \
@@ -95,10 +107,10 @@ jobs:
                 exit 1
               }
 
-            
+
             # nginx 설정 변경
             sudo sed -i "s|set \$active_backend backend-.*;|set \$active_backend backend-$BG_MODE;|g" $NGINX_CONFIG
-          
+
             # 🔥 Nginx 설정 테스트 후 적용 (실패 시 롤백)
             if sudo nginx -t; then
               sudo systemctl reload nginx
@@ -109,9 +121,9 @@ jobs:
               docker rm modie-be-$PORT
               exit 1
             fi
-      
+
             # 이전 컨테이너 종료 및 삭제
             docker stop modie-be-$OTHER_PORT || true
             docker rm modie-be-$OTHER_PORT || true
-      
+
             echo "🚀 배포 완료!"

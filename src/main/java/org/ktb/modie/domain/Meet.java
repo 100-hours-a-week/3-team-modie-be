@@ -2,20 +2,27 @@ package org.ktb.modie.domain;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "meet")
 public class Meet {
@@ -24,12 +31,10 @@ public class Meet {
     @Column(name = "meet_id", nullable = false)
     private Long meetId;
 
-    // @ManyToOne
-    // @JoinColumn(name = "user_id", nullable = false)
-    // @OnDelete(action = OnDeleteAction.CASCADE)
-    // private User owner;
-    @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User owner;
 
     @Column(name = "meet_intro", nullable = false)
     private String meetIntro;
@@ -47,10 +52,10 @@ public class Meet {
     private LocalDateTime meetAt;
 
     @Column(name = "total_cost", nullable = false)
-    private Long totalCost;
+    private int totalCost;
 
     @Column(name = "member_limit", nullable = false)
-    private Long memberLimit;
+    private int memberLimit;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -67,7 +72,7 @@ public class Meet {
     @Builder
     public Meet(String meetIntro, String meetType, String address,
         String addressDescription, LocalDateTime meetAt,
-        Long totalCost, Long memberLimit, Long ownerId) {
+        int totalCost, int memberLimit, User owner) {
         this.meetIntro = meetIntro;
         this.meetType = meetType;
         this.address = address;
@@ -75,7 +80,7 @@ public class Meet {
         this.meetAt = meetAt;
         this.totalCost = totalCost;
         this.memberLimit = memberLimit;
-        this.ownerId = ownerId;
+        this.owner = owner;
     }
 
     @PrePersist
@@ -83,7 +88,13 @@ public class Meet {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getMeetId() {
-        return meetId;
+    // soft delete
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
+    // 삭제처리 메서드
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }
