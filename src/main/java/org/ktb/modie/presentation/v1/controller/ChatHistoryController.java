@@ -3,6 +3,8 @@ package org.ktb.modie.presentation.v1.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.ktb.modie.core.exception.BusinessException;
+import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Chat;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
@@ -38,6 +40,13 @@ public class ChatHistoryController {
     @GetMapping("/api/v1/chat/{meetId}")
     public List<ChatDto> getChatHistory(@PathVariable Long meetId, @RequestParam(required = false) Long lastChatId,
         HttpServletRequest request) {
+
+        // 유저 정보 보완 (userId로 DB에서 조회)
+        meetRepository.findById(meetId)
+            .orElseThrow(() -> new BusinessException(
+                CustomErrorCode.MEETING_NOT_FOUND,
+                "알 수 없는 모임입니다."
+            ));
 
         // 로그인한 사용자 ID를 쿠키에서 가져오기 (로그인 정보가 쿠키에 저장되어 있다고 가정)
         String loggedInUserId = getLoggedInUserIdFromCookies(request);

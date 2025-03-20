@@ -15,6 +15,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // SockJS와 함께 엔드포인트 설정
         registry.addEndpoint("/ws")  // 클라이언트가 연결할 엔드포인트
             .setAllowedOrigins("http://localhost:3000") // 특정 오리진 설정
+            .setAllowedOrigins("https://modie.site")
+            .setAllowedOrigins("https://dev.modie.site")
             // .addInterceptors(new CustomHandshakeInterceptor())  // 사용자 정보 추가
             .withSockJS(); // SockJS 지원
     }
