@@ -67,6 +67,7 @@ public class MeetController implements MeetApi {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
+
     public ResponseEntity<SuccessResponse<Void>> deleteUserMeet(String userId, Long meetId) {
         meetService.deleteUserMeet(userId, meetId);
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);

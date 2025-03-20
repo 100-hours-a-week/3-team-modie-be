@@ -1,5 +1,8 @@
 package org.ktb.modie.repository;
 
+import org.ktb.modie.domain.Meet;
+import org.ktb.modie.domain.User;
+import org.ktb.modie.domain.UserMeet;
 import java.util.Optional;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.UserMeet;

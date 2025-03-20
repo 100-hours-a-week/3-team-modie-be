@@ -19,12 +19,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.ktb.modie.repository.MeetRepository;
+import org.ktb.modie.repository.UserMeetRepository;
+import org.ktb.modie.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.UpdateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.UserDto;
 import org.ktb.modie.repository.MeetRepository;
-import org.ktb.modie.repository.UserMeetRepository;
+import org.ktb.modie.repository.UserMeetRepository;    
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -202,5 +209,27 @@ public class MeetService {
         meetRepository.save(meet);
 
         return new UpdateMeetResponse(meet.getMeetId());
+    }
+
+    @Transactional
+    public void completeMeet(String userId, Long meetId) {
+      // 모임 조회
+      Meet meet = meetRepository.findById(meetId)
+        .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+
+      // 모임 생성자인지 확인
+      if (!meet.getOwner().getUserId().equals(userId)) {
+        throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_COMPLETED_NOT_OWNER);
+      }
+
+      // 정산 완료 여부 확인
+      Long unpaidUsers = userMeetRepository.countUnpaidUsersByMeetId(meetId);
+      if (unpaidUsers > 0) {
+        throw new BusinessException(CustomErrorCode.OPERATION_DENIED_SETTLEMENT_INCOMPLETE);
+      }
+
+      // 모임 종료 처리
+      meet.setCompletedAt(LocalDateTime.now());
+      meetRepository.save(meet);
     }
 }
