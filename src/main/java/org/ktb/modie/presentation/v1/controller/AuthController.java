@@ -1,8 +1,11 @@
 package org.ktb.modie.presentation.v1.controller;
 
+import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.domain.User;
 import org.ktb.modie.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,42 +19,36 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    // 카카오 로그인 페이지로 리디렉션하는 URL
+    // 카카오 로그인 페이지로 리디렉션하는 URL 생성
     @GetMapping("/auth/kakao/login")
-    public String kakaoLogin() {
-        String kakaoLoginUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + System.getenv("KAKAO_CLIENT_ID")
-            + "&redirect_uri=" + System.getenv("KAKAO_REDIRECT_URI")
-            + "&response_type=code";
-        return "redirect:" + kakaoLoginUrl;
-    }
-
-    // 카카오 로그인 후 콜백 처리
-    @GetMapping("/auth/kakao/callback")
-    public String kakaoCallback(@RequestParam("code") String code, Model model) {
-        // 카카오 로그인 콜백에서 받은 code로 사용자 정보 조회
+    public ResponseEntity<SuccessResponse<Void>> kakaoLogin(@RequestParam("code") String code) {
         User user = userService.getKakaoUserInfo(code);
-        // 세션에 사용자 정보 저장
-        model.addAttribute("user", user); // @SessionAttributes가 자동으로 세션에 저장
+        System.out.println("code : " + code);
+        System.out.println(user.getUserId());
 
-        // 홈 화면으로 리디렉션
-        return "main";
+
+        // 사용자 정보 반환 (예: JWT 토큰 생성 후 전달)
+//        String token = jwtService.createToken(user); // JWT 토큰 생성 (사용자 정보 기반)
+
+        // JWT 토큰을 프론트엔드에 반환
+//        return ResponseEntity.ok(Map.of("token", token));
+        return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
     // 로그아웃 처리
     @GetMapping("/auth/kakao/logout")
     public String kakaoLogout(Model model) {
         model.addAttribute("user", null); // 세션에서 사용자 정보 삭제
-        return "redirect:/"; // 로그아웃 후 홈으로 리디렉션
+        return "redirect:/";
     }
 
     // 메인 화면으로 리디렉션
     @GetMapping("/main")
     public String main(Model model) {
-        User user = (User)model.getAttribute("user");
+        User user = (User) model.getAttribute("user");
         if (user == null) {
-            return "redirect:/"; // 세션에 사용자가 없으면 홈으로 리디렉션
+            return "redirect:/";
         }
         return "main"; // main.html로 이동
     }
-
 }

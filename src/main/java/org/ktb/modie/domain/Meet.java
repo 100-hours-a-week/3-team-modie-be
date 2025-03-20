@@ -1,10 +1,5 @@
 package org.ktb.modie.domain;
 
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +13,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -30,7 +29,7 @@ public class Meet {
     private Long meetId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User owner;
 
@@ -69,8 +68,8 @@ public class Meet {
 
     @Builder
     public Meet(String meetIntro, String meetType, String address,
-        String addressDescription, LocalDateTime meetAt,
-        Long totalCost, Long memberLimit, User owner) {
+                String addressDescription, LocalDateTime meetAt,
+                Long totalCost, Long memberLimit, User owner) {
         this.meetIntro = meetIntro;
         this.meetType = meetType;
         this.address = address;
