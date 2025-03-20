@@ -12,6 +12,7 @@ import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.MeetSummaryDto;
+import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
 import org.ktb.modie.repository.MeetRepository;
 import org.ktb.modie.repository.UserMeetRepository;
 import org.ktb.modie.repository.UserRepository;
@@ -231,5 +232,32 @@ public class MeetService {
       // 모임 종료 처리
       meet.setCompletedAt(LocalDateTime.now());
       meetRepository.save(meet);
+    }
+
+    @Transactional
+    public void updatePaymentStatus(String userId, Long meetId, UpdatePaymentRequest request) {
+        // 모임 조회
+        Meet meet = meetRepository.findById(meetId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+
+        // 타겟 사용자 조회
+        User user = userRepository.findById(request.userId())
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
+
+        // 방장 사용자 조회
+        User owner = userRepository.findById(userId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
+
+        // 요청한 사람이 방장인지 확인
+        if (!meet.getOwner().getUserId().equals(userId)) {
+            throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_SETTLEMENT_NOT_OWNER);
+        }
+
+        // 해당 유저가 해당 모임에 참여 중인지 확인
+        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(request.userId(), meetId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.SETTLEMENT_PERMISSION_DENIED_NOT_MEMBER));
+
+        // 정산 상태 변경 (true <-> false 토글)
+        userMeet.setPayed(!userMeet.isPayed());
     }
 }

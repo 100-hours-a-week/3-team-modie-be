@@ -1,7 +1,6 @@
 package org.ktb.modie.presentation.v1.controller;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.ktb.modie.core.response.SuccessResponse;
@@ -9,14 +8,13 @@ import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
+import org.ktb.modie.presentation.v1.dto.UpdatePaymentRequest;
 import org.ktb.modie.presentation.v1.dto.MeetSummaryDto;
 import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
 import org.ktb.modie.service.MeetService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -78,15 +76,10 @@ public class MeetController implements MeetApi {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Map<String, Object>>> updatePayments(
-        @PathVariable Long meetId,
-        @RequestParam Long userId,
-        @RequestBody boolean isPayed) {
-
-        Map<String, Object> mockData = new LinkedHashMap<>();
-        mockData.put("userId", userId);
-        mockData.put("isPayed", isPayed); // service logic에 0->1 , 1->0 구현예정
-
-        return SuccessResponse.of(mockData).asHttp(HttpStatus.OK);
+    public ResponseEntity<SuccessResponse<Void>> updatePayments(String userId, Long meetId,
+        UpdatePaymentRequest request) {
+        meetService.updatePaymentStatus(userId, meetId, request);
+        return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
+
 }
