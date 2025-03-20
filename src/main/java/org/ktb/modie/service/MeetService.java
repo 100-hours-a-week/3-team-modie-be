@@ -194,6 +194,10 @@ public class MeetService {
         UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.PERMISSION_DENIED_NOT_MEMBER));
 
+        if (userMeet.getDeletedAt() != null) {
+            throw new BusinessException(CustomErrorCode.ALREADY_EXITED_MEET);
+        }
+
         // 모임에서 나가기 처리
         userMeet.setDeletedAt(LocalDateTime.now());
     }
