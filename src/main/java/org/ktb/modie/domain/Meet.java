@@ -18,9 +18,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "meet")
 public class Meet {
@@ -50,10 +52,10 @@ public class Meet {
     private LocalDateTime meetAt;
 
     @Column(name = "total_cost", nullable = false)
-    private Long totalCost;
+    private int totalCost;
 
     @Column(name = "member_limit", nullable = false)
-    private Long memberLimit;
+    private int memberLimit;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -70,7 +72,7 @@ public class Meet {
     @Builder
     public Meet(String meetIntro, String meetType, String address,
         String addressDescription, LocalDateTime meetAt,
-        Long totalCost, Long memberLimit, User owner) {
+        int totalCost, int memberLimit, User owner) {
         this.meetIntro = meetIntro;
         this.meetType = meetType;
         this.address = address;
@@ -84,5 +86,15 @@ public class Meet {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    // soft delete
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
+    // 삭제처리 메서드
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

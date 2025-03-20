@@ -1,18 +1,23 @@
 package org.ktb.modie.presentation.v1.dto;
 
-import java.time.LocalDateTime;
-
-import org.springframework.format.annotation.DateTimeFormat;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Builder
 public record MeetDto(
     @Schema(description = "모임 ID", example = "1")
-    Long id,
+    Long meetId,
+
+    @Schema(description = "모임 생성자", example = "김박박즐")
+    String ownerName,
 
     @Schema(description = "모임 소개", example = "제주 해안 드라이브")
     @NotNull
@@ -41,11 +46,22 @@ public record MeetDto(
     @Schema(description = "총 발생 비용 (0~10,000,000)", example = "10000")
     @Min(0)
     @Max(10_000_000)
-    Integer totalCost,
+    int totalCost,
 
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @Min(1)
     @Max(30)
-    Integer memberLimit
+    int memberLimit,
+
+    @Schema(description = "생성시각", example = "2025-03-18T18:00:00")
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    LocalDateTime createdAt,
+
+    @Schema(description = "유저의 상태", example = "owner")
+    String meetRule,
+
+    @Schema(description = "참여 인원")
+    List<UserDto> members
 ) {
 }

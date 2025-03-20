@@ -8,9 +8,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
-@Schema(description = "모임 생성 요청 DTO")
-public record CreateMeetRequest(
+@Schema(description = "모임 수정 DTO")
+@Builder
+public record UpdateMeetRequest(
     @Schema(description = "모임 설명", example = "제주 올레길 탐방")
     @NotBlank
     @Size(max = 30)
@@ -46,5 +48,10 @@ public record CreateMeetRequest(
     @Min(1)
     @Max(30)
     int memberLimit
+
+    // @Schema(description = "수정시각", example = "2025-03-18T18:00:00")
+    // @NotNull
+    // @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    // LocalDateTime updatedAt
 ) {
 }
