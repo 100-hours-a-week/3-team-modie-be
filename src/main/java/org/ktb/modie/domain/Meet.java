@@ -30,7 +30,7 @@ public class Meet {
     private Long meetId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User owner;
 
@@ -50,10 +50,10 @@ public class Meet {
     private LocalDateTime meetAt;
 
     @Column(name = "total_cost", nullable = false)
-    private Long totalCost;
+    private int totalCost;
 
     @Column(name = "member_limit", nullable = false)
-    private Long memberLimit;
+    private int memberLimit;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -70,7 +70,7 @@ public class Meet {
     @Builder
     public Meet(String meetIntro, String meetType, String address,
         String addressDescription, LocalDateTime meetAt,
-        Long totalCost, Long memberLimit, User owner) {
+        int totalCost, int memberLimit, User owner) {
         this.meetIntro = meetIntro;
         this.meetType = meetType;
         this.address = address;
