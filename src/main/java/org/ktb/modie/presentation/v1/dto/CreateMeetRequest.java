@@ -39,12 +39,12 @@ public record CreateMeetRequest(
     @NotNull
     @Min(0)
     @Max(10_000_000)
-    Long totalCost,
+    int totalCost,
 
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @NotNull
     @Min(1)
     @Max(30)
-    Long memberLimit
+    int memberLimit
 ) {
 }
