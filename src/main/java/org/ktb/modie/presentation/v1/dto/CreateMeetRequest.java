@@ -3,6 +3,7 @@ package org.ktb.modie.presentation.v1.dto;
 import java.time.LocalDateTime;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -33,6 +34,7 @@ public record CreateMeetRequest(
 
     @Schema(description = "출발 시간", example = "2025-02-20T18:00:00")
     @NotNull
+    @Future(message = "모임 날짜는 현재보다 이후여야 합니다.")
     LocalDateTime meetAt,
 
     @Schema(description = "총 비용 (0~10,000,000)", example = "10000")
@@ -43,7 +45,7 @@ public record CreateMeetRequest(
 
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @NotNull
-    @Min(1)
+    @Min(2)
     @Max(30)
     int memberLimit
 ) {
