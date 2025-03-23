@@ -16,7 +16,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtService jwtService; // 토큰 검증 메서드를 포함
+    private JwtService jwtService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -28,10 +28,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                // jwtService에서 토큰의 유효성 검증 (예: 서명, 만료시간, 클레임 등)
+                // jwtService에서 토큰의 유효성 검증
                 if (jwtService.isTokenValid(token)) {
-                    // 토큰이 유효하면 필요한 사용자 정보 등을 SecurityContext에 설정할 수 있습니다.
-                    // 예를 들어, UsernamePasswordAuthenticationToken을 생성하여 setAuthentication() 호출
+                    // 토큰에서 userId(sub) 추출
+                    String userId = jwtService.extractUserId(token);
+
+                    // 요청 속성에 userId 추가
+                    request.setAttribute("userId", userId);
                 } else {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     return;
@@ -41,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        // 인증이 필요하지 않은 요청이거나, 토큰 검증이 완료된 경우 필터 체인 계속 진행
+        // 필터 체인 계속 진행
         filterChain.doFilter(request, response);
     }
 }
