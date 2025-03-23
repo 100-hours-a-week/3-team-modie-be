@@ -18,10 +18,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins("http://localhost:5173", "http://local:8080", "https://modie.site", "https://dev.modie.site", "http://dev.modie.site", "https://dev-api.modie.site", "http://dev-api.modie.site")
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-            .allowedHeaders("Accept", "Content-Type", "Authorization")
-            .exposedHeaders("Content-Type")
+            .allowedOrigins("http://localhost:5173", "http://localhost:8080", "https://modie.site", "https://dev.modie.site", "http://dev.modie.site", "https://dev-api.modie.site", "http://dev-api.modie.site")
+            .allowedMethods("*")  // 모든 HTTP 메서드 허용
+            .allowedHeaders("*")  // 모든 헤더 허용
+            .exposedHeaders("Content-Type", "Authorization")  // 필요한 헤더 노출
             .allowCredentials(true)
             .maxAge(3600);
     }
