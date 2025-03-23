@@ -49,6 +49,7 @@ public interface MeetApi {
     @GetMapping("/{meetId}")
     ResponseEntity<SuccessResponse<MeetDto>> getMeet(
         @Parameter(description = "조회할 모임 ID", example = "1")
+        @RequestAttribute("userId") String userId,
         @PathVariable("meetId") Long meetId
     );
 

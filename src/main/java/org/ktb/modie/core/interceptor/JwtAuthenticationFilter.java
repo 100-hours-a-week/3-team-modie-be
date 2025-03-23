@@ -25,8 +25,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+        if (authHeader != null && authHeader.startsWith("Bearer")) {
+            String token = authHeader.substring(7).trim();
             try {
                 // jwtService에서 토큰의 유효성 검증
                 if (jwtService.isTokenValid(token)) {
@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 return;
             }

@@ -1,9 +1,12 @@
 package org.ktb.modie.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.ktb.modie.domain.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -66,7 +69,17 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token);
             return !isTokenExpired(token);
+        } catch (ExpiredJwtException e) {
+            System.out.println("Token expired: " + token);
+            return false;
+        } catch (MalformedJwtException e) {
+            System.out.println("Invalid JWT token format: " + token);
+            return false;
+        } catch (SignatureException e) {
+            System.out.println("Invalid JWT signature: " + token);
+            return false;
         } catch (Exception e) {
+            System.out.println("Unexpected token validation error: " + e.getMessage());
             return false;
         }
     }
