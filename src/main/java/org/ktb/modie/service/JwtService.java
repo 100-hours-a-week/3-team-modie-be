@@ -1,5 +1,13 @@
 package org.ktb.modie.service;
 
+import java.util.Date;
+
+import javax.crypto.SecretKey;
+
+import org.ktb.modie.domain.User;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -7,14 +15,10 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import org.ktb.modie.domain.User;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class JwtService {
 
     private final long expirationTime = 1000L * 60 * 60 * 24 * 30; // 1개월
@@ -70,16 +74,16 @@ public class JwtService {
                 .parseSignedClaims(token);
             return !isTokenExpired(token);
         } catch (ExpiredJwtException e) {
-            System.out.println("Token expired: " + token);
+            log.warn("Token expired: {}", e.getMessage());
             return false;
         } catch (MalformedJwtException e) {
-            System.out.println("Invalid JWT token format: " + token);
+            log.warn("Invalid JWT token format: {}", e.getMessage());
             return false;
         } catch (SignatureException e) {
-            System.out.println("Invalid JWT signature: " + token);
+            log.error("Invalid JWT signature: {}", e.getMessage());
             return false;
         } catch (Exception e) {
-            System.out.println("Unexpected token validation error: " + e.getMessage());
+            log.error("Unexpected token validation error: {}", e.getMessage());
             return false;
         }
     }
