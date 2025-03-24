@@ -99,7 +99,7 @@ public class MeetService {
         userMeetRepository.save(userMeet);
     }
 
-    public MeetDto getMeet(long meetId) {
+    public MeetDto getMeet(String userId, long meetId) {
         // NOTE: 비정상적인 meetID가 넘어온 경우
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
@@ -109,6 +109,16 @@ public class MeetService {
             .orElseThrow(() -> new BusinessException(
                 CustomErrorCode.MEETING_NOT_FOUND
             ));
+        // TODO: 메서드 따로 빼기
+        String meetRule;
+        // 현재 로그인한 사용자가 모임 소유자인지 확인
+        if (meet.getOwner().getUserId().equals(userId)) {
+            meetRule = "owner";
+        } else if (userMeetRepository.existsByMeetAndUserId(meet, userId)) {
+            meetRule = "member";
+        } else {
+            meetRule = "guest";
+        }
 
         // NOTE: 참여중인 멤버
         List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
@@ -124,7 +134,7 @@ public class MeetService {
             .totalCost(meet.getTotalCost())
             .memberLimit(meet.getMemberLimit())
             .createdAt(meet.getCreatedAt())
-            .meetRule("owner")
+            .meetRule(meetRule)
             .members(members)
             .build();
 
