@@ -142,8 +142,8 @@ public interface MeetApi {
     );
 
     @Operation(summary = "정산금액 업데이트", description = "정산 금액 입력 0이상 10,000,000이하")
-    @PatchMapping("/{meetId}/amount")
-    ResponseEntity<SuccessResponse<Void>> updateAmount(
+    @PatchMapping("/{meetId}/totalCost")
+    ResponseEntity<SuccessResponse<Void>> updateTotalCost(
         @RequestAttribute("userId") String userId,
         @PathVariable("meetId") Long meetId,
         @RequestBody @Min(0) @Max(10000000) int totalCost
