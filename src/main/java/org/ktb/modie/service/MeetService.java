@@ -316,6 +316,28 @@ public class MeetService {
 
         // soft delete
         meet.delete();
+    }
 
+    @Transactional
+    public void updateTotalCost(String userId, Long meetId, int totalCost) {
+        // 비정상적인 meetID가 넘어온 경우
+        if (meetId <= 0) {
+            throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
+        }
+        // 모임 존재여부
+        Meet meet = meetRepository.findActiveByMeedId(meetId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+
+        // 모임 생성자 여부
+        if (!meet.getOwner().getUserId().equals(userId)) {
+            throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_NOT_OWNER);
+        }
+
+        // 금액 유효성 검사
+        if (totalCost < 0 || totalCost > 10000000) {
+            throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
+        }
+
+        meet.setTotalCost(totalCost);
     }
 }
