@@ -22,7 +22,7 @@ public enum CustomErrorMessage {
     // 403 Forbidden
     INVALID_API_KEY("유효하지 않은 API 키입니다"),
     UNAUTHORIZED_USER("인증되지 않은 사용자입니다."),
-    PERMISSION_DENIED_DELETE_NOT_OWNER("모임 생성자만 삭제할 수 있습니다."),
+    PERMISSION_DENIED_NOT_OWNER("모임 생성자가 아닙니다."),
     PERMISSION_DENIED_NOT_MEMBER("모임 참여자만 탈퇴할 수 있습니다."),
     PERMISSION_DENIED_SETTLEMENT_NOT_OWNER("모임 생성자만 정산을 완료할 수 있습니다."),
     PERMISSION_DENIED_COMPLETED_NOT_OWNER("모임 생성자만 모임을 종료할 수 있습니다."),
@@ -31,7 +31,7 @@ public enum CustomErrorMessage {
     // 404 Not Found
     API_NOT_FOUND("요청한 API를 찾을 수 없습니다"),
     RESOURCE_NOT_FOUND("요청한 리소스를 찾을 수 없습니다"),
-    USER_NOT_FOUND("해당 유저를 찾을 수 없습니다.."),
+    USER_NOT_FOUND("해당 유저를 찾을 수 없습니다."),
     MEETING_NOT_FOUND("해당 모임을 찾을 수 없습니다."),
 
     // 409 Conflict

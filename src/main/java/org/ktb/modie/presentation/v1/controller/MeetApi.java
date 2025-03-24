@@ -1,11 +1,5 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
@@ -24,6 +18,15 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 @Tag(name = "Meet API", description = "모임 관련 API")
 @Validated
@@ -130,11 +133,19 @@ public interface MeetApi {
         @PathVariable("meetId") Long meetId
     );
 
-    @Operation(summary = "정산내역 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
+    @Operation(summary = "정산여부 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
     @PatchMapping("/{meetId}/payments")
     ResponseEntity<SuccessResponse<Void>> updatePayments(
         @RequestAttribute("userId") String userId,
         @PathVariable("meetId") Long meetId,
         @Valid @RequestBody UpdatePaymentRequest request
+    );
+
+    @Operation(summary = "정산금액 업데이트", description = "정산 금액 입력 0이상 10,000,000이하")
+    @PatchMapping("/{meetId}/amount")
+    ResponseEntity<SuccessResponse<Void>> updateAmount(
+        @RequestAttribute("userId") String userId,
+        @PathVariable("meetId") Long meetId,
+        @RequestBody @Min(0) @Max(10000000) int totalCost
     );
 }
