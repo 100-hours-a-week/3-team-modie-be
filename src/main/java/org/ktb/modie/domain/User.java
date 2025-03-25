@@ -2,6 +2,9 @@ package org.ktb.modie.domain;
 
 import java.time.LocalDateTime;
 
+import org.ktb.modie.core.exception.BusinessException;
+import org.ktb.modie.core.exception.CustomErrorCode;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -59,6 +62,9 @@ public class User {
     }
 
     public void updateAccountInfo(String bankName, String accountNumber) {
+        if (!accountNumber.matches("^[0-9]+$")) {
+            throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_USER);
+        }
         this.bankName = bankName;
         this.accountNumber = accountNumber;
     }
