@@ -237,6 +237,16 @@ public class MeetService {
             throw new BusinessException(CustomErrorCode.UNAUTHORIZED_USER_NOT_OWNER);
         }
 
+        // NOTE: 모임 날짜가 현재보다 이전인 경우 예외 처리
+        if (request.meetAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException(CustomErrorCode.INVALID_MEETING_DATE);
+        }
+
+        // NOTE: totalCost가 10,000,000 이상일 때 예외 처리
+        if (request.totalCost() >= 10000000) {
+            throw new BusinessException(CustomErrorCode.EXCESSIVE_COST);
+        }
+        
         meet.setMeetIntro(request.meetIntro());
         meet.setMeetType(request.meetType());
         meet.setAddress(request.address());
