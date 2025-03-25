@@ -1,16 +1,16 @@
 package org.ktb.modie.presentation.v1.dto;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 public record MeetDto(
@@ -58,6 +58,18 @@ public record MeetDto(
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime createdAt,
+
+    @Schema(description = "수정시각", example = "2025-03-18T18:00:00")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    LocalDateTime updatedAt,
+
+    @Schema(description = "삭제시각", example = "2025-03-18T18:00:00")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    LocalDateTime deletedAt,
+
+    @Schema(description = "완료시각", example = "2025-03-18T18:00:00")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    LocalDateTime completedAt,
 
     @Schema(description = "유저의 상태", example = "owner")
     String meetRule,

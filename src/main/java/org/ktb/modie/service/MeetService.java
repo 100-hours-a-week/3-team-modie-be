@@ -123,7 +123,7 @@ public class MeetService {
         // NOTE: 참여중인 멤버
         List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
 
-        MeetDto response = MeetDto.builder()
+        return MeetDto.builder()
             .meetId(meet.getMeetId())
             .ownerName(meet.getOwner().getUserName())
             .meetIntro(meet.getMeetIntro())
@@ -134,11 +134,12 @@ public class MeetService {
             .totalCost(meet.getTotalCost())
             .memberLimit(meet.getMemberLimit())
             .createdAt(meet.getCreatedAt())
+            .updatedAt(meet.getUpdatedAt())
+            .deletedAt(meet.getDeletedAt())
+            .completedAt(meet.getCompletedAt())
             .meetRule(meetRule)
             .members(members)
             .build();
-
-        return response;
     }
 
     public MeetListResponse getMeetList(String meetType, Boolean isCompleted, int page) {
