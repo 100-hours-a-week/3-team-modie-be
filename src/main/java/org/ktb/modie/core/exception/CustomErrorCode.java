@@ -13,6 +13,7 @@ public enum CustomErrorCode implements ErrorCode {
     INVALID_REQUEST_BODY(400, "E004", CustomErrorMessage.INVALID_REQUEST_BODY),
     INVALID_INPUT_VALUE(400, "E005", CustomErrorMessage.INVALID_INPUT),
     INVALID_DATE_FORMAT(400, "E006", CustomErrorMessage.INVALID_DATE_FORMAT),
+    INVALID_DATE_TOO_FAR(400, "E007", CustomErrorMessage.INVALID_DATE_TOO_FAR),
     INVALID_REQUEST(400, "K001", CustomErrorMessage.INVALID_REQUEST),
     INVALID_INPUT_IN_USER(400, "U003", CustomErrorMessage.INVALID_INPUT),
     INVALID_INPUT_IN_MEET(400, "M002", CustomErrorMessage.INVALID_INPUT),

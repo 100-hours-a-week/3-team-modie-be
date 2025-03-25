@@ -13,6 +13,7 @@ public enum CustomErrorMessage {
     INVALID_REQUEST_BODY("잘못된 요청 본문입니다"),
     INVALID_INPUT("입력값이 유효하지 않습니다."),
     INVALID_DATE_FORMAT("날짜 형식이 올바르지 않습니다. (yyyy-MM-dd 형식으로 입력해주세요)"),
+    INVALID_DATE_TOO_FAR("모임 날짜는 1년 이내여야 합니다."),
     INVALID_REQUEST("잘못된 요청입니다."),
     INVALID_PAGE("페이지 번호 또는 크기가 유효하지 않습니다."),
 
