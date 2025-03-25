@@ -43,6 +43,11 @@ public class MeetService {
         User owner = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
 
+        // meetAt이 1년 이상 이후일 경우 예외
+        if (request.meetAt().isAfter(LocalDateTime.now().plusYears(1))) {
+            throw new BusinessException(CustomErrorCode.INVALID_DATE_TOO_FAR);
+        }
+
         Meet meet = Meet.builder()
             .meetIntro(request.meetIntro())
             .meetType(request.meetType())
