@@ -28,7 +28,7 @@ public class SwaggerConfig {
             .description("API 명세서");
 
         Server devServer = new Server()
-            .url("http://localhost:8080/")
+            .url("https://dev-api.modie.site")
             .description("개발용 서버");
 
         return new OpenAPI()

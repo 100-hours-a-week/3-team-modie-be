@@ -246,7 +246,7 @@ public class MeetService {
         if (request.totalCost() >= 10000000) {
             throw new BusinessException(CustomErrorCode.EXCESSIVE_COST);
         }
-        
+
         meet.setMeetIntro(request.meetIntro());
         meet.setMeetType(request.meetType());
         meet.setAddress(request.address());
