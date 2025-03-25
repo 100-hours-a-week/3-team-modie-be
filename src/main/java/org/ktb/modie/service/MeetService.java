@@ -2,6 +2,7 @@ package org.ktb.modie.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
@@ -79,13 +80,26 @@ public class MeetService {
             throw new BusinessException(CustomErrorCode.OWNER_CANNOT_JOIN_MEET);
         }
 
-        // 중복 참여 방지
-        if (userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(userId, meetId).isPresent()) {
-            throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
+        // 중복 참여 방지 및 탈퇴한 사용자 처리
+        Optional<UserMeet> existUserMeet = userMeetRepository
+            .findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId);
+
+        if (existUserMeet.isPresent()) {
+            UserMeet userMeet = existUserMeet.get();
+
+            if (userMeet.getDeletedAt() == null) {
+                // 이미 참여 중
+                throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
+            } else {
+                // 탈퇴한 이력 있음
+                userMeet.setDeletedAt(null);
+                userMeet.setPayed(false);
+                return; // 복구 후 종료
+            }
         }
 
         // 정원 초과 여부 체크
-        int currentMemberCount = userMeetRepository.countByMeet(meet) + 1;
+        int currentMemberCount = userMeetRepository.countByMeetAndDeletedAtIsNull(meet) + 1;
         if (currentMemberCount >= meet.getMemberLimit()) {
             throw new BusinessException(CustomErrorCode.MEETING_CAPACITY_FULL);
         }
@@ -173,7 +187,7 @@ public class MeetService {
                 meet.getAddress(),
                 meet.getAddressDescription(),
                 meet.getTotalCost() > 0, // 비용 여부 (0보다 크면 true)
-                userMeetRepository.countByMeet(meet) + 1, // 현재 참여 인원 수
+                userMeetRepository.countByMeetAndDeletedAtIsNull(meet) + 1, // 현재 참여 인원 수
                 meet.getMemberLimit(), // 최대 인원 수
                 meet.getOwner().getUserName() // 모임장 이름
             ))
