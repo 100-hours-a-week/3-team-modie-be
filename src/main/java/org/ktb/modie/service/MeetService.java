@@ -80,7 +80,7 @@ public class MeetService {
         }
 
         // 중복 참여 방지
-        if (userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId).isPresent()) {
+        if (userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(userId, meetId).isPresent()) {
             throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
         }
 
@@ -209,7 +209,7 @@ public class MeetService {
         }
 
         // 사용자가 해당 모임에 참여 중인지 확인
-        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId)
+        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(userId, meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.PERMISSION_DENIED_NOT_MEMBER));
 
         if (userMeet.getDeletedAt() != null) {
@@ -293,7 +293,8 @@ public class MeetService {
         }
 
         // 해당 유저가 해당 모임에 참여 중인지 확인
-        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(request.userId(), meetId)
+        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(
+                request.userId(), meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.SETTLEMENT_PERMISSION_DENIED_NOT_MEMBER));
 
         // 정산 상태 변경 (true <-> false 토글)
