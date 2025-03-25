@@ -12,6 +12,8 @@ import org.ktb.modie.core.response.ErrorResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -133,5 +135,49 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity
             .status(errorCode.getStatus())
             .body(body);
+    }
+
+    /**
+     * 날짜 형식 등 @DateTimeFormat 바인딩 예외 처리
+     */
+    @ExceptionHandler(BindException.class)
+    protected ResponseEntity<ErrorResponse> handleBindException(BindException ex) {
+        log.error(LOG_FORMAT, "BindException", ex.getMessage(), ex);
+
+        List<ErrorResponse.ValidationError> validationErrors = ex.getFieldErrors().stream()
+            .map(error -> ErrorResponse.ValidationError.of(
+                error.getField(),
+                CustomErrorCode.INVALID_DATE_FORMAT.getMessage(),
+                error.getRejectedValue()
+            ))
+            .collect(Collectors.toList());
+
+        return createErrorResponse(
+            CustomErrorCode.INVALID_DATE_FORMAT,
+            ErrorResponse.of(CustomErrorCode.INVALID_DATE_FORMAT, validationErrors)
+        );
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+        HttpMessageNotReadableException ex,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest request) {
+
+        log.error(LOG_FORMAT, "HttpMessageNotReadableException", ex.getMessage(), ex);
+
+        List<ErrorResponse.ValidationError> validationErrors = List.of(
+            ErrorResponse.ValidationError.of(
+                "meetAt",
+                "날짜 형식이 잘못되었습니다. yyyy-MM-dd'T'HH:mm:ss 형식으로 입력해주세요.",
+                null
+            )
+        );
+
+        return createErrorResponse(
+            CustomErrorCode.INVALID_DATE_FORMAT,
+            ErrorResponse.of(CustomErrorCode.INVALID_DATE_FORMAT, validationErrors)
+        );
     }
 }
