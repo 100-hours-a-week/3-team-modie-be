@@ -62,7 +62,7 @@ public class User {
     }
 
     public void updateAccountInfo(String bankName, String accountNumber) {
-        if (!accountNumber.matches("^[0-9]+$")) {
+        if (!accountNumber.matches("^[0-9]*$")) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_USER);
         }
         this.bankName = bankName;
