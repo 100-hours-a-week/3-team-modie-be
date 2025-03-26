@@ -1,11 +1,10 @@
 package org.ktb.modie.presentation.v1.controller;
 
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.ktb.modie.core.response.SuccessResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,21 +18,14 @@ public class HealthCheckController implements HealthCheckApi {
     private DataSource dataSource;
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> healthCheck() {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<SuccessResponse<Void>> healthCheck() {
         try (Connection conn = dataSource.getConnection()) {
             if (conn.isValid(2)) {
-                response.put("status", "UP");
-                response.put("message", "DB Connection is healthy");
                 return ResponseEntity.ok().build();
             } else {
-                response.put("status", "DOWN");
-                response.put("message", "DB Connection Failed");
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
             }
         } catch (Exception e) {
-            response.put("status", "DOWN");
-            response.put("message", "DB Connection Error");
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
