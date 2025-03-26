@@ -85,7 +85,7 @@ public class MeetService {
         }
 
         // 정원 초과 여부 체크
-        int currentMemberCount = userMeetRepository.countByMeet(meet) + 1;
+        int currentMemberCount = userMeetRepository.countByMeetAndDeletedAtIsNull(meet) + 1;
         if (currentMemberCount >= meet.getMemberLimit()) {
             throw new BusinessException(CustomErrorCode.MEETING_CAPACITY_FULL);
         }
@@ -173,7 +173,7 @@ public class MeetService {
                 meet.getAddress(),
                 meet.getAddressDescription(),
                 meet.getTotalCost() > 0, // 비용 여부 (0보다 크면 true)
-                userMeetRepository.countByMeet(meet) + 1, // 현재 참여 인원 수
+                userMeetRepository.countByMeetAndDeletedAtIsNull(meet) + 1, // 현재 참여 인원 수
                 meet.getMemberLimit(), // 최대 인원 수
                 meet.getOwner().getUserName() // 모임장 이름
             ))
