@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,35 +21,25 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserMeet {
+public class Chat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_meet_id")
-    private Long userMeetId;
+    @Column(name = "message_id")
+    private Integer messageId;
+
+    // private Long meetId;
+    @ManyToOne
+    @JoinColumn(name = "meet_id", nullable = false)
+    private Meet meet;  // Meet 엔티티 참조
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user;  // User 엔티티 참조
 
-    @ManyToOne
-    @JoinColumn(name = "meet_id", nullable = false)
-    private Meet meet;
-
-    @Column(name = "is_payed", nullable = false)
-    private boolean isPayed;
-
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
+    @Column(name = "message_content", nullable = false, length = 200)
+    private String messageContent;
 }

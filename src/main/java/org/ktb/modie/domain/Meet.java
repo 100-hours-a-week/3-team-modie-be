@@ -30,6 +30,7 @@ public class Meet {
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User owner;
 
     @Column(name = "meet_intro", nullable = false)

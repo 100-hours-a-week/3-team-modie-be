@@ -2,18 +2,18 @@ package org.ktb.modie.presentation.v1.dto;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
-@Schema(description = "모임 생성 요청 DTO")
-public record CreateMeetRequest(
+@Schema(description = "모임 수정 DTO")
+@Builder
+public record UpdateMeetRequest(
     @Schema(description = "모임 설명", example = "제주 올레길 탐방")
     @NotBlank
     @Size(max = 30)
@@ -34,10 +34,9 @@ public record CreateMeetRequest(
     @Size(max = 20)
     String addressDescription,
 
-    @Schema(description = "출발 시간", example = "2025-05-20T18:00:00")
+    @Schema(description = "출발 시간", example = "2025-02-20T18:00:00")
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @Future(message = "모임 날짜는 현재보다 이후여야 합니다.")
+    @FutureOrPresent(message = "출발 시간은 현재 시간보다 이후여야 합니다.")
     LocalDateTime meetAt,
 
     @Schema(description = "총 비용 (0~10,000,000)", example = "10000")
@@ -48,8 +47,13 @@ public record CreateMeetRequest(
 
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @NotNull
-    @Min(2)
+    @Min(1)
     @Max(30)
     int memberLimit
+
+    // @Schema(description = "수정시각", example = "2025-03-18T18:00:00")
+    // @NotNull
+    // @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    // LocalDateTime updatedAt
 ) {
 }

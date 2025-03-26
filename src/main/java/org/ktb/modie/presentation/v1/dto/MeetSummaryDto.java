@@ -1,8 +1,9 @@
 package org.ktb.modie.presentation.v1.dto;
 
-import java.time.LocalDateTime;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.time.LocalDateTime;
 
 public record MeetSummaryDto(
     @Schema(description = "모임 ID", example = "1")
@@ -12,9 +13,10 @@ public record MeetSummaryDto(
     String meetIntro,
 
     @Schema(description = "모임 유형", example = "여행")
-    String type,
+    String meetType,
 
     @Schema(description = "모임 시작 시간", example = "2025-03-20T10:00:00")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime meetAt,
 
     @Schema(description = "주소", example = "제주특별자치도 제주시 월성로 4길 19")
