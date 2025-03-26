@@ -19,6 +19,7 @@ public enum CustomErrorMessage {
 
     // 401 UnAuthorized
     INVALID_PERMISSION_CODE("유효하지 않은 인가 코드입니다."),
+    INVALID_TOKEN("유효하지 않은 토큰입니다."),
 
     // 403 Forbidden
     INVALID_API_KEY("유효하지 않은 API 키입니다"),

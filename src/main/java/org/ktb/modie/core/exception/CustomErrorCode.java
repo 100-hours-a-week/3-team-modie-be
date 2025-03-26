@@ -22,6 +22,7 @@ public enum CustomErrorCode implements ErrorCode {
 
     // 401 UnAuthorized
     INVALID_PERMISSION_CODE(401, "K002", CustomErrorMessage.INVALID_PERMISSION_CODE),
+    INVALID_TOKEN(401, "A001", CustomErrorMessage.INVALID_TOKEN),
 
     // 403 Forbidden
     INVALID_API_KEY(403, "E101", CustomErrorMessage.INVALID_API_KEY),
