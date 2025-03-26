@@ -118,14 +118,12 @@ public class UserService {
 			return user;
 		} catch (HttpClientErrorException e) {
 			e.printStackTrace();
-			// 400 Bad Request일 경우(즉, code가 만료되었을 경우)
-			if (e.getStatusCode().value() == 400) {
-				System.out.println("인증 코드 만료: " + e.getMessage()); // 인증 코드 만료 로그
-				throw new RuntimeException("인증 코드가 만료되었습니다. 다시 로그인해주세요.");
+			// code가 만료되었을 경우 401
+			if (e.getStatusCode().value() == 401) {
+				throw new BusinessException(CustomErrorCode.INVALID_PERMISSION_CODE);
 			}
 			// 카카오 API 호출 오류 처리
-			System.out.println("카카오 로그인 API 호출 오류: " + e.getMessage()); // API 호출 오류 로그
-			throw new RuntimeException("카카오 로그인 API 호출 오류: " + e.getMessage());
+			throw new BusinessException(CustomErrorCode.INVALID_REQUEST);
 		}
 	}
 
@@ -142,7 +140,7 @@ public class UserService {
 			return (String)response.getBody().get("access_token");
 		} catch (HttpClientErrorException e) {
 			// 토큰 갱신 실패 시 예외 처리
-			throw new RuntimeException("Refresh Token으로 Access Token 갱신 실패: " + e.getMessage());
+			throw new BusinessException(CustomErrorCode.INVALID_TOKEN);
 		}
 	}
 
