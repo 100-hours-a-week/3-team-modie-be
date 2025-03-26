@@ -89,6 +89,7 @@ public interface MeetApi {
     })
     @GetMapping
     ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(
+        @RequestAttribute("userId") String userId,
         @RequestParam(value = "category", required = false) String category,
         @RequestParam(value = "completed", required = false, defaultValue = "0") boolean completed,
         @RequestParam(value = "page", required = false, defaultValue = "1") int page
