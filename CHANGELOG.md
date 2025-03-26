@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## <small>1.4.1 (2025-03-26)</small>
+
+* fix: import 누락 수정 ([ced4391](https://github.com/100-hours-a-week/3-team-modie-be/commit/ced4391))
+
 ## 1.4.0 (2025-03-26)
 
 * feat : Add 409,ALREADY_JOINED_MEET Error ([62a708a](https://github.com/100-hours-a-week/3-team-modie-be/commit/62a708a))
