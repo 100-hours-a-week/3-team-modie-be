@@ -359,12 +359,26 @@ public class MeetService {
         if (userId == null || userId.isEmpty() || meet == null) { // userId가 없는 경우 게스트
             return "guest";
         }
+
+        // NOTE: 모임의 소유자 확인
         if (meet.getOwner() != null && userId.equals(meet.getOwner().getUserId())) {
             return "owner";
         }
-        if (userMeetRepository.existsByMeetAndUserId(meet, userId)) {
+
+        // NOTE: 유저가 해당 모임에 존재하는지 확인 (삭제된 기록도 고려)
+        Optional<UserMeet> userMeetOpt = userMeetRepository.findByMeet_MeetIdAndUser_UserId(meet.getMeetId(), userId);
+
+        if (userMeetOpt.isPresent()) {
+            UserMeet userMeet = userMeetOpt.get();
+
+            // NOTE: deletedAt이 null이 아니면 탈퇴한 상태 -> guest
+            if (userMeet.getDeletedAt() != null) {
+                return "guest";
+            }
             return "member";
         }
+
+        // NOTE: 위 조건에 맞지 않으면 게스트
         return "guest";
     }
 }
