@@ -161,7 +161,7 @@ public class MeetService {
             .build();
     }
 
-    public MeetListResponse getMeetList(String meetType, Boolean isCompleted, int page) {
+    public MeetListResponse getMeetList(String userId, String meetType, Boolean isCompleted, int page) {
         if (meetType != null && meetType.length() > 10) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_PAGE); // meetType이 10자를 초과하면 예외 발생
         }
@@ -175,7 +175,7 @@ public class MeetService {
         Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "meetAt"));
 
         // 필터링된 모임 리스트 조회
-        Page<Meet> meetPage = meetRepository.findFilteredMeets(meetType, isCompleted, pageable);
+        Page<Meet> meetPage = meetRepository.findFilteredMeets(userId, meetType, isCompleted, pageable);
 
         // 총 페이지 수를 벗어난 경우
         if (page > (meetPage.getTotalElements() / 10) + 1) {
