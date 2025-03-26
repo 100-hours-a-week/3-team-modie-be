@@ -2,6 +2,7 @@ package org.ktb.modie.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
@@ -43,6 +44,11 @@ public class MeetService {
         User owner = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
 
+        // meetAt이 1년 이상 이후일 경우 예외
+        if (request.meetAt().isAfter(LocalDateTime.now().plusYears(1))) {
+            throw new BusinessException(CustomErrorCode.INVALID_DATE_TOO_FAR);
+        }
+
         Meet meet = Meet.builder()
             .meetIntro(request.meetIntro())
             .meetType(request.meetType())
@@ -79,13 +85,26 @@ public class MeetService {
             throw new BusinessException(CustomErrorCode.OWNER_CANNOT_JOIN_MEET);
         }
 
-        // 중복 참여 방지
-        if (userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId).isPresent()) {
-            throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
+        // 중복 참여 방지 및 탈퇴한 사용자 처리
+        Optional<UserMeet> existUserMeet = userMeetRepository
+            .findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId);
+
+        if (existUserMeet.isPresent()) {
+            UserMeet userMeet = existUserMeet.get();
+
+            if (userMeet.getDeletedAt() == null) {
+                // 이미 참여 중
+                throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
+            } else {
+                // 탈퇴한 이력 있음
+                userMeet.setDeletedAt(null);
+                userMeet.setPayed(false);
+                return; // 복구 후 종료
+            }
         }
 
         // 정원 초과 여부 체크
-        int currentMemberCount = userMeetRepository.countByMeet(meet) + 1;
+        int currentMemberCount = userMeetRepository.countByMeetAndDeletedAtIsNull(meet) + 1;
         if (currentMemberCount >= meet.getMemberLimit()) {
             throw new BusinessException(CustomErrorCode.MEETING_CAPACITY_FULL);
         }
@@ -123,7 +142,7 @@ public class MeetService {
         // NOTE: 참여중인 멤버
         List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
 
-        MeetDto response = MeetDto.builder()
+        return MeetDto.builder()
             .meetId(meet.getMeetId())
             .ownerName(meet.getOwner().getUserName())
             .meetIntro(meet.getMeetIntro())
@@ -134,14 +153,15 @@ public class MeetService {
             .totalCost(meet.getTotalCost())
             .memberLimit(meet.getMemberLimit())
             .createdAt(meet.getCreatedAt())
+            .updatedAt(meet.getUpdatedAt())
+            .deletedAt(meet.getDeletedAt())
+            .completedAt(meet.getCompletedAt())
             .meetRule(meetRule)
             .members(members)
             .build();
-
-        return response;
     }
 
-    public MeetListResponse getMeetList(String meetType, Boolean isCompleted, int page) {
+    public MeetListResponse getMeetList(String userId, String meetType, Boolean isCompleted, int page) {
         if (meetType != null && meetType.length() > 10) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_PAGE); // meetType이 10자를 초과하면 예외 발생
         }
@@ -155,7 +175,7 @@ public class MeetService {
         Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "meetAt"));
 
         // 필터링된 모임 리스트 조회
-        Page<Meet> meetPage = meetRepository.findFilteredMeets(meetType, isCompleted, pageable);
+        Page<Meet> meetPage = meetRepository.findFilteredMeets(userId, meetType, isCompleted, pageable);
 
         // 총 페이지 수를 벗어난 경우
         if (page > (meetPage.getTotalElements() / 10) + 1) {
@@ -172,7 +192,7 @@ public class MeetService {
                 meet.getAddress(),
                 meet.getAddressDescription(),
                 meet.getTotalCost() > 0, // 비용 여부 (0보다 크면 true)
-                userMeetRepository.countByMeet(meet) + 1, // 현재 참여 인원 수
+                userMeetRepository.countByMeetAndDeletedAtIsNull(meet) + 1, // 현재 참여 인원 수
                 meet.getMemberLimit(), // 최대 인원 수
                 meet.getOwner().getUserName() // 모임장 이름
             ))
@@ -208,7 +228,7 @@ public class MeetService {
         }
 
         // 사용자가 해당 모임에 참여 중인지 확인
-        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId)
+        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(userId, meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.PERMISSION_DENIED_NOT_MEMBER));
 
         if (userMeet.getDeletedAt() != null) {
@@ -302,7 +322,8 @@ public class MeetService {
         }
 
         // 해당 유저가 해당 모임에 참여 중인지 확인
-        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(request.userId(), meetId)
+        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(
+                request.userId(), meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.SETTLEMENT_PERMISSION_DENIED_NOT_MEMBER));
 
         // 정산 상태 변경 (true <-> false 토글)

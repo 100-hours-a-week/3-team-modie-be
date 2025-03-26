@@ -55,9 +55,10 @@ public class MeetController implements MeetApi {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(String category, boolean completed, int page
+    public ResponseEntity<SuccessResponse<MeetListResponse>> getMeetList(String userId, String category,
+        boolean completed, int page
     ) {
-        MeetListResponse response = meetService.getMeetList(category, completed, page);
+        MeetListResponse response = meetService.getMeetList(userId, category, completed, page);
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 
