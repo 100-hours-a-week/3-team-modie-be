@@ -2,6 +2,8 @@ package org.ktb.modie.presentation.v1.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Max;
@@ -32,8 +34,9 @@ public record CreateMeetRequest(
     @Size(max = 20)
     String addressDescription,
 
-    @Schema(description = "출발 시간", example = "2025-02-20T18:00:00")
+    @Schema(description = "출발 시간", example = "2025-05-20T18:00:00")
     @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Future(message = "모임 날짜는 현재보다 이후여야 합니다.")
     LocalDateTime meetAt,
 
