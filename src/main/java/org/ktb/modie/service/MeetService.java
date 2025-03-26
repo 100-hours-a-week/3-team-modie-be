@@ -2,6 +2,7 @@ package org.ktb.modie.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
@@ -79,9 +80,22 @@ public class MeetService {
             throw new BusinessException(CustomErrorCode.OWNER_CANNOT_JOIN_MEET);
         }
 
-        // 중복 참여 방지
-        if (userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId).isPresent()) {
-            throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
+        // 중복 참여 방지 및 탈퇴한 사용자 처리
+        Optional<UserMeet> existUserMeet = userMeetRepository
+            .findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId);
+
+        if (existUserMeet.isPresent()) {
+            UserMeet userMeet = existUserMeet.get();
+
+            if (userMeet.getDeletedAt() == null) {
+                // 이미 참여 중
+                throw new BusinessException(CustomErrorCode.ALREADY_JOINED_MEET);
+            } else {
+                // 탈퇴한 이력 있음
+                userMeet.setDeletedAt(null);
+                userMeet.setPayed(false);
+                return; // 복구 후 종료
+            }
         }
 
         // 정원 초과 여부 체크
@@ -209,7 +223,7 @@ public class MeetService {
         }
 
         // 사용자가 해당 모임에 참여 중인지 확인
-        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId, meetId)
+        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(userId, meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.PERMISSION_DENIED_NOT_MEMBER));
 
         if (userMeet.getDeletedAt() != null) {
@@ -293,7 +307,8 @@ public class MeetService {
         }
 
         // 해당 유저가 해당 모임에 참여 중인지 확인
-        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(request.userId(), meetId)
+        UserMeet userMeet = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(
+                request.userId(), meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.SETTLEMENT_PERMISSION_DENIED_NOT_MEMBER));
 
         // 정산 상태 변경 (true <-> false 토글)
