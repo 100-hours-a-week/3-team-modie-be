@@ -3,6 +3,7 @@ package org.ktb.modie.presentation.v1.dto;
 import java.time.LocalDateTime;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -35,6 +36,7 @@ public record UpdateMeetRequest(
 
     @Schema(description = "출발 시간", example = "2025-02-20T18:00:00")
     @NotNull
+    @FutureOrPresent(message = "출발 시간은 현재 시간보다 이후여야 합니다.")
     LocalDateTime meetAt,
 
     @Schema(description = "총 비용 (0~10,000,000)", example = "10000")
