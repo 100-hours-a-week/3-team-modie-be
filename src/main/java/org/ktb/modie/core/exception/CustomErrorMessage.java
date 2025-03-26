@@ -16,6 +16,8 @@ public enum CustomErrorMessage {
     INVALID_DATE_TOO_FAR("모임 날짜는 1년 이내여야 합니다."),
     INVALID_REQUEST("잘못된 요청입니다."),
     INVALID_PAGE("페이지 번호 또는 크기가 유효하지 않습니다."),
+    INVALID_MEETING_DATE("모임 날짜는 현재 이후여야 합니다."),
+    EXCESSIVE_COST("총 비용이 10,000,000원을 초과할 수 없습니다."),
 
     // 401 UnAuthorized
     INVALID_PERMISSION_CODE("유효하지 않은 인가 코드입니다."),
