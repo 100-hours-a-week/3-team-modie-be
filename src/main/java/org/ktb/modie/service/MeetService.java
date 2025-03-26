@@ -128,16 +128,8 @@ public class MeetService {
             .orElseThrow(() -> new BusinessException(
                 CustomErrorCode.MEETING_NOT_FOUND
             ));
-        // TODO: 메서드 따로 빼기
-        String meetRule;
-        // 현재 로그인한 사용자가 모임 소유자인지 확인
-        if (meet.getOwner().getUserId().equals(userId)) {
-            meetRule = "owner";
-        } else if (userMeetRepository.existsByMeetAndUserId(meet, userId)) {
-            meetRule = "member";
-        } else {
-            meetRule = "guest";
-        }
+        // NOTE: 역할(owner, member, guest)
+        String meetRule = getMeetRole(userId, meet);
 
         // NOTE: 참여중인 멤버
         List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
@@ -360,5 +352,19 @@ public class MeetService {
         }
 
         meet.setTotalCost(totalCost);
+    }
+
+    private String getMeetRole(String userId, Meet meet) {
+        // NOTE: 유저의 확인
+        if (userId == null || userId.isEmpty() || meet == null) { // userId가 없는 경우 게스트
+            return "guest";
+        }
+        if (meet.getOwner() != null && userId.equals(meet.getOwner().getUserId())) {
+            return "owner";
+        }
+        if (userMeetRepository.existsByMeetAndUserId(meet, userId)) {
+            return "member";
+        }
+        return "guest";
     }
 }
