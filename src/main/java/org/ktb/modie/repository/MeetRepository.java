@@ -22,7 +22,7 @@ public interface MeetRepository extends JpaRepository<Meet, Long> {
         OR m.meetType = :meetType)
         AND ((:isCompleted = false AND m.completedAt IS NULL) OR (:isCompleted = true AND m.completedAt IS NOT NULL))
         AND m.deletedAt IS NULL
-        ORDER BY m.meetAt DESC
+        ORDER BY m.meetAt ASC
         """)
     Page<Meet> findFilteredMeets(
         @Param("userId") String userId,
