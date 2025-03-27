@@ -1,9 +1,10 @@
 package org.ktb.modie.presentation.v1.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record MeetSummaryDto(
     @Schema(description = "모임 ID", example = "1")
@@ -23,7 +24,7 @@ public record MeetSummaryDto(
     String address,
 
     @Schema(description = "주소 상세 설명", example = "노블레스호텔 정문")
-    String addressDetail,
+    String addressDescription,
 
     @Schema(description = "비용 여부 (totalCost가 0보다 크면 true)", example = "true")
     boolean cost,
