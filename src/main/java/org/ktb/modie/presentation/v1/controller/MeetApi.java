@@ -3,6 +3,7 @@ package org.ktb.modie.presentation.v1.controller;
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
+import org.ktb.modie.presentation.v1.dto.GetMeetPaymentResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
@@ -148,5 +149,12 @@ public interface MeetApi {
         @RequestAttribute("userId") String userId,
         @PathVariable("meetId") Long meetId,
         @RequestBody @Min(0) @Max(10000000) int totalCost
+    );
+
+    @Operation(summary = "정산 정보 조회", description = "모임 정산 정보 조회")
+    @GetMapping("/{meetId}/payments")
+    ResponseEntity<SuccessResponse<GetMeetPaymentResponse>> getMeetPayment(
+        @RequestAttribute("userId") String userId,
+        @PathVariable("meetId") Long meetId
     );
 }

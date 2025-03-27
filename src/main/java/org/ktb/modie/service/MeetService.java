@@ -11,6 +11,7 @@ import org.ktb.modie.domain.User;
 import org.ktb.modie.domain.UserMeet;
 import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
+import org.ktb.modie.presentation.v1.dto.GetMeetPaymentResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.MeetSummaryDto;
@@ -381,5 +382,22 @@ public class MeetService {
         }
 
         return "member"; // 탈퇴하지 않은 유저는 멤버
+    }
+
+    public GetMeetPaymentResponse getMeetPaymentInfo(String userId, Long meetId) {
+        Meet meet = meetRepository.findById(meetId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
+
+        // 요청한 사용자와 방장이 일치하는지
+        if (!meet.getOwner().getUserId().equals(userId)) {
+            throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_NOT_OWNER);
+        }
+
+        int count = userMeetRepository.countByMeetAndDeletedAtIsNull(meet) + 1;
+
+        return new GetMeetPaymentResponse(meet.getOwner().getBankName(), meet.getOwner().getAccountNumber(), count);
     }
 }
