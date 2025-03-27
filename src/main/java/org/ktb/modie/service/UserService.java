@@ -110,6 +110,8 @@ public class UserService {
 					.userId(userId)
 					.userName(userName)
 					.profileImageUrl(profileImageUrl)
+					.bankName("")
+					.accountNumber("")
 					.createdAt(LocalDateTime.now())
 					.build();
 				userRepository.save(user);
