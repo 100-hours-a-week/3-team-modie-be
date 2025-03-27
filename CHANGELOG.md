@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 1.5.0 (2025-03-27)
+
+* fix: change getsummarydto field name ([7187515](https://github.com/100-hours-a-week/3-team-modie-be/commit/7187515))
+* fix: meetrule 수정 완료 ([c57ab8c](https://github.com/100-hours-a-week/3-team-modie-be/commit/c57ab8c))
+* fix: Merge pull request #105 from 100-hours-a-week/fix/update-account-with-empty-string ([510f238](https://github.com/100-hours-a-week/3-team-modie-be/commit/510f238)), closes [#105](https://github.com/100-hours-a-week/3-team-modie-be/issues/105)
+* fix: Merge pull request #109 from 100-hours-a-week/fix/change-get-meet-list-field-name ([0970bd2](https://github.com/100-hours-a-week/3-team-modie-be/commit/0970bd2)), closes [#109](https://github.com/100-hours-a-week/3-team-modie-be/issues/109)
+* fix: Merge pull request #110 from 100-hours-a-week/dev ([6804cdd](https://github.com/100-hours-a-week/3-team-modie-be/commit/6804cdd)), closes [#110](https://github.com/100-hours-a-week/3-team-modie-be/issues/110)
+* fix: update account with empty string ([b31e9bf](https://github.com/100-hours-a-week/3-team-modie-be/commit/b31e9bf))
+* fix: 기존 메소드 사용, early return 적용 ([ac944eb](https://github.com/100-hours-a-week/3-team-modie-be/commit/ac944eb))
+* FIX - findFilteredMeets Query at MeetRepository ([6418bf6](https://github.com/100-hours-a-week/3-team-modie-be/commit/6418bf6))
+* fix : edit MeetRepository findFilteredMeets Query for meetType=='기타' #98 ([12ef546](https://github.com/100-hours-a-week/3-team-modie-be/commit/12ef546)), closes [#98](https://github.com/100-hours-a-week/3-team-modie-be/issues/98)
+* fix : edit MeetRepository findFilteredMeets Query for Order #103 ([4ec4ac1](https://github.com/100-hours-a-week/3-team-modie-be/commit/4ec4ac1)), closes [#103](https://github.com/100-hours-a-week/3-team-modie-be/issues/103)
+* fix : import package ([d9fcee9](https://github.com/100-hours-a-week/3-team-modie-be/commit/d9fcee9))
+* fix : import package for build ([d660da5](https://github.com/100-hours-a-week/3-team-modie-be/commit/d660da5))
+* Merge branch 'issue/getMeetList2' of https://github.com/100-hours-a-week/3-team-modie-be into issue/ ([4cf7887](https://github.com/100-hours-a-week/3-team-modie-be/commit/4cf7887))
+* Merge branch 'main' into dev ([43d09fa](https://github.com/100-hours-a-week/3-team-modie-be/commit/43d09fa))
+* Merge pull request #100 from 100-hours-a-week/fix/edit-meetRule ([28cf33e](https://github.com/100-hours-a-week/3-team-modie-be/commit/28cf33e)), closes [#100](https://github.com/100-hours-a-week/3-team-modie-be/issues/100)
+* feat: Merge pull request #106 from 100-hours-a-week/issue/getMeetList2 ([3486a0c](https://github.com/100-hours-a-week/3-team-modie-be/commit/3486a0c)), closes [#106](https://github.com/100-hours-a-week/3-team-modie-be/issues/106)
+
 ## <small>1.4.1 (2025-03-26)</small>
 
 * fix: import 누락 수정 ([ced4391](https://github.com/100-hours-a-week/3-team-modie-be/commit/ced4391))
