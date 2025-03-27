@@ -3,6 +3,7 @@ package org.ktb.modie.presentation.v1.controller;
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.presentation.v1.dto.CreateMeetRequest;
 import org.ktb.modie.presentation.v1.dto.CreateMeetResponse;
+import org.ktb.modie.presentation.v1.dto.GetMeetPaymentResponse;
 import org.ktb.modie.presentation.v1.dto.MeetDto;
 import org.ktb.modie.presentation.v1.dto.MeetListResponse;
 import org.ktb.modie.presentation.v1.dto.UpdateMeetRequest;
@@ -88,6 +89,11 @@ public class MeetController implements MeetApi {
         meetService.updateTotalCost(userId, meetId, totalCost);
 
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
+    }
+
+    public ResponseEntity<SuccessResponse<GetMeetPaymentResponse>> getMeetPayment(String userId, Long meetId) {
+        GetMeetPaymentResponse response = meetService.getMeetPaymentInfo(userId, meetId);
+        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 
 }
