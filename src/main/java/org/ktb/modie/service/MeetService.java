@@ -356,15 +356,30 @@ public class MeetService {
 
     private String getMeetRole(String userId, Meet meet) {
         // NOTE: 유저의 확인
-        if (userId == null || userId.isEmpty() || meet == null) { // userId가 없는 경우 게스트
-            return "guest";
+        if (userId == null || userId.isEmpty() || meet == null) {
+            return "guest"; // userId가 없는 경우 게스트
         }
+
+        // NOTE: 모임의 소유자 확인
         if (meet.getOwner() != null && userId.equals(meet.getOwner().getUserId())) {
-            return "owner";
+            return "owner"; // 모임의 소유자
         }
-        if (userMeetRepository.existsByMeetAndUserId(meet, userId)) {
-            return "member";
+
+        // NOTE: 유저가 해당 모임에 존재하는지 확인 (삭제된 기록도 고려)
+        Optional<UserMeet> userMeetOpt = userMeetRepository.findUserMeetByUser_UserIdAndMeet_MeetId(userId,
+            meet.getMeetId());
+
+        if (!userMeetOpt.isPresent()) {
+            return "guest"; // 유저가 모임에 존재하지 않으면 게스트
         }
-        return "guest";
+
+        UserMeet userMeet = userMeetOpt.get();
+
+        // NOTE: deletedAt이 null이 아니면 탈퇴한 상태 -> guest
+        if (userMeet.getDeletedAt() != null) {
+            return "guest"; // 탈퇴한 유저는 게스트
+        }
+
+        return "member"; // 탈퇴하지 않은 유저는 멤버
     }
 }

@@ -28,4 +28,5 @@ public interface UserMeetRepository extends JpaRepository<UserMeet, Long> {
 
     @Query("SELECT COUNT(um) > 0 FROM UserMeet um WHERE um.meet = :meet AND um.user.userId = :userId")
     boolean existsByMeetAndUserId(@Param("meet") Meet meet, @Param("userId") String userId);
+
 }
