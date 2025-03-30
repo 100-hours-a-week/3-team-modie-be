@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
+import org.ktb.modie.core.util.HashIdUtil;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
 import org.ktb.modie.domain.UserMeet;
@@ -38,6 +39,7 @@ public class MeetService {
     private final UserMeetRepository userMeetRepository;
     private final UserRepository userRepository;
     private final MeetRepository meetRepository;
+    private final HashIdUtil hashIdUtil;
 
     @Transactional
     public CreateMeetResponse createMeet(String userId, CreateMeetRequest request) {
@@ -61,8 +63,9 @@ public class MeetService {
             .build();
 
         Meet savedMeet = meetRepository.save(meet);
+        String meetHashId = hashIdUtil.encode(savedMeet.getMeetId());
 
-        return new CreateMeetResponse(savedMeet.getMeetId());
+        return new CreateMeetResponse(meetHashId);
     }
 
     @Transactional
@@ -177,7 +180,7 @@ public class MeetService {
         // MeetSummaryDto로 변환
         List<MeetSummaryDto> meetSummaryList = meetPage.getContent().stream()
             .map(meet -> new MeetSummaryDto(
-                meet.getMeetId(),
+                hashIdUtil.encode(meet.getMeetId()),
                 meet.getMeetIntro(),
                 meet.getMeetType(),
                 meet.getMeetAt(),
