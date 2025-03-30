@@ -71,7 +71,7 @@ public class MeetService {
     @Transactional
     public void createUserMeet(String userId, String meetHashId) {
         Long meetId = hashIdUtil.decode(meetHashId);
-        
+
         // Token 받아오면 userId로 변환하는 과정 필요
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
@@ -240,7 +240,9 @@ public class MeetService {
     }
 
     @Transactional
-    public UpdateMeetResponse updateMeet(String userId, Long meetId, UpdateMeetRequest request) {
+    public UpdateMeetResponse updateMeet(String userId, String meetHashId, UpdateMeetRequest request) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+
         // NOTE: 비정상적인 meetID가 넘어온 경우
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);

@@ -64,7 +64,7 @@ public interface MeetApi {
     })
     @PatchMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> updateMeet(
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") String meetHashId,
         @RequestAttribute("userId") String userId,
         @Valid @RequestBody UpdateMeetRequest request
     );

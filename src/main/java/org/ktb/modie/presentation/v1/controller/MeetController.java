@@ -40,11 +40,11 @@ public class MeetController implements MeetApi {
     }
 
     public ResponseEntity<SuccessResponse<Void>> updateMeet(
-        Long meetId,
+        String meetHashId,
         String userId,
         @RequestBody UpdateMeetRequest request
     ) {
-        meetService.updateMeet(userId, meetId, request);
+        meetService.updateMeet(userId, meetHashId, request);
 
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
