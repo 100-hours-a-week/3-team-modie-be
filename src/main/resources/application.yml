@@ -32,3 +32,6 @@ kakao:
 
 jwt:
   secret: ${JWT_SECRET}
+
+hashid:
+  salt: ${HASH_KEY}
