@@ -299,7 +299,7 @@ public class MeetService {
     @Transactional
     public void updatePaymentStatus(String userId, String meetHashId, UpdatePaymentRequest request) {
         Long meetId = hashIdUtil.decode(meetHashId);
-        
+
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
@@ -348,7 +348,9 @@ public class MeetService {
     }
 
     @Transactional
-    public void updateTotalCost(String userId, Long meetId, int totalCost) {
+    public void updateTotalCost(String userId, String meetHashId, int totalCost) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+        
         // 비정상적인 meetID가 넘어온 경우
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);

@@ -83,9 +83,9 @@ public class MeetController implements MeetApi {
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<Void>> updateTotalCost(String userId, Long meetId,
+    public ResponseEntity<SuccessResponse<Void>> updateTotalCost(String userId, String meetHashId,
         int totalCost) {
-        meetService.updateTotalCost(userId, meetId, totalCost);
+        meetService.updateTotalCost(userId, meetHashId, totalCost);
 
         return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
     }

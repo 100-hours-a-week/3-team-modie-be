@@ -146,7 +146,7 @@ public interface MeetApi {
     @PatchMapping("/{meetId}/totalCost")
     ResponseEntity<SuccessResponse<Void>> updateTotalCost(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") String meetHashId,
         @RequestBody @Min(0) @Max(10000000) int totalCost
     );
 }
