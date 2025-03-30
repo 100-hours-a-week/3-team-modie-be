@@ -117,7 +117,7 @@ public interface MeetApi {
     @PatchMapping("/{meetId}/exit")
     ResponseEntity<SuccessResponse<Void>> deleteUserMeet(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId
+        @PathVariable("meetId") String meetHashId
     );
 
     @Operation(summary = "모임 종료", description = "모임을 종료합니다. 정산이 완료된 상태에서만 가능합니다.")

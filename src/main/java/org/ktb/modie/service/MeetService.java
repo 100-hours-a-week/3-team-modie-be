@@ -205,7 +205,8 @@ public class MeetService {
     }
 
     @Transactional
-    public void deleteUserMeet(String userId, Long meetId) {
+    public void deleteUserMeet(String userId, String meetHashId) {
+        Long meetId = hashIdUtil.decode(meetHashId);
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
