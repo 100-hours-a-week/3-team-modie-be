@@ -53,7 +53,7 @@ public interface MeetApi {
     ResponseEntity<SuccessResponse<MeetDto>> getMeet(
         @Parameter(description = "조회할 모임 ID", example = "1")
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId
+        @PathVariable("meetId") String meetHashId
     );
 
     @Operation(summary = "모임 수정", description = "기존 모임 정보를 수정합니다.")

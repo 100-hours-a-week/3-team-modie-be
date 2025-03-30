@@ -121,8 +121,10 @@ public class MeetService {
         userMeetRepository.save(userMeet);
     }
 
-    public MeetDto getMeet(String userId, long meetId) {
+    public MeetDto getMeet(String userId, String meetHashId) {
         // NOTE: 비정상적인 meetID가 넘어온 경우
+        Long meetId = hashIdUtil.decode(meetHashId);
+        
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
         }

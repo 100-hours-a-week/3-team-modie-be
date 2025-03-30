@@ -32,9 +32,9 @@ public class MeetController implements MeetApi {
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 
-    public ResponseEntity<SuccessResponse<MeetDto>> getMeet(String userId, Long meetId
+    public ResponseEntity<SuccessResponse<MeetDto>> getMeet(String userId, String meetHashId
     ) {
-        MeetDto response = meetService.getMeet(userId, meetId);
+        MeetDto response = meetService.getMeet(userId, meetHashId);
 
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
