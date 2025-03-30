@@ -131,7 +131,7 @@ public interface MeetApi {
     @PatchMapping("/{meetId}/complete")
     ResponseEntity<SuccessResponse<Void>> completeMeet(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId
+        @PathVariable("meetId") String meetHashId
     );
 
     @Operation(summary = "정산여부 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
