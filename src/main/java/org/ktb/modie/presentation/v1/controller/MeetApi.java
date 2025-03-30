@@ -104,7 +104,7 @@ public interface MeetApi {
     @PostMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> createUserMeet(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId
+        @PathVariable("meetId") String meetHashId
     );
 
     @Operation(summary = "모임 나가기", description = "사용자가 특정 모임에서 나갑니다.")

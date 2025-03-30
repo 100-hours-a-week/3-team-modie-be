@@ -69,7 +69,9 @@ public class MeetService {
     }
 
     @Transactional
-    public void createUserMeet(String userId, Long meetId) {
+    public void createUserMeet(String userId, String meetHashId) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+        
         // Token 받아오면 userId로 변환하는 과정 필요
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
