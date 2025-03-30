@@ -124,7 +124,7 @@ public class MeetService {
     public MeetDto getMeet(String userId, String meetHashId) {
         // NOTE: 비정상적인 meetID가 넘어온 경우
         Long meetId = hashIdUtil.decode(meetHashId);
-        
+
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
         }
@@ -318,7 +318,9 @@ public class MeetService {
     }
 
     @Transactional
-    public void deleteMeet(Long meetId, String userId) {
+    public void deleteMeet(String meetHashId, String userId) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+
         // 모임 존재여부
         Meet meet = meetRepository.findActiveByMeedId(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));

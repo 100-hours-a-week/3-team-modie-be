@@ -78,7 +78,7 @@ public interface MeetApi {
     })
     @DeleteMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> deleteMeet(
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") String meetHashId,
         @RequestAttribute("userId") String userId
     );
 
