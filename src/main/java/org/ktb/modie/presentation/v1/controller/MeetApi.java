@@ -138,7 +138,7 @@ public interface MeetApi {
     @PatchMapping("/{meetId}/payments")
     ResponseEntity<SuccessResponse<Void>> updatePayments(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") String meetHashId,
         @Valid @RequestBody UpdatePaymentRequest request
     );
 

@@ -276,7 +276,7 @@ public class MeetService {
     @Transactional
     public void completeMeet(String userId, String meetHashId) {
         Long meetId = hashIdUtil.decode(meetHashId);
-        
+
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
@@ -297,7 +297,9 @@ public class MeetService {
     }
 
     @Transactional
-    public void updatePaymentStatus(String userId, Long meetId, UpdatePaymentRequest request) {
+    public void updatePaymentStatus(String userId, String meetHashId, UpdatePaymentRequest request) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+        
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
