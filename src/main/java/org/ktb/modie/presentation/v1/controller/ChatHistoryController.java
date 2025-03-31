@@ -1,9 +1,12 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.response.SuccessResponse;
+import org.ktb.modie.core.util.HashIdUtil;
 import org.ktb.modie.domain.Chat;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
@@ -21,8 +24,7 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class ChatHistoryController {
@@ -30,10 +32,11 @@ public class ChatHistoryController {
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
     private final MeetRepository meetRepository;  // MeetRepository 추가
+    private HashIdUtil hashIdUtil;
 
     // 생성자 수정: MeetRepository도 주입받도록 수정
     public ChatHistoryController(ChatRepository chatRepository, UserRepository userRepository,
-                                 MeetRepository meetRepository) {
+        MeetRepository meetRepository) {
         this.chatRepository = chatRepository;
         this.userRepository = userRepository;
         this.meetRepository = meetRepository;
@@ -41,10 +44,11 @@ public class ChatHistoryController {
 
     @GetMapping("/api/v1/chat/{meetId}")
     public ResponseEntity<SuccessResponse<List<ChatDto>>> getChatHistory(
-        @PathVariable Long meetId,
+        @PathVariable String meetHashId,
         @RequestParam(required = false) Long lastChatId,
         @RequestAttribute("userId") String loggedInUserId,
         HttpServletRequest request) {
+        Long meetId = hashIdUtil.decode(meetHashId);
 
         System.out.println("getChatHistory start !! ");
 
@@ -78,7 +82,7 @@ public class ChatHistoryController {
 
                 // 변경된 DTO 필드명에 맞춰 생성자 호출
                 return new ChatDto(
-//                    chat.getMessageId().longValue(),            // chatId
+                    //                    chat.getMessageId().longValue(),            // chatId
                     chat.getMessageId(),            // chatId
                     (chat.getUser().getUserId()), // userId
                     chat.getMessageContent(),                   // content (이전의 message)
