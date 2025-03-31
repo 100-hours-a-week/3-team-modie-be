@@ -1,26 +1,36 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Chat;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
+import org.ktb.modie.domain.UserMeet;
 import org.ktb.modie.presentation.v1.dto.ChatDto;
 import org.ktb.modie.repository.ChatRepository;
+import org.ktb.modie.repository.FcmTokenRepository;
 import org.ktb.modie.repository.MeetRepository;
+import org.ktb.modie.repository.UserMeetRepository;
 import org.ktb.modie.repository.UserRepository;
 import org.ktb.modie.service.ChatService;
+import org.ktb.modie.service.FcmService;
 import org.ktb.modie.service.JwtService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
@@ -32,6 +42,9 @@ public class ChatController {
     private final ChatRepository chatRepository;
     private final MeetRepository meetRepository;
     private final JwtService jwtService;
+    private final FcmService fcmService;
+    private final UserMeetRepository userMeetRepository;
+    private final FcmTokenRepository fcmTokenRepository;
 
     @MessageMapping("/chat/{meetId}")
     public void sendMessage(
@@ -72,7 +85,7 @@ public class ChatController {
             .build();
         chatRepository.save(chat);
 
-// 기존 ChatDto 객체 생성
+        // 기존 ChatDto 객체 생성
         ChatDto chatDto = ChatDto.builder()
             .chatId(chat.getMessageId())
             .userId(userId)
@@ -84,7 +97,7 @@ public class ChatController {
             .isMe(false)  // 다른 사용자용 기본값
             .build();
 
-// 발신자용 메시지 (isMe = true)
+        // 발신자용 메시지 (isMe = true)
         ChatDto senderChatDto = ChatDto.builder()
             .chatId(chat.getMessageId())
             .userId(userId)
@@ -96,14 +109,39 @@ public class ChatController {
             .isMe(true)  // 발신자용은 true로 설정
             .build();
 
-// 모든 사용자에게 isMe = false로 메시지 전송
+        // 모든 사용자에게 isMe = false로 메시지 전송
         messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
 
-// 발신자에게만 isMe = true로 메시지 전송
+        // 발신자에게만 isMe = true로 메시지 전송
         messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
 
         System.out.println("메시지 전송 완료 - 일반: /topic/chat/" + meetId
             + ", 발신자: /user/" + userId + "/chat/" + meetId);
+
+        // FCM 알림 전송
+        List<UserMeet> userMeets = userMeetRepository.findUserMeetByMeet_MeetIdAndDeletedAtIsNull(meetId);
+        for (UserMeet userMeet : userMeets) {
+            User participant = userMeet.getUser();
+            String participantId = participant.getUserId();
+
+            if (participantId.equals(userId))
+                continue;  // 본인은 알림에서 제외
+
+            fcmTokenRepository.findByUser_UserId(participantId).ifPresentOrElse(
+                fcmToken -> {
+                    try {
+                        String title = user.getUserName() + "님의 새 메시지";
+                        String body =
+                            messageContent.length() > 30 ? messageContent.substring(0, 30) + "..." : messageContent;
+
+                        fcmService.sendNotification(fcmToken.getToken(), title, body);
+                    } catch (Exception e) {
+                        System.out.println("FCM 전송 실패 (" + participantId + "): " + e.getMessage());
+                    }
+                },
+                () -> System.out.println("FCM 토큰 없음: userId=" + participantId)
+            );
+        }
     }
 
     private String extractUserIdFromToken(List<String> authHeaders) {
@@ -131,5 +169,16 @@ public class ChatController {
                 "유효하지 않은 토큰입니다."
             );
         }
+    }
+
+    @PostMapping("/chat/test")
+    @ResponseBody
+    public ResponseEntity<?> sendTest(
+        @RequestParam("token") String token,
+        @RequestParam("title") String title,
+        @RequestParam("content") String content
+    ) {
+        Map<String, Object> response = fcmService.sendNotification(token, title, content);
+        return ResponseEntity.ok(response);
     }
 }

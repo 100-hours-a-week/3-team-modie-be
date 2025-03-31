@@ -14,6 +14,8 @@ import org.springframework.data.repository.query.Param;
 public interface UserMeetRepository extends JpaRepository<UserMeet, Long> {
     Optional<UserMeet> findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(String userId, Long meetId);
 
+    List<UserMeet> findUserMeetByMeet_MeetIdAndDeletedAtIsNull(Long meetId);
+
     Optional<UserMeet> findUserMeetByUser_UserIdAndMeet_MeetId(String userId, Long meetId);
 
     int countByMeetAndDeletedAtIsNull(Meet meet);
