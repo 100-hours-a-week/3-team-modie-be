@@ -1,6 +1,9 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Chat;
@@ -12,16 +15,18 @@ import org.ktb.modie.repository.MeetRepository;
 import org.ktb.modie.repository.UserRepository;
 import org.ktb.modie.service.ChatService;
 import org.ktb.modie.service.JwtService;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
@@ -55,6 +60,13 @@ public class ChatController {
                 CustomErrorCode.INVALID_PARAMETER_VALUE, "존재하지 않는 모임 ID입니다."
             ));
 
+        if (messageContent == null || messageContent.trim().isEmpty()) {
+            throw new BusinessException(
+                CustomErrorCode.INVALID_PARAMETER_VALUE,
+                "메시지 내용이 비어있습니다."
+            );
+        }
+
         LocalDateTime now = LocalDateTime.now();
 
         // 방장 여부 확인
@@ -70,9 +82,28 @@ public class ChatController {
             .createdAt(now)
             .meet(meet)
             .build();
-        chatRepository.save(chat);
 
-// 기존 ChatDto 객체 생성
+        try {
+            chatRepository.save(chat);
+        } catch (DataIntegrityViolationException ex) {
+            // 예외 메시지 로그 (추후 오류 추적을 위해)
+            log.error("DB 저장 오류: {}", ex.getMessage(), ex);
+
+            throw new BusinessException(
+                CustomErrorCode.INTERNAL_SERVER_ERROR,
+                "메시지 전송 중 오류가 발생했습니다. 다시 시도해주세요."
+            );
+        } catch (Exception ex) {
+            // 예외 메시지 로그 (기타 예외 처리)
+            log.error("알 수 없는 오류가 발생했습니다: {}", ex.getMessage(), ex);
+
+            throw new BusinessException(
+                CustomErrorCode.INTERNAL_SERVER_ERROR,
+                "메시지 전송 중 예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+            );
+        }
+
+        // 기존 ChatDto 객체 생성
         ChatDto chatDto = ChatDto.builder()
             .chatId(chat.getMessageId())
             .userId(userId)
@@ -84,7 +115,7 @@ public class ChatController {
             .isMe(false)  // 다른 사용자용 기본값
             .build();
 
-// 발신자용 메시지 (isMe = true)
+        // 발신자용 메시지 (isMe = true)
         ChatDto senderChatDto = ChatDto.builder()
             .chatId(chat.getMessageId())
             .userId(userId)
@@ -96,14 +127,26 @@ public class ChatController {
             .isMe(true)  // 발신자용은 true로 설정
             .build();
 
-// 모든 사용자에게 isMe = false로 메시지 전송
-        messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
+        try {
+            messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
+            messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
+        } catch (MessagingException ex) {
+            // 예외 메시지 로그 (추후 오류 추적을 위해)
+            log.error("메시지 전송 오류: {}", ex.getMessage(), ex);
 
-// 발신자에게만 isMe = true로 메시지 전송
-        messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
+            throw new BusinessException(
+                CustomErrorCode.INTERNAL_SERVER_ERROR,
+                "메시지 전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+            );
+        } catch (Exception ex) {
+            // 예외 메시지 로그 (기타 예외 처리)
+            log.error("알 수 없는 오류가 발생했습니다: {}", ex.getMessage(), ex);
 
-        System.out.println("메시지 전송 완료 - 일반: /topic/chat/" + meetId
-            + ", 발신자: /user/" + userId + "/chat/" + meetId);
+            throw new BusinessException(
+                CustomErrorCode.INTERNAL_SERVER_ERROR,
+                "메시지 전송 중 예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+            );
+        }
     }
 
     private String extractUserIdFromToken(List<String> authHeaders) {
