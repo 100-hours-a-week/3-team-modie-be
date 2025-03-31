@@ -24,7 +24,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
@@ -84,9 +86,20 @@ public class ChatController {
         try {
             chatRepository.save(chat);
         } catch (DataIntegrityViolationException ex) {
+            // 예외 메시지 로그 (추후 오류 추적을 위해)
+            log.error("DB 저장 오류: {}", ex.getMessage(), ex);
+
             throw new BusinessException(
                 CustomErrorCode.INTERNAL_SERVER_ERROR,
-                "DB 저장 중 오류가 발생했습니다."
+                "메시지 전송 중 오류가 발생했습니다. 다시 시도해주세요."
+            );
+        } catch (Exception ex) {
+            // 예외 메시지 로그 (기타 예외 처리)
+            log.error("알 수 없는 오류가 발생했습니다: {}", ex.getMessage(), ex);
+
+            throw new BusinessException(
+                CustomErrorCode.INTERNAL_SERVER_ERROR,
+                "메시지 전송 중 예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
             );
         }
 
@@ -118,9 +131,20 @@ public class ChatController {
             messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
             messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
         } catch (MessagingException ex) {
+            // 예외 메시지 로그 (추후 오류 추적을 위해)
+            log.error("메시지 전송 오류: {}", ex.getMessage(), ex);
+
             throw new BusinessException(
                 CustomErrorCode.INTERNAL_SERVER_ERROR,
-                "메시지 전송 중 오류가 발생했습니다."
+                "메시지 전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+            );
+        } catch (Exception ex) {
+            // 예외 메시지 로그 (기타 예외 처리)
+            log.error("알 수 없는 오류가 발생했습니다: {}", ex.getMessage(), ex);
+
+            throw new BusinessException(
+                CustomErrorCode.INTERNAL_SERVER_ERROR,
+                "메시지 전송 중 예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
             );
         }
     }
