@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Chat;
+import org.ktb.modie.domain.FcmToken;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
 import org.ktb.modie.domain.UserMeet;
@@ -114,27 +115,27 @@ public class ChatController {
             + ", 발신자: /user/" + userId + "/chat/" + meetId);
 
         // FCM 알림 전송
+        // 모임 참여자 조회 (+본인 제외)
         List<UserMeet> userMeets = userMeetRepository.findUserMeetByMeet_MeetIdAndDeletedAtIsNull(meetId);
-        for (UserMeet userMeet : userMeets) {
-            User participant = userMeet.getUser();
-            String participantId = participant.getUserId();
+        List<String> targetUserIds = userMeets.stream()
+            .map(userMeet -> userMeet.getUser().getUserId())
+            .filter(id -> !id.equals(userId)) // 본인 제외
+            .toList();
+        // 해당 참여자들의 FCM 토큰 한 번에 조회
+        List<FcmToken> fcmTokens = fcmTokenRepository.findByUser_UserIdIn(targetUserIds);
 
-            if (participantId.equals(userId)) {
-                continue;  // 본인은 알림에서 제외
+        for (FcmToken fcmToken : fcmTokens) {
+            if (fcmToken.getToken() == null || fcmToken.getToken().isBlank()) {
+                throw new BusinessException(CustomErrorCode.FCM_TOKEN_NOT_FOUND);
             }
-            fcmTokenRepository.findByUser_UserId(participantId).ifPresentOrElse(
-                fcmToken -> {
-                    try {
-                        String title = user.getUserName() + "님의 새 메시지";
-                        String body = messageContent;
 
-                        fcmService.sendNotification(fcmToken.getToken(), title, body, meetId);
-                    } catch (Exception e) {
-                        System.out.println("FCM 전송 실패 (" + participantId + "): " + e.getMessage());
-                    }
-                },
-                () -> System.out.println("FCM 토큰 없음: userId=" + participant.getUserName())
-            );
+            try {
+                String title = user.getUserName() + "님의 새 메시지";
+                String body = messageContent;
+                fcmService.sendNotification(fcmToken.getToken(), title, body, meetId);
+            } catch (Exception e) {
+                throw new BusinessException(CustomErrorCode.FCM_SEND_FAILED);
+            }
         }
     }
 
