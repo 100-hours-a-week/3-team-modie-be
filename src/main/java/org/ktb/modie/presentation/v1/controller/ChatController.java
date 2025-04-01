@@ -67,15 +67,15 @@ public class ChatController {
             );
         }
 
+        LocalDateTime now = LocalDateTime.now();
+
         // completedAt 기준으로 현재 날짜보다 이전이면 예외 처리
-        if (meet.getCompletedAt() != null && meet.getCompletedAt().isBefore(LocalDateTime.now())) {
+        if (meet.getCompletedAt() != null && meet.getCompletedAt().isBefore(now)) {
             throw new BusinessException(
                 CustomErrorCode.INVALID_PARAMETER_VALUE,
                 "이미 종료된 모임에서는 메시지를 전송할 수 없습니다."
             );
         }
-        
-        LocalDateTime now = LocalDateTime.now();
 
         // 방장 여부 확인
         boolean isOwner = meet.getOwner().getUserId().equals(userId);
