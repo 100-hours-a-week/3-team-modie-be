@@ -56,7 +56,6 @@ jobs:
           username: ${{ secrets.USER }}
           script: |
             set -e  # 🚀 오류 발생 시 즉시 종료
-
             echo "🚀 사용할 Docker 태그: $COMMIT_HASH"
             # aws 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
@@ -97,8 +96,22 @@ jobs:
                 exit 1
               }
 
+            echo "⌛ 신규 컨테이너 /health 체크 중..."
+            for i in {1..20}; do
+              sleep 3
+              if curl -s http://localhost:$PORT/health | grep -q "UP"; then
+                echo "✅ 신규 컨테이너가 정상적으로 기동되었습니다!"
+                break
+              fi
 
-            # nginx 설정 변경
+              if [ "$i" -eq 20 ]; then
+                echo "❌ /health 체크 실패! 롤백 수행"
+                docker stop modie-be-$PORT
+                docker rm modie-be-$PORT
+                exit 1
+              fi
+            done
+
             sudo sed -i "s|set \$active_backend backend-.*;|set \$active_backend backend-$BG_MODE;|g" $NGINX_CONFIG
 
             # 🔥 Nginx 설정 테스트 후 적용 (실패 시 롤백)
