@@ -37,7 +37,7 @@ public class UserController implements UserApi {
         FcmTokenRequest reqeust) {
 
         fcmService.saveFcmToken(userId, reqeust);
-        return SuccessResponse.ofNoData().asHttp(HttpStatus.OK);
+        return SuccessResponse.ofNoData().asHttp(HttpStatus.CREATED);
     }
 
 }
