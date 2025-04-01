@@ -49,6 +49,7 @@ public enum CustomErrorMessage {
     OWNER_CANNOT_JOIN_MEET("방장은 모임에 참여할 수 없습니다."),
     DENIED_JOIN_ALREADY_ENDED("종료되거나 완료된 모임은 나갈 수 없습니다."),
     ALREADY_EXITED_MEET("이미 탈퇴한 모임에서는 다시 나갈 수 없습니다."),
+    ALREADY_COMPLETED_MEET("이미 종료된 모임입니다."),
 
     // 429 Too Many Requests
     RATE_LIMIT_EXCEEDED("요청 제한을 초과했습니다. {0}건/{1}초 제한"),
