@@ -84,7 +84,7 @@ public class FcmService {
             });
     }
 
-    public void sendNotification(String targetToken, String title, String body) {
+    public void sendNotification(String targetToken, String title, String body, Long meetId) {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
@@ -97,9 +97,13 @@ public class FcmService {
             notification.put("title", title);
             notification.put("body", body);
 
+            Map<String, Object> data = new HashMap<>();
+            data.put("url", "/" + meetId + "/chat");
+
             Map<String, Object> messageContent = new HashMap<>();
             messageContent.put("token", targetToken);
             messageContent.put("notification", notification);
+            messageContent.put("data", data);
 
             message.put("message", messageContent);
 

@@ -128,7 +128,7 @@ public class ChatController {
                         String title = user.getUserName() + "님의 새 메시지";
                         String body = messageContent;
 
-                        fcmService.sendNotification(fcmToken.getToken(), title, body);
+                        fcmService.sendNotification(fcmToken.getToken(), title, body, meetId);
                     } catch (Exception e) {
                         System.out.println("FCM 전송 실패 (" + participantId + "): " + e.getMessage());
                     }
