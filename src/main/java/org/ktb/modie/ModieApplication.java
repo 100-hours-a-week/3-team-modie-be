@@ -16,8 +16,6 @@ public class ModieApplication {
 
     @PostConstruct
     public void init() {
-        // JVM 전체 타임존을 KST로 고정
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
-        System.out.println("✅ JVM 타임존 설정됨: " + TimeZone.getDefault().getID()); // 확인 로그
     }
 }
