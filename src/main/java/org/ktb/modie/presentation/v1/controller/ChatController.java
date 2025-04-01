@@ -2,7 +2,6 @@ package org.ktb.modie.presentation.v1.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.ktb.modie.core.exception.BusinessException;
@@ -20,15 +19,11 @@ import org.ktb.modie.repository.UserRepository;
 import org.ktb.modie.service.ChatService;
 import org.ktb.modie.service.FcmService;
 import org.ktb.modie.service.JwtService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,7 +43,7 @@ public class ChatController {
 
     @MessageMapping("/chat/{meetId}")
     public void sendMessage(
-        @DestinationVariable Long meetId,
+        @DestinationVariable("meetId") Long meetId,
         String messageContent,
         SimpMessageHeaderAccessor headerAccessor
     ) {
@@ -124,22 +119,21 @@ public class ChatController {
             User participant = userMeet.getUser();
             String participantId = participant.getUserId();
 
-            if (participantId.equals(userId))
+            if (participantId.equals(userId)) {
                 continue;  // 본인은 알림에서 제외
-
+            }
             fcmTokenRepository.findByUser_UserId(participantId).ifPresentOrElse(
                 fcmToken -> {
                     try {
                         String title = user.getUserName() + "님의 새 메시지";
-                        String body =
-                            messageContent.length() > 30 ? messageContent.substring(0, 30) + "..." : messageContent;
+                        String body = messageContent;
 
                         fcmService.sendNotification(fcmToken.getToken(), title, body);
                     } catch (Exception e) {
                         System.out.println("FCM 전송 실패 (" + participantId + "): " + e.getMessage());
                     }
                 },
-                () -> System.out.println("FCM 토큰 없음: userId=" + participantId)
+                () -> System.out.println("FCM 토큰 없음: userId=" + participant.getUserName())
             );
         }
     }
@@ -169,16 +163,5 @@ public class ChatController {
                 "유효하지 않은 토큰입니다."
             );
         }
-    }
-
-    @PostMapping("/chat/test")
-    @ResponseBody
-    public ResponseEntity<?> sendTest(
-        @RequestParam("token") String token,
-        @RequestParam("title") String title,
-        @RequestParam("content") String content
-    ) {
-        Map<String, Object> response = fcmService.sendNotification(token, title, content);
-        return ResponseEntity.ok(response);
     }
 }
