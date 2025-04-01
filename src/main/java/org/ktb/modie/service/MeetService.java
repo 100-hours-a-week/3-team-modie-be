@@ -295,6 +295,11 @@ public class MeetService {
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
 
+        // 종료된 모임이면 예외처리
+        if (meet.getCompletedAt() != null && meet.getCompletedAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException(CustomErrorCode.ALREADY_COMPLETED_MEET);
+        }
+
         // 타겟 사용자 조회
         User user = userRepository.findById(request.userId())
             .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
