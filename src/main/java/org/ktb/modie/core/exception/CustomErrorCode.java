@@ -61,6 +61,7 @@ public enum CustomErrorCode implements ErrorCode {
 
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(500, "E901", CustomErrorMessage.INTERNAL_SERVER_ERROR),
+    FCM_TOKEN_SET_FAILED(500, "E501", CustomErrorMessage.FCM_TOKEN_SET_FAILED),
     FCM_SEND_FAILED(500, "E401", CustomErrorMessage.FCM_SEND_FAILED);
 
     private final int status;
