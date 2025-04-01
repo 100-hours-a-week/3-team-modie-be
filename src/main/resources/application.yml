@@ -33,6 +33,11 @@ kakao:
 jwt:
   secret: ${JWT_SECRET}
 
+fcm:
+  project-id: ${FCM_PROJECT_ID}
+  credentials:
+    path: modie-firebase-adminsdk.json
+    
 management:
   endpoints:
     web:

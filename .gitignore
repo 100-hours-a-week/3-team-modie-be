@@ -115,3 +115,6 @@ coverage.xml
 *.tmp
 *.temp
 *~
+
+### Firebase Key ###
+src/main/resources/modie-firebase-adminsdk.json

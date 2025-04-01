@@ -43,6 +43,7 @@ public enum CustomErrorCode implements ErrorCode {
     RESOURCE_NOT_FOUND(404, "E202", CustomErrorMessage.RESOURCE_NOT_FOUND),
     USER_NOT_FOUND(404, "U002", CustomErrorMessage.USER_NOT_FOUND),
     MEETING_NOT_FOUND(404, "M001", CustomErrorMessage.MEETING_NOT_FOUND),
+    FCM_TOKEN_NOT_FOUND(404, "U005", CustomErrorMessage.FCM_TOKEN_NOT_FOUND),
 
     // 409 Conflict
     MEETING_CAPACITY_FULL(409, "M007", CustomErrorMessage.MEETING_CAPACITY_FULL),
@@ -60,7 +61,9 @@ public enum CustomErrorCode implements ErrorCode {
     RATE_LIMIT_EXCEEDED(429, "E301", CustomErrorMessage.RATE_LIMIT_EXCEEDED),
 
     // 500 Internal Server Error
-    INTERNAL_SERVER_ERROR(500, "E901", CustomErrorMessage.INTERNAL_SERVER_ERROR);
+    INTERNAL_SERVER_ERROR(500, "E901", CustomErrorMessage.INTERNAL_SERVER_ERROR),
+    FCM_TOKEN_SET_FAILED(500, "E501", CustomErrorMessage.FCM_TOKEN_SET_FAILED),
+    FCM_SEND_FAILED(500, "E401", CustomErrorMessage.FCM_SEND_FAILED);
 
     private final int status;
     private final String code;

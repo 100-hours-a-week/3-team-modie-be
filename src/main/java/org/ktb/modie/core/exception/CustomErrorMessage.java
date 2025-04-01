@@ -37,6 +37,7 @@ public enum CustomErrorMessage {
     RESOURCE_NOT_FOUND("요청한 리소스를 찾을 수 없습니다"),
     USER_NOT_FOUND("해당 유저를 찾을 수 없습니다."),
     MEETING_NOT_FOUND("해당 모임을 찾을 수 없습니다."),
+    FCM_TOKEN_NOT_FOUND("FCM 토큰이 존재하지 않습니다."),
 
     // 409 Conflict
     MEETING_CAPACITY_FULL("모임 인원이 가득 차서 참여할 수 없습니다."),
@@ -54,7 +55,9 @@ public enum CustomErrorMessage {
     RATE_LIMIT_EXCEEDED("요청 제한을 초과했습니다. {0}건/{1}초 제한"),
 
     // 500 Internal Server Error
-    INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다");
+    INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다"),
+    FCM_TOKEN_SET_FAILED("FCM 인증 토큰 초기화에 실패했습니다."),
+    FCM_SEND_FAILED("FCM 알림 전송에 실패했습니다.");
 
     private final String messagePattern;
 

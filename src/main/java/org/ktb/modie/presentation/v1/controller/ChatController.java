@@ -4,18 +4,24 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Chat;
+import org.ktb.modie.domain.FcmToken;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
+import org.ktb.modie.domain.UserMeet;
 import org.ktb.modie.presentation.v1.dto.ChatDto;
 import org.ktb.modie.repository.ChatRepository;
+import org.ktb.modie.repository.FcmTokenRepository;
 import org.ktb.modie.repository.MeetRepository;
+import org.ktb.modie.repository.UserMeetRepository;
 import org.ktb.modie.repository.UserRepository;
 import org.ktb.modie.service.ChatService;
+import org.ktb.modie.service.FcmService;
 import org.ktb.modie.service.JwtService;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -24,7 +30,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @Controller
@@ -37,10 +43,13 @@ public class ChatController {
     private final ChatRepository chatRepository;
     private final MeetRepository meetRepository;
     private final JwtService jwtService;
+    private final FcmService fcmService;
+    private final UserMeetRepository userMeetRepository;
+    private final FcmTokenRepository fcmTokenRepository;
 
     @MessageMapping("/chat/{meetId}")
     public void sendMessage(
-        @DestinationVariable Long meetId,
+        @DestinationVariable("meetId") Long meetId,
         String messageContent,
         SimpMessageHeaderAccessor headerAccessor
     ) {
@@ -60,22 +69,7 @@ public class ChatController {
                 CustomErrorCode.INVALID_PARAMETER_VALUE, "존재하지 않는 모임 ID입니다."
             ));
 
-        if (messageContent == null || messageContent.trim().isEmpty()) {
-            throw new BusinessException(
-                CustomErrorCode.INVALID_PARAMETER_VALUE,
-                "메시지 내용이 비어있습니다."
-            );
-        }
-
         LocalDateTime now = LocalDateTime.now();
-
-        // completedAt 기준으로 현재 날짜보다 이전이면 예외 처리
-        if (meet.getCompletedAt() != null && meet.getCompletedAt().isBefore(now)) {
-            throw new BusinessException(
-                CustomErrorCode.INVALID_PARAMETER_VALUE,
-                "이미 종료된 모임에서는 메시지를 전송할 수 없습니다."
-            );
-        }
 
         // 방장 여부 확인
         boolean isOwner = meet.getOwner().getUserId().equals(userId);
@@ -90,26 +84,7 @@ public class ChatController {
             .createdAt(now)
             .meet(meet)
             .build();
-
-        try {
-            chatRepository.save(chat);
-        } catch (DataIntegrityViolationException ex) {
-            // 예외 메시지 로그 (추후 오류 추적을 위해)
-            log.error("DB 저장 오류: {}", ex.getMessage(), ex);
-
-            throw new BusinessException(
-                CustomErrorCode.INTERNAL_SERVER_ERROR,
-                "메시지 전송 중 오류가 발생했습니다. 다시 시도해주세요."
-            );
-        } catch (Exception ex) {
-            // 예외 메시지 로그 (기타 예외 처리)
-            log.error("알 수 없는 오류가 발생했습니다: {}", ex.getMessage(), ex);
-
-            throw new BusinessException(
-                CustomErrorCode.INTERNAL_SERVER_ERROR,
-                "메시지 전송 중 예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-            );
-        }
+        chatRepository.save(chat);
 
         // 기존 ChatDto 객체 생성
         ChatDto chatDto = ChatDto.builder()
@@ -138,6 +113,28 @@ public class ChatController {
         try {
             messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
             messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
+
+            // FCM 알림 전송
+            // 모임 참여자 조회 (+본인 제외)
+            List<UserMeet> userMeets = userMeetRepository.findUserMeetByMeet_MeetIdAndDeletedAtIsNull(meetId);
+            List<String> targetUserIds = userMeets.stream()
+                .map(userMeet -> userMeet.getUser().getUserId())
+                .filter(id -> !id.equals(userId)) // 본인 제외
+                .toList();
+            // 해당 참여자들의 FCM 토큰 한 번에 조회
+            List<FcmToken> fcmTokens = fcmTokenRepository.findByUser_UserIdIn(targetUserIds);
+
+            for (FcmToken fcmToken : fcmTokens) {
+                if (fcmToken.getToken() == null || fcmToken.getToken().isBlank()) {
+                    throw new BusinessException(CustomErrorCode.FCM_TOKEN_NOT_FOUND);
+                }
+
+                String title = user.getUserName() + "님의 새 메시지";
+                String body = messageContent;
+                fcmService.sendNotification(fcmToken.getToken(), title, body, meetId);
+            }
+
+
         } catch (MessagingException ex) {
             // 예외 메시지 로그 (추후 오류 추적을 위해)
             log.error("메시지 전송 오류: {}", ex.getMessage(), ex);
@@ -146,6 +143,10 @@ public class ChatController {
                 CustomErrorCode.INTERNAL_SERVER_ERROR,
                 "메시지 전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
             );
+        } catch (HttpClientErrorException ex) {
+            log.error("알림 전송 오류: {}", ex.getMessage(), ex);
+            
+            throw new BusinessException(CustomErrorCode.FCM_SEND_FAILED);
         } catch (Exception ex) {
             // 예외 메시지 로그 (기타 예외 처리)
             log.error("알 수 없는 오류가 발생했습니다: {}", ex.getMessage(), ex);
