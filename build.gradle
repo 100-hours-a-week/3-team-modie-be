@@ -57,6 +57,11 @@ dependencies {
     // 로그인 관련
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
     runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.4'
+
+    // 모니터링 관련
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.4.3'
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.13.1'
+
 }
 
 tasks.named('test') {
