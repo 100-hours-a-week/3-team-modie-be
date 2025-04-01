@@ -274,8 +274,13 @@ public class MeetService {
             throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_COMPLETED_NOT_OWNER);
         }
 
-        // 정산 완료 여부 확인
-        Long unpaidUsers = userMeetRepository.countUnpaidUsersByMeetId(meetId);
+        // NOTE: 비용이 없는 경우 바로 종료
+        if (meet.getTotalCost() == 0) {
+            meet.setCompletedAt(LocalDateTime.now());
+            return;
+        }
+        // NOTE: 정산 완료 여부 확인(비용이 있는 경우)
+        Long unpaidUsers = userMeetRepository.countUnpaidActiveUsersByMeetId(meetId);
         if (unpaidUsers > 0) {
             throw new BusinessException(CustomErrorCode.OPERATION_DENIED_SETTLEMENT_INCOMPLETE);
         }
