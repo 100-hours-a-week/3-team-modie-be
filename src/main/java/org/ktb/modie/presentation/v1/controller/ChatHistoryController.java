@@ -44,14 +44,12 @@ public class ChatHistoryController {
 
     @GetMapping("/api/v1/chat/{meetId}")
     public ResponseEntity<SuccessResponse<List<ChatDto>>> getChatHistory(
-        @PathVariable String meetHashId,
-        @RequestParam(required = false) Long lastChatId,
+        @PathVariable("meetId") Long meetId,
+        @RequestParam(value = "lastChatId", required = false) Long lastChatId,
         @RequestAttribute("userId") String loggedInUserId,
         HttpServletRequest request) {
-        Long meetId = hashIdUtil.decode(meetHashId);
 
         System.out.println("getChatHistory start !! ");
-
         // 유저 정보 보완 (userId로 DB에서 조회)
         meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(
