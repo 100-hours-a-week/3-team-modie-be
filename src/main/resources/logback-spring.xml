@@ -176,5 +176,5 @@
   <!-- 모든 환경에 공통으로 적용되는 로거 설정 -->
   <logger name="org.springframework" level="INFO"/>
   <logger name="org.hibernate" level="INFO"/>
-  <logger name="org.ktb.modie" level="DEBUG"/>
+  <!--  <logger name="org.ktb.modie" level="DEBUG"/>-->
 </configuration>
