@@ -53,7 +53,7 @@ public interface MeetApi {
     ResponseEntity<SuccessResponse<MeetDto>> getMeet(
         @Parameter(description = "조회할 모임 ID", example = "1")
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId
+        @PathVariable("meetId") String meetHashId
     );
 
     @Operation(summary = "모임 수정", description = "기존 모임 정보를 수정합니다.")
@@ -64,7 +64,7 @@ public interface MeetApi {
     })
     @PatchMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> updateMeet(
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") String meetHashId,
         @RequestAttribute("userId") String userId,
         @Valid @RequestBody UpdateMeetRequest request
     );
@@ -78,7 +78,7 @@ public interface MeetApi {
     })
     @DeleteMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> deleteMeet(
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") String meetHashId,
         @RequestAttribute("userId") String userId
     );
 
@@ -104,7 +104,7 @@ public interface MeetApi {
     @PostMapping("/{meetId}")
     ResponseEntity<SuccessResponse<Void>> createUserMeet(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId
+        @PathVariable("meetId") String meetHashId
     );
 
     @Operation(summary = "모임 나가기", description = "사용자가 특정 모임에서 나갑니다.")
@@ -117,7 +117,7 @@ public interface MeetApi {
     @PatchMapping("/{meetId}/exit")
     ResponseEntity<SuccessResponse<Void>> deleteUserMeet(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId
+        @PathVariable("meetId") String meetHashId
     );
 
     @Operation(summary = "모임 종료", description = "모임을 종료합니다. 정산이 완료된 상태에서만 가능합니다.")
@@ -131,14 +131,14 @@ public interface MeetApi {
     @PatchMapping("/{meetId}/complete")
     ResponseEntity<SuccessResponse<Void>> completeMeet(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId
+        @PathVariable("meetId") String meetHashId
     );
 
     @Operation(summary = "정산여부 업데이트", description = "정산 한 사람 isPayed : 0 -> 1 or 1 -> 0")
     @PatchMapping("/{meetId}/payments")
     ResponseEntity<SuccessResponse<Void>> updatePayments(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") String meetHashId,
         @Valid @RequestBody UpdatePaymentRequest request
     );
 
@@ -146,7 +146,7 @@ public interface MeetApi {
     @PatchMapping("/{meetId}/totalCost")
     ResponseEntity<SuccessResponse<Void>> updateTotalCost(
         @RequestAttribute("userId") String userId,
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") String meetHashId,
         @RequestBody @Min(0) @Max(10000000) int totalCost
     );
 }

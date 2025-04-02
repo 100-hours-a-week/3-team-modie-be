@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record MeetSummaryDto(
-    @Schema(description = "모임 ID", example = "1")
-    Long meetId,
+    @Schema(description = "모임 ID 해시값", example = "A1b2C3d4")
+    String meetHashId,
 
     @Schema(description = "모임 소개", example = "제주 올레길 탐방")
     String meetIntro,

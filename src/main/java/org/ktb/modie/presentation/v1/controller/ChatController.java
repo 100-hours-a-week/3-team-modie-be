@@ -1,16 +1,25 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
+import org.ktb.modie.core.util.HashIdUtil;
 import org.ktb.modie.domain.Chat;
+import org.ktb.modie.domain.FcmToken;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
+import org.ktb.modie.domain.UserMeet;
 import org.ktb.modie.presentation.v1.dto.ChatDto;
 import org.ktb.modie.repository.ChatRepository;
+import org.ktb.modie.repository.FcmTokenRepository;
 import org.ktb.modie.repository.MeetRepository;
+import org.ktb.modie.repository.UserMeetRepository;
 import org.ktb.modie.repository.UserRepository;
 import org.ktb.modie.service.ChatService;
+import org.ktb.modie.service.FcmService;
 import org.ktb.modie.service.JwtService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,9 +27,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
@@ -32,13 +39,20 @@ public class ChatController {
     private final ChatRepository chatRepository;
     private final MeetRepository meetRepository;
     private final JwtService jwtService;
+    private final FcmService fcmService;
+    private final UserMeetRepository userMeetRepository;
+    private final FcmTokenRepository fcmTokenRepository;
+    private final HashIdUtil hashIdUtils;
 
     @MessageMapping("/chat/{meetId}")
     public void sendMessage(
-        @DestinationVariable Long meetId,
+        @DestinationVariable("meetId") String meetHashId,
         String messageContent,
         SimpMessageHeaderAccessor headerAccessor
     ) {
+        // HashId를 Long으로 변경
+        Long meetId = hashIdUtils.decode(meetHashId);
+
         // JWT 토큰에서 userId 추출
         List<String> authHeaders = headerAccessor.getNativeHeader("Authorization");
         String userId = extractUserIdFromToken(authHeaders);
@@ -72,7 +86,7 @@ public class ChatController {
             .build();
         chatRepository.save(chat);
 
-// 기존 ChatDto 객체 생성
+        // 기존 ChatDto 객체 생성
         ChatDto chatDto = ChatDto.builder()
             .chatId(chat.getMessageId())
             .userId(userId)
@@ -84,7 +98,7 @@ public class ChatController {
             .isMe(false)  // 다른 사용자용 기본값
             .build();
 
-// 발신자용 메시지 (isMe = true)
+        // 발신자용 메시지 (isMe = true)
         ChatDto senderChatDto = ChatDto.builder()
             .chatId(chat.getMessageId())
             .userId(userId)
@@ -96,14 +110,38 @@ public class ChatController {
             .isMe(true)  // 발신자용은 true로 설정
             .build();
 
-// 모든 사용자에게 isMe = false로 메시지 전송
+        // 모든 사용자에게 isMe = false로 메시지 전송
         messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
 
-// 발신자에게만 isMe = true로 메시지 전송
+        // 발신자에게만 isMe = true로 메시지 전송
         messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
 
         System.out.println("메시지 전송 완료 - 일반: /topic/chat/" + meetId
             + ", 발신자: /user/" + userId + "/chat/" + meetId);
+
+        // FCM 알림 전송
+        // 모임 참여자 조회 (+본인 제외)
+        List<UserMeet> userMeets = userMeetRepository.findUserMeetByMeet_MeetIdAndDeletedAtIsNull(meetId);
+        List<String> targetUserIds = userMeets.stream()
+            .map(userMeet -> userMeet.getUser().getUserId())
+            .filter(id -> !id.equals(userId)) // 본인 제외
+            .toList();
+        // 해당 참여자들의 FCM 토큰 한 번에 조회
+        List<FcmToken> fcmTokens = fcmTokenRepository.findByUser_UserIdIn(targetUserIds);
+
+        for (FcmToken fcmToken : fcmTokens) {
+            if (fcmToken.getToken() == null || fcmToken.getToken().isBlank()) {
+                throw new BusinessException(CustomErrorCode.FCM_TOKEN_NOT_FOUND);
+            }
+
+            try {
+                String title = user.getUserName() + "님의 새 메시지";
+                String body = messageContent;
+                fcmService.sendNotification(fcmToken.getToken(), title, body, meetId);
+            } catch (Exception e) {
+                throw new BusinessException(CustomErrorCode.FCM_SEND_FAILED);
+            }
+        }
     }
 
     private String extractUserIdFromToken(List<String> authHeaders) {

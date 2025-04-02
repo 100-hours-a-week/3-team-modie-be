@@ -18,11 +18,11 @@ public interface MeetRepository extends JpaRepository<Meet, Long> {
         LEFT JOIN UserMeet um ON um.meet = m AND um.user.userId = :userId AND um.deletedAt IS NULL
         WHERE (m.owner.userId = :userId OR um.user.userId = :userId)
         AND (:meetType = '전체'
-        OR (:meetType = '기타' AND m.meetType NOT IN ('운동', '이동', '빨래'))
+        OR (:meetType = '기타' AND m.meetType NOT IN ('운동', '이동', '음식'))
         OR m.meetType = :meetType)
         AND ((:isCompleted = false AND m.completedAt IS NULL) OR (:isCompleted = true AND m.completedAt IS NOT NULL))
         AND m.deletedAt IS NULL
-        ORDER BY m.meetAt DESC
+        ORDER BY m.meetAt ASC
         """)
     Page<Meet> findFilteredMeets(
         @Param("userId") String userId,
