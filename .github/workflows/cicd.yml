@@ -56,21 +56,8 @@ jobs:
           username: ${{ secrets.USER }}
           script: |
             set -e  # 🚀 오류 발생 시 즉시 종료
-            # ✅ EC2 내부에서 다시 COMMIT_HASH 설정
-            if [[ -z "$COMMIT_HASH" ]]; then
-              echo "❌ COMMIT_HASH가 설정되지 않았습니다. 최신 태그를 가져옵니다."
-
-              # AWS ECR에서 최신 태그 가져오기
-              COMMIT_HASH=$(aws ecr describe-images --repository-name modie/modie-be \
-                --region ap-northeast-2 --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
-
-              # 값이 없으면 오류 처리
-              if [[ -z "$COMMIT_HASH" || "$COMMIT_HASH" == "None" ]]; then
-                echo "❌ 최신 태그를 가져오지 못했습니다. 배포 중단!"
-                exit 1
-              fi
-            fi
-
+            COMMIT_HASH=$(aws ecr describe-images --repository-name modie/modie-be \
+                  --region ap-northeast-2 --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
             echo "🚀 사용할 Docker 태그: $COMMIT_HASH"
             # aws 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
@@ -102,17 +89,36 @@ jobs:
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
               -e KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }} \
               -e KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e SPRING_PROFILES_ACTIVE=prod \
               -e DATABASE_NAME=modie \
+              -e FCM_PROJECT_ID=${{ secrets.FCM_PROJECT_ID }} \
+              -e FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
+              -e FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }} \
+              -e FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }} \
+              -e FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }} \
+              -e FIREBASE_CLIENT_X509_CERT_URL=${{ secrets.FIREBASE_CLIENT_X509_CERT_URL }} \
+              -e HASH_KEY=${{ secrets.HASH_KEY }} \
               --restart always \
               418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH || {
                 echo "❌ Docker 컨테이너 실행 실패!"
                 exit 1
               }
 
+            echo "⌛ 신규 컨테이너 /health 체크 중..."
+              for i in {1..20}; do
+                sleep 3
+                if [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:$PORT/health)" = "200" ]; then
+                  echo "✅ 신규 컨테이너가 정상적으로 기동되었습니다!"
+                  break
+                fi
 
-            # nginx 설정 변경
+                if [ "$i" -eq 20 ]; then
+                  echo "❌ /health 체크 실패! 롤백 수행"
+                  docker stop modie-be-$PORT
+                  docker rm modie-be-$PORT
+                  exit 1
+                fi
+            done
+
             sudo sed -i "s|set \$active_backend backend-.*;|set \$active_backend backend-$BG_MODE;|g" $NGINX_CONFIG
 
             # 🔥 Nginx 설정 테스트 후 적용 (실패 시 롤백)

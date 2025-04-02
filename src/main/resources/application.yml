@@ -7,7 +7,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${DATABASE_NAME}?serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${DATABASE_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
@@ -45,3 +45,13 @@ fcm:
 
 hashid:
   salt: ${HASH_KEY}
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
