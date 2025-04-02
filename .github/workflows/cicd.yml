@@ -37,7 +37,7 @@ jobs:
         run: |
           set -e  # 오류 발생 시 즉시 종료
           echo "Building Docker image..."
-          docker build -q -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH \
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH \
                           -t $ECR_REGISTRY/$ECR_REPOSITORY:dev .
 
           echo "Pushing Docker image to ECR..."
