@@ -58,6 +58,9 @@ dependencies {
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
     runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.4'
 
+    // 해싱
+    implementation 'org.hashids:hashids:1.0.3'
+
     // Firebase
     implementation 'com.google.auth:google-auth-library-oauth2-http:1.18.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'

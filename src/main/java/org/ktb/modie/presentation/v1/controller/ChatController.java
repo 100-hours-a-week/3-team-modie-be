@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
+import org.ktb.modie.core.util.HashIdUtil;
 import org.ktb.modie.domain.Chat;
 import org.ktb.modie.domain.FcmToken;
 import org.ktb.modie.domain.Meet;
@@ -41,6 +42,7 @@ public class ChatController {
     private final FcmService fcmService;
     private final UserMeetRepository userMeetRepository;
     private final FcmTokenRepository fcmTokenRepository;
+    private final HashIdUtil hashIdUtils;
 
     @MessageMapping("/chat/{meetId}")
     public void sendMessage(

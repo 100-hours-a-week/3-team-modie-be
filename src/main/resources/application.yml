@@ -42,3 +42,6 @@ fcm:
   client-x509-cert-url: ${FIREBASE_CLIENT_X509_CERT_URL}
   credentials:
     path: modie-firebase-adminsdk.json
+
+hashid:
+  salt: ${HASH_KEY}

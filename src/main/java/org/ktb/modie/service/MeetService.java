@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
+import org.ktb.modie.core.util.HashIdUtil;
 import org.ktb.modie.domain.Meet;
 import org.ktb.modie.domain.User;
 import org.ktb.modie.domain.UserMeet;
@@ -38,6 +39,7 @@ public class MeetService {
     private final UserMeetRepository userMeetRepository;
     private final UserRepository userRepository;
     private final MeetRepository meetRepository;
+    private final HashIdUtil hashIdUtil;
 
     @Transactional
     public CreateMeetResponse createMeet(String userId, CreateMeetRequest request) {
@@ -61,12 +63,15 @@ public class MeetService {
             .build();
 
         Meet savedMeet = meetRepository.save(meet);
+        String meetHashId = hashIdUtil.encode(savedMeet.getMeetId());
 
-        return new CreateMeetResponse(savedMeet.getMeetId());
+        return new CreateMeetResponse(meetHashId);
     }
 
     @Transactional
-    public void createUserMeet(String userId, Long meetId) {
+    public void createUserMeet(String userId, String meetHashId) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+
         // Token 받아오면 userId로 변환하는 과정 필요
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.USER_NOT_FOUND));
@@ -118,8 +123,10 @@ public class MeetService {
         userMeetRepository.save(userMeet);
     }
 
-    public MeetDto getMeet(String userId, long meetId) {
+    public MeetDto getMeet(String userId, String meetHashId) {
         // NOTE: 비정상적인 meetID가 넘어온 경우
+        Long meetId = hashIdUtil.decode(meetHashId);
+
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
         }
@@ -177,7 +184,7 @@ public class MeetService {
         // MeetSummaryDto로 변환
         List<MeetSummaryDto> meetSummaryList = meetPage.getContent().stream()
             .map(meet -> new MeetSummaryDto(
-                meet.getMeetId(),
+                hashIdUtil.encode(meet.getMeetId()),
                 meet.getMeetIntro(),
                 meet.getMeetType(),
                 meet.getMeetAt(),
@@ -200,7 +207,8 @@ public class MeetService {
     }
 
     @Transactional
-    public void deleteUserMeet(String userId, Long meetId) {
+    public void deleteUserMeet(String userId, String meetHashId) {
+        Long meetId = hashIdUtil.decode(meetHashId);
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
@@ -232,7 +240,9 @@ public class MeetService {
     }
 
     @Transactional
-    public UpdateMeetResponse updateMeet(String userId, Long meetId, UpdateMeetRequest request) {
+    public UpdateMeetResponse updateMeet(String userId, String meetHashId, UpdateMeetRequest request) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+
         // NOTE: 비정상적인 meetID가 넘어온 경우
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
@@ -264,7 +274,9 @@ public class MeetService {
     }
 
     @Transactional
-    public void completeMeet(String userId, Long meetId) {
+    public void completeMeet(String userId, String meetHashId) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
@@ -285,7 +297,9 @@ public class MeetService {
     }
 
     @Transactional
-    public void updatePaymentStatus(String userId, Long meetId, UpdatePaymentRequest request) {
+    public void updatePaymentStatus(String userId, String meetHashId, UpdatePaymentRequest request) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
@@ -313,7 +327,9 @@ public class MeetService {
     }
 
     @Transactional
-    public void deleteMeet(Long meetId, String userId) {
+    public void deleteMeet(String meetHashId, String userId) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+
         // 모임 존재여부
         Meet meet = meetRepository.findActiveByMeedId(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
@@ -332,7 +348,9 @@ public class MeetService {
     }
 
     @Transactional
-    public void updateTotalCost(String userId, Long meetId, int totalCost) {
+    public void updateTotalCost(String userId, String meetHashId, int totalCost) {
+        Long meetId = hashIdUtil.decode(meetHashId);
+        
         // 비정상적인 meetID가 넘어온 경우
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
