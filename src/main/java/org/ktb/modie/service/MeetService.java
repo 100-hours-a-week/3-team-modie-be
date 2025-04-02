@@ -141,7 +141,8 @@ public class MeetService {
         List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
 
         return MeetDto.builder()
-            .meetId(meet.getMeetId())
+//            .meetId(meet.getMeetId())
+            .meetId(meetHashId)
             .ownerName(meet.getOwner().getUserName())
             .meetIntro(meet.getMeetIntro())
             .meetType(meet.getMeetType())
