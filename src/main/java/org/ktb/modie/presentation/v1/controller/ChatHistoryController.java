@@ -71,14 +71,14 @@ public class ChatHistoryController {
 
                 // 변경된 DTO 필드명에 맞춰 생성자 호출
                 return new ChatDto(
-                    chat.getMessageId(),            // chatId
-                    (chat.getUser().getUserId()), // userId
-                    chat.getMessageContent(),                   // content (이전의 message)
-                    user.getUserName(),                         // nickname (이전의 sender)
-                    chat.getCreatedAt().toString().split("\\.")[0],                        // dateTime
-                    meetId,                                     // meetId
-                    isOwner,                                    // isOwner
-                    isMe                                        // isMe
+                    chat.getMessageId(),
+                    chat.getUser().getUserId(),
+                    chat.getMessageContent(),
+                    user.getUserName(),
+                    chat.getCreatedAt().toString().split("\\.")[0],
+                    meetId,
+                    isOwner,
+                    isMe
                 );
             })
             .collect(Collectors.toList());

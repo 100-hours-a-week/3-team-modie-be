@@ -14,10 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Controller
-@SessionAttributes("user")
 public class AuthController {
 
     // 인가 코드 재사용 방지를 위한 메모리 저장소
@@ -59,8 +57,6 @@ public class AuthController {
 
     // 로그아웃 처리
     @GetMapping("/auth/kakao/logout")
-    public String kakaoLogout(Model model) {
-        model.addAttribute("user", null);
-        return "redirect:/";
+    public void kakaoLogout(Model model) {
     }
 }
