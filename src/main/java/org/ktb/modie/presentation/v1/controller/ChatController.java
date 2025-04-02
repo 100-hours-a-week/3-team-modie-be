@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import com.google.firebase.messaging.FirebaseMessagingException;
-import lombok.extern.slf4j.Slf4j;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.util.HashIdUtil;
@@ -29,9 +27,10 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.client.HttpClientErrorException;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.client.HttpClientErrorException;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
@@ -139,7 +138,6 @@ public class ChatController {
                 fcmService.sendNotification(fcmToken.getToken(), title, body, meetId);
             }
 
-
         } catch (MessagingException ex) {
             // 예외 메시지 로그 (추후 오류 추적을 위해)
             log.error("메시지 전송 오류: {}", ex.getMessage(), ex);
@@ -150,7 +148,6 @@ public class ChatController {
             );
         } catch (HttpClientErrorException ex) {
             log.error("알림 전송 오류: {}", ex.getMessage(), ex);
-            
             throw new BusinessException(CustomErrorCode.FCM_SEND_FAILED);
         } catch (Exception ex) {
             // 예외 메시지 로그 (기타 예외 처리)
