@@ -1,9 +1,6 @@
 package org.ktb.modie.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.util.HashIdUtil;
@@ -29,7 +26,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 // meetService
 @Service
@@ -142,7 +141,8 @@ public class MeetService {
         List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
 
         return MeetDto.builder()
-            .meetId(meet.getMeetId())
+//            .meetId(meet.getMeetId())
+            .meetId(meetHashId)
             .ownerName(meet.getOwner().getUserName())
             .meetIntro(meet.getMeetIntro())
             .meetType(meet.getMeetType())

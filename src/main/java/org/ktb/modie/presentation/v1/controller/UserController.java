@@ -1,5 +1,6 @@
 package org.ktb.modie.presentation.v1.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.presentation.v1.dto.FcmTokenRequest;
 import org.ktb.modie.presentation.v1.dto.UpdateAccountRequest;
@@ -9,8 +10,6 @@ import org.ktb.modie.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
@@ -33,6 +32,14 @@ public class UserController implements UserApi {
     }
 
     public ResponseEntity<SuccessResponse<Void>> saveFcmToken(
+        String userId,
+        FcmTokenRequest reqeust) {
+
+        fcmService.saveFcmToken(userId, reqeust);
+        return SuccessResponse.ofNoData().asHttp(HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<SuccessResponse<Void>> updateFcmToken(
         String userId,
         FcmTokenRequest reqeust) {
 

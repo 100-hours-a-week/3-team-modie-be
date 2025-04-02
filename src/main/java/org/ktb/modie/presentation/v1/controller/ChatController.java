@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.util.HashIdUtil;
@@ -31,6 +33,10 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -97,7 +103,7 @@ public class ChatController {
             .nickname(user.getUserName())
             .content(messageContent)
             .dateTime(now.toString().split("\\.")[0])
-            .meetId(meetId)
+            .meetId(meetHashId)
             .isOwner(isOwner)
             .isMe(false)  // 다른 사용자용 기본값
             .build();
@@ -109,14 +115,14 @@ public class ChatController {
             .nickname(user.getUserName())
             .content(messageContent)
             .dateTime(now.toString().split("\\.")[0])
-            .meetId(meetId)
+            .meetId(meetHashId)
             .isOwner(isOwner)
             .isMe(true)  // 발신자용은 true로 설정
             .build();
 
         try {
-            messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
-            messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
+            messagingTemplate.convertAndSend("/topic/chat/" + meetHashId, chatDto);
+            messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetHashId, senderChatDto);
 
             // FCM 알림 전송
             // 모임 참여자 조회 (+본인 제외)
@@ -129,6 +135,7 @@ public class ChatController {
             List<FcmToken> fcmTokens = fcmTokenRepository.findByUser_UserIdIn(targetUserIds);
 
             for (FcmToken fcmToken : fcmTokens) {
+                System.out.println("fcmToken : " + fcmToken.getToken());
                 if (fcmToken.getToken() == null || fcmToken.getToken().isBlank()) {
                     throw new BusinessException(CustomErrorCode.FCM_TOKEN_NOT_FOUND);
                 }
@@ -141,7 +148,6 @@ public class ChatController {
         } catch (MessagingException ex) {
             // 예외 메시지 로그 (추후 오류 추적을 위해)
             log.error("메시지 전송 오류: {}", ex.getMessage(), ex);
-
             throw new BusinessException(
                 CustomErrorCode.INTERNAL_SERVER_ERROR,
                 "메시지 전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
@@ -152,7 +158,6 @@ public class ChatController {
         } catch (Exception ex) {
             // 예외 메시지 로그 (기타 예외 처리)
             log.error("알 수 없는 오류가 발생했습니다: {}", ex.getMessage(), ex);
-
             throw new BusinessException(
                 CustomErrorCode.INTERNAL_SERVER_ERROR,
                 "메시지 전송 중 예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
