@@ -258,7 +258,18 @@ public class MeetService {
         if (!meet.getOwner().getUserId().equals(userId)) {
             throw new BusinessException(CustomErrorCode.UNAUTHORIZED_USER_NOT_OWNER);
         }
+        // ✅ 현재 참여 인원 수 확인
+        int currentMemberCount = userMeetRepository.countByMeet_MeetIdAndDeletedAtIsNull(meetId);
 
+        // ❌ 최소 인원 제한 위반
+        if (request.memberLimit() < 2) {
+            throw new BusinessException(CustomErrorCode.MEMBER_LIMIT_TOO_LOW);
+        }
+
+        // ❌ 현재 인원보다 낮게 설정한 경우
+        if (request.memberLimit() < currentMemberCount) {
+            throw new BusinessException(CustomErrorCode.MEMBER_LIMIT_LESS_THAN_CURRENT);
+        }
         meet.setMeetIntro(request.meetIntro());
         meet.setMeetType(request.meetType());
         meet.setAddress(request.address());
