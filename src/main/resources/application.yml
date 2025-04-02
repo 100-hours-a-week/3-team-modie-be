@@ -4,6 +4,8 @@ spring:
   output:
     ansi:
       enabled: ALWAYS
+  profiles:
+    active: local
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -55,3 +57,32 @@ management:
     metrics:
       export:
         enabled: true
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+logging:
+  level:
+    root: DEBUG
+    org.ktb.modie: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+logging:
+  level:
+    root: INFO
+    org.ktb.modie: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+logging:
+  level:
+    root: WARN
+    org.ktb.modie: INFO

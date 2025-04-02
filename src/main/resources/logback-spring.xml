@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 60초마다 설정 파일의 변경을 확인하여 변경시 갱신 -->
+<configuration scan="true" scanPeriod="60 seconds">
+  <!-- 각 환경별 설정 -->
+  <springProfile name="local">
+    <property resource="logback-local.properties"/>
+    <property name="LOG_PATH" value="${LOG_FILE_PATH:-./logs/local}"/>
+    <property name="LOG_LEVEL" value="DEBUG"/>
+  </springProfile>
+
+  <springProfile name="dev">
+    <property resource="logback-dev.properties"/>
+    <property name="LOG_PATH" value="${LOG_FILE_PATH:-./logs/dev}"/>
+    <property name="LOG_LEVEL" value="INFO"/>
+  </springProfile>
+
+  <springProfile name="prod">
+    <property resource="logback-prod.properties"/>
+    <property name="LOG_PATH" value="${LOG_FILE_PATH:-./logs/prod}"/>
+    <property name="LOG_LEVEL" value="WARN"/>
+  </springProfile>
+
+  <!-- 스프링 프로퍼티에서 로그 레벨을 동적으로 가져올 수도 있음 -->
+  <springProperty scope="context" name="SPRING_LOG_LEVEL" source="logging.level.root"/>
+  <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="application"/>
+  <springProperty scope="context" name="ACTIVE_PROFILE" source="spring.profiles.active" defaultValue="unknown"/>
+
+  <!-- 공통 설정 -->
+  <property name="LOG_FILE_NAME" value="${APP_NAME}_log"/>
+  <property name="ERR_LOG_FILE_NAME" value="error_log"/>
+  <property name="LOG_PATTERN"
+            value="%-5level %d{yy-MM-dd HH:mm:ss}[%thread] [%X{requestId}] [%logger{0}:%line] - %msg%n"/>
+
+  <!-- Console Appender -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- File Appender - 일반 텍스트 형식 -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/${LOG_FILE_NAME}.log</file>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>10MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <!-- JSON File Appender - Promtail과 Loki를 위한 JSON 형식 -->
+  <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/${LOG_FILE_NAME}.json</file>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <customFields>{"application":"${APP_NAME}","environment":"${ACTIVE_PROFILE}"}</customFields>
+      <fieldNames>
+        <timestamp>timestamp</timestamp>
+        <message>message</message>
+        <logger>logger_name</logger>
+        <thread>thread_name</thread>
+        <level>level</level>
+        <stackTrace>stack_trace</stackTrace>
+      </fieldNames>
+      <includeMdcKeyName>requestId</includeMdcKeyName>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.json</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>10MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <!-- Error Appender -->
+  <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <file>${LOG_PATH}/${ERR_LOG_FILE_NAME}.log</file>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}/error/${ERR_LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>10MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <maxHistory>60</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <!-- Error JSON Appender -->
+  <appender name="ERROR_JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <file>${LOG_PATH}/${ERR_LOG_FILE_NAME}.json</file>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <customFields>{"application":"${APP_NAME}","environment":"${ACTIVE_PROFILE}","log_type":"error"}</customFields>
+      <includeMdcKeyName>requestId</includeMdcKeyName>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}/error/${ERR_LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.json</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>10MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <maxHistory>60</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <!-- 환경별 로그 레벨 및 어펜더 설정 -->
+  <springProfile name="local">
+    <root level="DEBUG">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+      <appender-ref ref="JSON_FILE"/>
+      <appender-ref ref="ERROR_FILE"/>
+      <appender-ref ref="ERROR_JSON_FILE"/>
+    </root>
+
+    <!-- 개발 시 쿼리 로그 확인을 위한 설정 -->
+    <logger name="jdbc.sqlonly" level="OFF"/>
+    <logger name="jdbc.sqltiming" level="INFO"/>
+    <logger name="jdbc.audit" level="OFF"/>
+    <logger name="jdbc.resultset" level="OFF"/>
+    <logger name="jdbc.resultsettable" level="OFF"/>
+    <logger name="jdbc.connection" level="OFF"/>
+  </springProfile>
+
+  <springProfile name="dev">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+      <appender-ref ref="JSON_FILE"/>
+      <appender-ref ref="ERROR_FILE"/>
+      <appender-ref ref="ERROR_JSON_FILE"/>
+    </root>
+
+    <!-- 개발 환경의 SQL 로깅 설정 -->
+    <logger name="jdbc.sqlonly" level="OFF"/>
+    <logger name="jdbc.sqltiming" level="INFO"/>
+    <logger name="jdbc.audit" level="OFF"/>
+    <logger name="jdbc.resultset" level="OFF"/>
+    <logger name="jdbc.resultsettable" level="OFF"/>
+    <logger name="jdbc.connection" level="OFF"/>
+  </springProfile>
+
+  <springProfile name="prod">
+    <root level="WARN">
+      <!-- 운영 환경에서는 콘솔 로그를 비활성화할 수도 있음 -->
+      <!-- <appender-ref ref="CONSOLE" /> -->
+      <appender-ref ref="FILE"/>
+      <appender-ref ref="JSON_FILE"/>
+      <appender-ref ref="ERROR_FILE"/>
+      <appender-ref ref="ERROR_JSON_FILE"/>
+    </root>
+
+    <!-- 운영 환경에서는 SQL 로깅 최소화 -->
+    <logger name="jdbc" level="OFF"/>
+    <logger name="jdbc.connection" level="OFF"/>
+
+    <!-- 특정 비즈니스 로직 로깅 설정 -->
+    <logger name="org.ktb.modie.critical" level="INFO"/>
+  </springProfile>
+
+  <!-- 모든 환경에 공통으로 적용되는 로거 설정 -->
+  <logger name="org.springframework" level="INFO"/>
+  <logger name="org.hibernate" level="INFO"/>
+  <logger name="org.ktb.modie" level="DEBUG"/>
+</configuration>
