@@ -89,9 +89,14 @@ jobs:
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
               -e KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }} \
               -e KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e SPRING_PROFILES_ACTIVE=prod \
               -e DATABASE_NAME=modie \
+              -e FCM_PROJECT_ID=${{ secrets.FCM_PROJECT_ID }} \
+              -e FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
+              -e FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }} \
+              -e FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }} \
+              -e FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }} \
+              -e FIREBASE_CLIENT_X509_CERT_URL=${{ secrets.FIREBASE_CLIENT_X509_CERT_URL }} \
+              -e HASH_KEY=${{ secrets.HASH_KEY }} \
               --restart always \
               418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH || {
                 echo "❌ Docker 컨테이너 실행 실패!"
