@@ -1,6 +1,8 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.response.SuccessResponse;
@@ -10,7 +12,6 @@ import org.ktb.modie.domain.User;
 import org.ktb.modie.presentation.v1.dto.ChatDto;
 import org.ktb.modie.repository.ChatRepository;
 import org.ktb.modie.repository.MeetRepository;
-import org.ktb.modie.repository.UserRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,21 +22,15 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RestController
 public class ChatHistoryController {
 
     private final ChatRepository chatRepository;
-    private final UserRepository userRepository;
     private final MeetRepository meetRepository;  // MeetRepository 추가
 
-    // 생성자 수정: MeetRepository도 주입받도록 수정
-    public ChatHistoryController(ChatRepository chatRepository, UserRepository userRepository,
-                                 MeetRepository meetRepository) {
+    public ChatHistoryController(ChatRepository chatRepository,
+        MeetRepository meetRepository) {
         this.chatRepository = chatRepository;
-        this.userRepository = userRepository;
         this.meetRepository = meetRepository;
     }
 
@@ -43,12 +38,10 @@ public class ChatHistoryController {
     public ResponseEntity<SuccessResponse<List<ChatDto>>> getChatHistory(
         @PathVariable Long meetId,
         @RequestParam(required = false) Long lastChatId,
-        @RequestAttribute("userId") String loggedInUserId,
-        HttpServletRequest request) {
+        @RequestAttribute("userId") String loggedInUserId) {
 
         System.out.println("getChatHistory start !! ");
 
-        // 유저 정보 보완 (userId로 DB에서 조회)
         meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(
                 CustomErrorCode.MEETING_NOT_FOUND,
@@ -78,7 +71,6 @@ public class ChatHistoryController {
 
                 // 변경된 DTO 필드명에 맞춰 생성자 호출
                 return new ChatDto(
-//                    chat.getMessageId().longValue(),            // chatId
                     chat.getMessageId(),            // chatId
                     (chat.getUser().getUserId()), // userId
                     chat.getMessageContent(),                   // content (이전의 message)

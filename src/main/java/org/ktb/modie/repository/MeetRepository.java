@@ -10,8 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface MeetRepository extends JpaRepository<Meet, Long> {
-    Optional<Meet> findByMeetId(Long meetId);
-
+    
     @Query("""
         SELECT DISTINCT m
         FROM Meet m

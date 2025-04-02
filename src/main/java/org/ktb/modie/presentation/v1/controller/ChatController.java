@@ -1,6 +1,8 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.Chat;
@@ -10,7 +12,6 @@ import org.ktb.modie.presentation.v1.dto.ChatDto;
 import org.ktb.modie.repository.ChatRepository;
 import org.ktb.modie.repository.MeetRepository;
 import org.ktb.modie.repository.UserRepository;
-import org.ktb.modie.service.ChatService;
 import org.ktb.modie.service.JwtService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,9 +19,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,7 +27,6 @@ public class ChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
-    private final ChatService chatService;
     private final ChatRepository chatRepository;
     private final MeetRepository meetRepository;
     private final JwtService jwtService;
@@ -60,9 +58,6 @@ public class ChatController {
         // 방장 여부 확인
         boolean isOwner = meet.getOwner().getUserId().equals(userId);
 
-        // 메시지 ID 생성 (중복 방지용)
-        String messageId = UUID.randomUUID().toString();
-
         // DB에 저장
         Chat chat = Chat.builder()
             .user(user)
@@ -72,7 +67,7 @@ public class ChatController {
             .build();
         chatRepository.save(chat);
 
-// 기존 ChatDto 객체 생성
+        // 기존 ChatDto 객체 생성
         ChatDto chatDto = ChatDto.builder()
             .chatId(chat.getMessageId())
             .userId(userId)
@@ -84,7 +79,7 @@ public class ChatController {
             .isMe(false)  // 다른 사용자용 기본값
             .build();
 
-// 발신자용 메시지 (isMe = true)
+        // 발신자용 메시지 (isMe = true)
         ChatDto senderChatDto = ChatDto.builder()
             .chatId(chat.getMessageId())
             .userId(userId)
@@ -96,14 +91,11 @@ public class ChatController {
             .isMe(true)  // 발신자용은 true로 설정
             .build();
 
-// 모든 사용자에게 isMe = false로 메시지 전송
+        // 모든 사용자에게 isMe = false로 메시지 전송
         messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
 
-// 발신자에게만 isMe = true로 메시지 전송
+        // 발신자에게만 isMe = true로 메시지 전송
         messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
-
-        System.out.println("메시지 전송 완료 - 일반: /topic/chat/" + meetId
-            + ", 발신자: /user/" + userId + "/chat/" + meetId);
     }
 
     private String extractUserIdFromToken(List<String> authHeaders) {

@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-// userMeet
 public interface UserMeetRepository extends JpaRepository<UserMeet, Long> {
     Optional<UserMeet> findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(String userId, Long meetId);
 
@@ -25,8 +24,4 @@ public interface UserMeetRepository extends JpaRepository<UserMeet, Long> {
         + "FROM UserMeet um JOIN um.user u "
         + "WHERE um.meet.meetId = :meetId AND um.deletedAt IS NULL")
     List<UserDto> findUserDtosByMeetId(@Param("meetId") Long meetId);
-
-    @Query("SELECT COUNT(um) > 0 FROM UserMeet um WHERE um.meet = :meet AND um.user.userId = :userId")
-    boolean existsByMeetAndUserId(@Param("meet") Meet meet, @Param("userId") String userId);
-
 }

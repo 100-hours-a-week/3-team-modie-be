@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
-// meetService
 @Service
 @RequiredArgsConstructor
 public class MeetService {

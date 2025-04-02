@@ -36,8 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (jwtService.isTokenValid(token)) {
                     // 토큰에서 userId(sub) 추출
                     String userId = jwtService.extractUserId(token);
-
-                    // 요청 속성에 userId 추가
                     request.setAttribute("userId", userId);
                 } else {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -49,7 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        // 필터 체인 계속 진행
         filterChain.doFilter(request, response);
     }
 }

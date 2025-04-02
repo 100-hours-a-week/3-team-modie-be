@@ -2,6 +2,7 @@ package org.ktb.modie.presentation.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import lombok.Data;
 public class ChatDto {
     private int chatId;
     private String userId;
-    private String content;    // message를 content로 변경
+    private String content;
     private String nickname;  // sender를 nickname으로 변경
     private String dateTime;  // LocalDateTime을 String으로 변경
     private Long meetId;

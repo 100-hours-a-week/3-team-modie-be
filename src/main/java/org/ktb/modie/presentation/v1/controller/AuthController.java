@@ -1,5 +1,8 @@
 package org.ktb.modie.presentation.v1.controller;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.ktb.modie.core.response.SuccessResponse;
 import org.ktb.modie.domain.User;
 import org.ktb.modie.service.JwtService;
@@ -13,11 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 @Controller
-@SessionAttributes("user") // 세션에 사용자 정보를 저장
+@SessionAttributes("user")
 public class AuthController {
 
     // 인가 코드 재사용 방지를 위한 메모리 저장소
@@ -60,17 +60,7 @@ public class AuthController {
     // 로그아웃 처리
     @GetMapping("/auth/kakao/logout")
     public String kakaoLogout(Model model) {
-        model.addAttribute("user", null); // 세션에서 사용자 정보 삭제
+        model.addAttribute("user", null);
         return "redirect:/";
-    }
-
-    // 메인 화면으로 리디렉션
-    @GetMapping("/main")
-    public String main(Model model) {
-        User user = (User) model.getAttribute("user");
-        if (user == null) {
-            return "redirect:/";
-        }
-        return "main"; // main.html로 이동
     }
 }

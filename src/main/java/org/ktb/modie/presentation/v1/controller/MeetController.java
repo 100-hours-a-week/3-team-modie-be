@@ -27,8 +27,6 @@ public class MeetController implements MeetApi {
         CreateMeetRequest request
     ) {
         CreateMeetResponse response = meetService.createMeet(userId, request);
-
-        //String userId = userService.getKakao
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
 

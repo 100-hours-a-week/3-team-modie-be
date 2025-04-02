@@ -28,14 +28,13 @@ public class Chat {
     @Column(name = "message_id")
     private Integer messageId;
 
-    // private Long meetId;
     @ManyToOne
     @JoinColumn(name = "meet_id", nullable = false)
-    private Meet meet;  // Meet 엔티티 참조
+    private Meet meet;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;  // User 엔티티 참조
+    private User user;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

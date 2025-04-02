@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class ValidationExceptionHandler { // ccc
+public class ValidationExceptionHandler {
 
     private final Map<Class<? extends Exception>, ExceptionStrategy> strategyMap;
 
