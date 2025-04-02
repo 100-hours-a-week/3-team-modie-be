@@ -19,8 +19,9 @@ public class HashIdUtil {
 
     public Long decode(String hash) {
         long[] decoded = hashids.decode(hash);
-        if (decoded.length == 0)
+        if (decoded.length == 0) {
             throw new IllegalArgumentException("Invalid hash id");
+        }
         return decoded[0];
     }
 }

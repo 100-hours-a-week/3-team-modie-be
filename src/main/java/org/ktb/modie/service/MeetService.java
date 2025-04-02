@@ -1,9 +1,6 @@
 package org.ktb.modie.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.util.HashIdUtil;
@@ -29,7 +26,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 // meetService
 @Service
@@ -360,7 +359,6 @@ public class MeetService {
     @Transactional
     public void updateTotalCost(String userId, String meetHashId, int totalCost) {
         Long meetId = hashIdUtil.decode(meetHashId);
-        
         // 비정상적인 meetID가 넘어온 경우
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);
