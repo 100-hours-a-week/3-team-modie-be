@@ -56,7 +56,8 @@ public enum CustomErrorMessage {
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다"),
     FCM_TOKEN_SET_FAILED("FCM 인증 토큰 초기화에 실패했습니다."),
-    FCM_SEND_FAILED("FCM 알림 전송에 실패했습니다.");
+    FCM_SEND_FAILED("FCM 알림 전송에 실패했습니다."),
+    FCM_CONNECTION_FAILED("Firebase 연결에 실패했습니다.");
 
     private final String messagePattern;
 
