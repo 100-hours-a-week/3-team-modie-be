@@ -45,13 +45,13 @@ fcm:
 
 hashid:
   salt: ${HASH_KEY}
-    
+
 management:
   endpoints:
     web:
       exposure:
         include: prometheus
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
