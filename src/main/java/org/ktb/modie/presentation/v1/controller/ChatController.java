@@ -8,6 +8,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
+import org.ktb.modie.core.util.HashIdUtil;
 import org.ktb.modie.domain.Chat;
 import org.ktb.modie.domain.FcmToken;
 import org.ktb.modie.domain.Meet;
@@ -46,13 +47,17 @@ public class ChatController {
     private final FcmService fcmService;
     private final UserMeetRepository userMeetRepository;
     private final FcmTokenRepository fcmTokenRepository;
+    private final HashIdUtil hashIdUtils;
 
     @MessageMapping("/chat/{meetId}")
     public void sendMessage(
-        @DestinationVariable("meetId") Long meetId,
+        @DestinationVariable("meetId") String meetHashId,
         String messageContent,
         SimpMessageHeaderAccessor headerAccessor
     ) {
+        // HashId를 Long으로 변경
+        Long meetId = hashIdUtils.decode(meetHashId);
+
         // JWT 토큰에서 userId 추출
         List<String> authHeaders = headerAccessor.getNativeHeader("Authorization");
         String userId = extractUserIdFromToken(authHeaders);

@@ -1,9 +1,13 @@
 package org.ktb.modie.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ktb.modie.config.FirebaseProperties;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.domain.FcmToken;
@@ -12,52 +16,81 @@ import org.ktb.modie.presentation.v1.dto.FcmTokenRequest;
 import org.ktb.modie.repository.FcmTokenRepository;
 import org.ktb.modie.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class FcmService {
 
 	private final UserRepository userRepository;
 	private final FcmTokenRepository fcmTokenRepository;
-	private final String fcmApiUrl;
-	private final String credentialsPath;
+	private final FirebaseProperties firebaseProperties;
 	private final RestTemplate restTemplate;
-	private String accessToken;
 
-	public FcmService(
-		UserRepository userRepository,
-		FcmTokenRepository fcmTokenRepository,
-		@Value("${fcm.project-id}") String projectId,
-		@Value("${fcm.credentials.path}") String credentialsPath,
-		RestTemplate restTemplate
-	) {
-		this.userRepository = userRepository;
-		this.fcmTokenRepository = fcmTokenRepository;
+	private String fcmApiUrl;
+	private GoogleCredentials googleCredentials;
+
+	@Value("${fcm.project-id}")
+	public void setFcmApiUrl(String projectId) {
 		this.fcmApiUrl = "https://fcm.googleapis.com/v1/projects/" + projectId + "/messages:send";
-		this.credentialsPath = credentialsPath.replace("src/main/resources/", "");
-		this.restTemplate = restTemplate;
 	}
 
 	@PostConstruct
 	public void init() {
 		try {
-			ClassPathResource serviceAccount = new ClassPathResource(credentialsPath);
-			GoogleCredentials googleCredentials = GoogleCredentials
-				.fromStream(serviceAccount.getInputStream())
+			this.googleCredentials = GoogleCredentials
+				.fromStream(generateFirebaseCredentialStream())
 				.createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new BusinessException(CustomErrorCode.FCM_TOKEN_SET_FAILED);
+		}
+	}
+
+	private InputStream generateFirebaseCredentialStream() {
+		try {
+			Map<String, Object> serviceAccount = new HashMap<>();
+			serviceAccount.put("type", "service_account");
+			serviceAccount.put("project_id", firebaseProperties.getProjectId());
+			serviceAccount.put("private_key_id", firebaseProperties.getPrivateKeyId());
+			ObjectMapper objectMapper = new ObjectMapper();
+			String rawPrivateKey = firebaseProperties.getPrivateKey();
+			String fixedKey = firebaseProperties.getPrivateKey().replace("\\n", "\n");
+			System.out.println(rawPrivateKey);
+			System.out.println(fixedKey);
+			serviceAccount.put("private_key", fixedKey);
+			serviceAccount.put("client_email", firebaseProperties.getClientEmail());
+			serviceAccount.put("client_id", firebaseProperties.getClientId());
+			serviceAccount.put("auth_uri", "https://accounts.google.com/o/oauth2/auth");
+			serviceAccount.put("token_uri", "https://oauth2.googleapis.com/token");
+			serviceAccount.put("auth_provider_x509_cert_url", "https://www.googleapis.com/oauth2/v1/certs");
+			serviceAccount.put("client_x509_cert_url", firebaseProperties.getClientX509CertUrl());
+
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			new ObjectMapper().writeValue(out, serviceAccount);
+			return new ByteArrayInputStream(out.toByteArray());
+
+		} catch (Exception e) {
+			throw new BusinessException(CustomErrorCode.FCM_TOKEN_SET_FAILED);
+		}
+	}
+
+	private String getAccessToken() {
+		try {
 			googleCredentials.refreshIfExpired();
-			accessToken = googleCredentials.getAccessToken().getTokenValue();
+			return googleCredentials.getAccessToken().getTokenValue();
 		} catch (Exception e) {
 			throw new BusinessException(CustomErrorCode.FCM_TOKEN_SET_FAILED);
 		}
@@ -87,10 +120,6 @@ public class FcmService {
 
 	public void sendNotification(String targetToken, String title, String body, Long meetId) {
 		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setBearerAuth(accessToken);
-			headers.setContentType(MediaType.APPLICATION_JSON);
-
 			Map<String, Object> message = new HashMap<>();
 			Map<String, Object> notification = new HashMap<>();
 			notification.put("title", title);
@@ -103,13 +132,16 @@ public class FcmService {
 			messageContent.put("token", targetToken);
 			messageContent.put("notification", notification);
 			messageContent.put("data", data);
-
 			message.put("message", messageContent);
 
-			HttpEntity<Map<String, Object>> request = new HttpEntity<>(message, headers);
+			HttpHeaders headers = new HttpHeaders();
+			headers.setBearerAuth(getAccessToken());
+			headers.setContentType(MediaType.APPLICATION_JSON);
 
+			HttpEntity<Map<String, Object>> request = new HttpEntity<>(message, headers);
 			restTemplate.postForEntity(fcmApiUrl, request, Map.class);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new BusinessException(CustomErrorCode.FCM_SEND_FAILED);
 		}
 	}
