@@ -1,7 +1,10 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.util.HashIdUtil;
@@ -27,9 +30,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
@@ -120,24 +122,31 @@ public class ChatController {
             // FCM 알림 전송
             // 모임 참여자 조회 (+본인 제외)
             List<UserMeet> userMeets = userMeetRepository.findUserMeetByMeet_MeetIdAndDeletedAtIsNull(meetId);
-            List<String> targetUserIds = userMeets.stream()
-                .map(userMeet -> userMeet.getUser().getUserId())
-                .filter(id -> !id.equals(userId)) // 본인 제외
-                .toList();
+            List<String> targetUserIds = new ArrayList<>(
+                userMeets.stream()
+                    .map(userMeet -> userMeet.getUser().getUserId())
+                    .filter(id -> !id.equals(userId)) // 본인 제외
+                    .toList()
+            );
+
+            // 방장 추가
+            String ownerId = meet.getOwner().getUserId();
+            if (!userId.equals(ownerId)) {
+                targetUserIds.add(ownerId);
+            }
+
             // 해당 참여자들의 FCM 토큰 한 번에 조회
             List<FcmToken> fcmTokens = fcmTokenRepository.findByUser_UserIdIn(targetUserIds);
 
             for (FcmToken fcmToken : fcmTokens) {
-                System.out.println("fcmToken : " + fcmToken.getToken());
                 if (fcmToken.getToken() == null || fcmToken.getToken().isBlank()) {
                     throw new BusinessException(CustomErrorCode.FCM_TOKEN_NOT_FOUND);
                 }
 
                 String title = user.getUserName() + "님의 새 메시지";
                 String body = messageContent;
-                fcmService.sendNotification(fcmToken.getToken(), title, body, meetId);
+                fcmService.sendNotification(fcmToken.getToken(), title, body, meetHashId);
             }
-
 
         } catch (MessagingException ex) {
             // 예외 메시지 로그 (추후 오류 추적을 위해)
