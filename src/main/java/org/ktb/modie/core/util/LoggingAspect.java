@@ -21,7 +21,7 @@ public class LoggingAspect {
         Logger logger = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
         String methodName = joinPoint.getSignature().getName();
 
-        logger.debug("시작: {} - 파라미터: {}", methodName, joinPoint.getArgs());
+        logger.debug("시작aaaaaaaaaaaaaaaaaaaaaaaaaaaaa: {} - 파라미터: {}", methodName, joinPoint.getArgs());
 
         long startTime = System.currentTimeMillis();
         try {
