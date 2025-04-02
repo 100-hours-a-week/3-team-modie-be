@@ -49,7 +49,7 @@ public class FcmService {
 	@PostConstruct
 	public void init() {
 		try {
-			GoogleCredentials googleCredentials = GoogleCredentials
+			this.googleCredentials = GoogleCredentials
 				.fromStream(generateFirebaseCredentialStream())
 				.createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 
@@ -141,6 +141,7 @@ public class FcmService {
 			HttpEntity<Map<String, Object>> request = new HttpEntity<>(message, headers);
 			restTemplate.postForEntity(fcmApiUrl, request, Map.class);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new BusinessException(CustomErrorCode.FCM_SEND_FAILED);
 		}
 	}
