@@ -1,9 +1,5 @@
 package org.ktb.modie.presentation.v1.controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ktb.modie.core.exception.BusinessException;
@@ -30,9 +26,6 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.client.HttpClientErrorException;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -142,7 +135,7 @@ public class ChatController {
 
                 String title = user.getUserName() + "님의 새 메시지";
                 String body = messageContent;
-                fcmService.sendNotification(fcmToken.getToken(), title, body, meetId);
+                fcmService.sendNotification(fcmToken.getToken(), title, body, meetHashId);
             }
 
         } catch (MessagingException ex) {

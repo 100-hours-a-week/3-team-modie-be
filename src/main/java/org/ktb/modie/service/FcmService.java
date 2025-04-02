@@ -114,7 +114,7 @@ public class FcmService {
             });
     }
 
-    public void sendNotification(String targetToken, String title, String body, Long meetId) {
+    public void sendNotification(String targetToken, String title, String body, String meetId) {
         try {
             Map<String, Object> message = new HashMap<>();
             Map<String, Object> notification = new HashMap<>();
@@ -122,7 +122,7 @@ public class FcmService {
             notification.put("body", body);
 
             Map<String, Object> data = new HashMap<>();
-            data.put("url", "/" + meetId + "/chat");
+            data.put("url", "https://modie.site/" + meetId + "/chat");
 
             Map<String, Object> messageContent = new HashMap<>();
             messageContent.put("token", targetToken);
