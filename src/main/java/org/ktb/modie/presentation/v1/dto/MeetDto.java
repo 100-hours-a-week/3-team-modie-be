@@ -1,10 +1,6 @@
 package org.ktb.modie.presentation.v1.dto;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -12,10 +8,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Builder
 public record MeetDto(
     @Schema(description = "모임 ID", example = "1")
-    Long meetId,
+//    Long meetId,
+    String meetId,
 
     @Schema(description = "모임 생성자", example = "김박박즐")
     String ownerName,
