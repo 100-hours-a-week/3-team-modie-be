@@ -44,7 +44,7 @@ fcm:
     path: modie-firebase-adminsdk.json
 
 hashid:
-  salt: ${HASH_KEY}
+  salt: asdf1234
 
 management:
   endpoints:
