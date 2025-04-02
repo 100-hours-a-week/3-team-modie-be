@@ -9,9 +9,6 @@ public class HashIdUtil {
 
     private final Hashids hashids;
 
-    //    public HashIdUtil(@Value("${hashid.salt}") String salt) {
-//        this.hashids = new Hashids(salt, 10);
-//    }
     public HashIdUtil(@Value("${hashid.salt}") String salt) {
         this.hashids = new Hashids(salt, 10);
     }
