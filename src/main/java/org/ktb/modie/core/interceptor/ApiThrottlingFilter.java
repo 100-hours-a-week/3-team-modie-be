@@ -1,16 +1,19 @@
 package org.ktb.modie.core.interceptor;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 import org.ktb.modie.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,7 +26,15 @@ public class ApiThrottlingFilter extends OncePerRequestFilter {
     private static final int MAX_REQUESTS_PER_SECOND = 5;
     private static final long TIME_WINDOW_MS = 1000; // 1초
 
-    private final Map<String, Deque<Long>> requestHistory = new ConcurrentHashMap<>();
+    private final LoadingCache<String, Deque<Long>> requestHistory = CacheBuilder.newBuilder()
+        .maximumSize(10_000) // 최대 클라이언트 수 제한
+        .expireAfterWrite(1, TimeUnit.HOURS) // 1시간 후 자동 제거
+        .build(new CacheLoader<String, Deque<Long>>() {
+            @Override
+            public Deque<Long> load(String key) {
+                return new LinkedList<>();
+            }
+        });
 
     @Autowired
     private JwtService jwtService;
@@ -36,35 +47,36 @@ public class ApiThrottlingFilter extends OncePerRequestFilter {
         String userKey = resolveUserKey(request);
         long now = System.currentTimeMillis();
 
-        requestHistory.putIfAbsent(userKey, new ArrayDeque<>());
-        Deque<Long> timestamps = requestHistory.get(userKey);
+        try {
+            Deque<Long> timestamps = requestHistory.get(userKey);
 
-        synchronized (timestamps) {
-            // 1초 초과된 오래된 요청 제거
-            while (!timestamps.isEmpty() && now - timestamps.peekFirst() > TIME_WINDOW_MS) {
-                timestamps.pollFirst();
+            synchronized (timestamps) {
+                // 1초보다 오래된 요청 제거
+                while (!timestamps.isEmpty() && now - timestamps.peekFirst() > TIME_WINDOW_MS) {
+                    timestamps.pollFirst();
+                }
+
+                // 요청 초과 시 차단
+                if (timestamps.size() >= MAX_REQUESTS_PER_SECOND) {
+                    response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(
+                        "{\"success\":false,\"data\":{\"code\":\"E429\","
+                            + "\"message\":\"요청이 너무 많습니다. 잠시 후 다시 시도해주세요.\"}}");
+                    return;
+                }
+
+                // 정상 요청 → 현재 시간 추가
+                timestamps.addLast(now);
             }
 
-            // timestamps가 비어 있으면 userKey 자체 제거
-            if (timestamps.isEmpty()) {
-                requestHistory.remove(userKey);
-            }
+            filterChain.doFilter(request, response);
 
-            // 요청 초과 시 차단
-            if (timestamps.size() >= MAX_REQUESTS_PER_SECOND) {
-                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write(
-                    "{\"success\":false,\"data\":{\"code\":\"E429\","
-                        + "\"message\":\"요청이 너무 많습니다. 잠시 후 다시 시도해주세요.\"}}");
-                return;
-            }
-
-            timestamps.addLast(now);
+        } catch (Exception e) {
+            // 캐시 접근 중 에러 → 그냥 통과시킴 (필요 시 로깅)
+            filterChain.doFilter(request, response);
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String resolveUserKey(HttpServletRequest request) {
@@ -75,7 +87,7 @@ public class ApiThrottlingFilter extends OncePerRequestFilter {
                 String userId = jwtService.extractUserId(token);
                 return "user:" + userId;
             } catch (Exception e) {
-                // 토큰 파싱 실패 시 IP 기준으로 제한
+                // 토큰 파싱 실패 시 IP 기준 제한
                 return "anonymous:" + request.getRemoteAddr();
             }
         }
