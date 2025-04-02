@@ -96,7 +96,7 @@ public class ChatController {
             .nickname(user.getUserName())
             .content(messageContent)
             .dateTime(now.toString().split("\\.")[0])
-            .meetId(meetId)
+            .meetId(meetHashId)
             .isOwner(isOwner)
             .isMe(false)  // 다른 사용자용 기본값
             .build();
@@ -108,14 +108,14 @@ public class ChatController {
             .nickname(user.getUserName())
             .content(messageContent)
             .dateTime(now.toString().split("\\.")[0])
-            .meetId(meetId)
+            .meetId(meetHashId)
             .isOwner(isOwner)
             .isMe(true)  // 발신자용은 true로 설정
             .build();
 
         try {
-            messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
-            messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
+            messagingTemplate.convertAndSend("/topic/chat/" + meetHashId, chatDto);
+            messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetHashId, senderChatDto);
 
             // FCM 알림 전송
             // 모임 참여자 조회 (+본인 제외)
@@ -128,6 +128,7 @@ public class ChatController {
             List<FcmToken> fcmTokens = fcmTokenRepository.findByUser_UserIdIn(targetUserIds);
 
             for (FcmToken fcmToken : fcmTokens) {
+                System.out.println("fcmToken : " + fcmToken.getToken());
                 if (fcmToken.getToken() == null || fcmToken.getToken().isBlank()) {
                     throw new BusinessException(CustomErrorCode.FCM_TOKEN_NOT_FOUND);
                 }

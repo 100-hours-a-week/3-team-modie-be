@@ -1,14 +1,13 @@
 package org.ktb.modie.presentation.v1.dto;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.time.LocalDateTime;
 
 public record MeetSummaryDto(
     @Schema(description = "모임 ID 해시값", example = "A1b2C3d4")
-    String meetHashId,
+    String meetId,
 
     @Schema(description = "모임 소개", example = "제주 올레길 탐방")
     String meetIntro,
