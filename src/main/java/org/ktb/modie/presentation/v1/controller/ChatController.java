@@ -46,10 +46,13 @@ public class ChatController {
 
     @MessageMapping("/chat/{meetId}")
     public void sendMessage(
-        @DestinationVariable("meetId") Long meetId,
+        @DestinationVariable("meetId") String meetHashId,
         String messageContent,
         SimpMessageHeaderAccessor headerAccessor
     ) {
+        // HashId를 Long으로 변경
+        Long meetId = hashIdUtils.decode(meetHashId);
+
         // JWT 토큰에서 userId 추출
         List<String> authHeaders = headerAccessor.getNativeHeader("Authorization");
         String userId = extractUserIdFromToken(authHeaders);

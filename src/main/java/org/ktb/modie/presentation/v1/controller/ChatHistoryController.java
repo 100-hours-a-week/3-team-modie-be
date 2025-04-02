@@ -32,23 +32,25 @@ public class ChatHistoryController {
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
     private final MeetRepository meetRepository;  // MeetRepository 추가
-    private HashIdUtil hashIdUtil;
+    private final HashIdUtil hashIdUtil;
 
     // 생성자 수정: MeetRepository도 주입받도록 수정
     public ChatHistoryController(ChatRepository chatRepository, UserRepository userRepository,
-        MeetRepository meetRepository) {
+        MeetRepository meetRepository, HashIdUtil hashIdUtil) {
         this.chatRepository = chatRepository;
         this.userRepository = userRepository;
         this.meetRepository = meetRepository;
+        this.hashIdUtil = hashIdUtil;
     }
 
     @GetMapping("/api/v1/chat/{meetId}")
     public ResponseEntity<SuccessResponse<List<ChatDto>>> getChatHistory(
-        @PathVariable("meetId") Long meetId,
+        @PathVariable("meetId") String meetHashId,
         @RequestParam(value = "lastChatId", required = false) Long lastChatId,
         @RequestAttribute("userId") String loggedInUserId,
         HttpServletRequest request) {
 
+        Long meetId = hashIdUtil.decode(meetHashId);
         System.out.println("getChatHistory start !! ");
         // 유저 정보 보완 (userId로 DB에서 조회)
         meetRepository.findById(meetId)
