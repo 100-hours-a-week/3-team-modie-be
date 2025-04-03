@@ -13,13 +13,13 @@
 
   <springProfile name="dev">
     <property resource="logback-dev.properties"/>
-    <property name="LOG_PATH" value="${LOG_FILE_PATH:-./logs/dev}"/>
+    <property name="LOG_PATH" value="${LOG_FILE_PATH:-/var/log/modie/dev}"/>
     <property name="LOG_LEVEL" value="INFO"/>
   </springProfile>
 
   <springProfile name="prod">
     <property resource="logback-prod.properties"/>
-    <property name="LOG_PATH" value="${LOG_FILE_PATH:-./logs/prod}"/>
+    <property name="LOG_PATH" value="${LOG_FILE_PATH:-/var/log/modie/prod}"/>
     <property name="LOG_LEVEL" value="WARN"/>
   </springProfile>
 
