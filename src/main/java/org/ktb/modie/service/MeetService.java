@@ -1,6 +1,9 @@
 package org.ktb.modie.service;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.util.HashIdUtil;
@@ -26,9 +29,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 // meetService
 @Service
@@ -141,7 +142,7 @@ public class MeetService {
         List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
 
         return MeetDto.builder()
-//            .meetId(meet.getMeetId())
+            //            .meetId(meet.getMeetId())
             .meetId(meetHashId)
             .ownerName(meet.getOwner().getUserName())
             .meetIntro(meet.getMeetIntro())
@@ -258,13 +259,9 @@ public class MeetService {
         if (!meet.getOwner().getUserId().equals(userId)) {
             throw new BusinessException(CustomErrorCode.UNAUTHORIZED_USER_NOT_OWNER);
         }
+
         // ✅ 현재 참여 인원 수 확인
         int currentMemberCount = userMeetRepository.countByMeet_MeetIdAndDeletedAtIsNull(meetId);
-
-        // ❌ 최소 인원 제한 위반
-        if (request.memberLimit() < 2) {
-            throw new BusinessException(CustomErrorCode.MEMBER_LIMIT_TOO_LOW);
-        }
 
         // ❌ 현재 인원보다 낮게 설정한 경우
         if (request.memberLimit() < currentMemberCount) {
