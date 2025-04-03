@@ -22,9 +22,7 @@ public class UserController implements UserApi {
     private final FcmService fcmService;
 
     public ResponseEntity<SuccessResponse<UserResponse>> getUserProfile(String userId) {
-        log.info("사용자 프로필 조회");
         UserResponse response = userService.getUserProfile(userId);
-        log.debug("사용자 조회 성공: {}", response);
 
         return SuccessResponse.of(response).asHttp(HttpStatus.OK);
     }
