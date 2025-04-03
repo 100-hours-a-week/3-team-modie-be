@@ -29,7 +29,7 @@ public class MeetController implements MeetApi {
         CreateMeetResponse response = meetService.createMeet(userId, request);
 
         //String userId = userService.getKakao
-        return SuccessResponse.of(response).asHttp(HttpStatus.OK);
+        return SuccessResponse.of(response).asHttp(HttpStatus.CREATED);
     }
 
     public ResponseEntity<SuccessResponse<MeetDto>> getMeet(String userId, String meetHashId

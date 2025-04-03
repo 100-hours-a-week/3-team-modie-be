@@ -1,9 +1,6 @@
 package org.ktb.modie.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import org.ktb.modie.core.exception.BusinessException;
 import org.ktb.modie.core.exception.CustomErrorCode;
 import org.ktb.modie.core.util.HashIdUtil;
@@ -29,7 +26,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 // meetService
 @Service
@@ -142,7 +141,8 @@ public class MeetService {
         List<UserDto> members = userMeetRepository.findUserDtosByMeetId(meetId);
 
         return MeetDto.builder()
-            .meetId(meet.getMeetId())
+//            .meetId(meet.getMeetId())
+            .meetId(meetHashId)
             .ownerName(meet.getOwner().getUserName())
             .meetIntro(meet.getMeetIntro())
             .meetType(meet.getMeetType())
@@ -258,7 +258,18 @@ public class MeetService {
         if (!meet.getOwner().getUserId().equals(userId)) {
             throw new BusinessException(CustomErrorCode.UNAUTHORIZED_USER_NOT_OWNER);
         }
+        // ✅ 현재 참여 인원 수 확인
+        int currentMemberCount = userMeetRepository.countByMeet_MeetIdAndDeletedAtIsNull(meetId);
 
+        // ❌ 최소 인원 제한 위반
+        if (request.memberLimit() < 2) {
+            throw new BusinessException(CustomErrorCode.MEMBER_LIMIT_TOO_LOW);
+        }
+
+        // ❌ 현재 인원보다 낮게 설정한 경우
+        if (request.memberLimit() < currentMemberCount) {
+            throw new BusinessException(CustomErrorCode.MEMBER_LIMIT_LESS_THAN_CURRENT);
+        }
         meet.setMeetIntro(request.meetIntro());
         meet.setMeetType(request.meetType());
         meet.setAddress(request.address());
@@ -286,8 +297,13 @@ public class MeetService {
             throw new BusinessException(CustomErrorCode.PERMISSION_DENIED_COMPLETED_NOT_OWNER);
         }
 
-        // 정산 완료 여부 확인
-        Long unpaidUsers = userMeetRepository.countUnpaidUsersByMeetId(meetId);
+        // NOTE: 비용이 없는 경우 바로 종료
+        if (meet.getTotalCost() == 0) {
+            meet.setCompletedAt(LocalDateTime.now());
+            return;
+        }
+        // NOTE: 정산 완료 여부 확인(비용이 있는 경우)
+        Long unpaidUsers = userMeetRepository.countUnpaidActiveUsersByMeetId(meetId);
         if (unpaidUsers > 0) {
             throw new BusinessException(CustomErrorCode.OPERATION_DENIED_SETTLEMENT_INCOMPLETE);
         }
@@ -303,6 +319,11 @@ public class MeetService {
         // 모임 조회
         Meet meet = meetRepository.findById(meetId)
             .orElseThrow(() -> new BusinessException(CustomErrorCode.MEETING_NOT_FOUND));
+
+        // 종료된 모임이면 예외처리
+        if (meet.getCompletedAt() != null && meet.getCompletedAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException(CustomErrorCode.ALREADY_COMPLETED_MEET);
+        }
 
         // 타겟 사용자 조회
         User user = userRepository.findById(request.userId())
@@ -350,7 +371,6 @@ public class MeetService {
     @Transactional
     public void updateTotalCost(String userId, String meetHashId, int totalCost) {
         Long meetId = hashIdUtil.decode(meetHashId);
-        
         // 비정상적인 meetID가 넘어온 경우
         if (meetId <= 0) {
             throw new BusinessException(CustomErrorCode.INVALID_INPUT_IN_MEET);

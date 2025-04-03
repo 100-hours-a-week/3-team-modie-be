@@ -65,11 +65,7 @@ public class FcmService {
 			serviceAccount.put("type", "service_account");
 			serviceAccount.put("project_id", firebaseProperties.getProjectId());
 			serviceAccount.put("private_key_id", firebaseProperties.getPrivateKeyId());
-			ObjectMapper objectMapper = new ObjectMapper();
-			String rawPrivateKey = firebaseProperties.getPrivateKey();
 			String fixedKey = firebaseProperties.getPrivateKey().replace("\\n", "\n");
-			System.out.println(rawPrivateKey);
-			System.out.println(fixedKey);
 			serviceAccount.put("private_key", fixedKey);
 			serviceAccount.put("client_email", firebaseProperties.getClientEmail());
 			serviceAccount.put("client_id", firebaseProperties.getClientId());
@@ -118,15 +114,15 @@ public class FcmService {
 			});
 	}
 
-	public void sendNotification(String targetToken, String title, String body, Long meetId) {
+	public void sendNotification(String targetToken, String title, String body, String meetId) {
 		try {
 			Map<String, Object> message = new HashMap<>();
 			Map<String, Object> notification = new HashMap<>();
 			notification.put("title", title);
 			notification.put("body", body);
 
-			Map<String, Object> data = new HashMap<>();
-			data.put("url", "/" + meetId + "/chat");
+            Map<String, Object> data = new HashMap<>();
+            data.put("url", "https://modie.site/" + meetId + "/chat");
 
 			Map<String, Object> messageContent = new HashMap<>();
 			messageContent.put("token", targetToken);

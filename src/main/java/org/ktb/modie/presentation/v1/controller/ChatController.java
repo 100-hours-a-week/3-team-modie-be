@@ -1,6 +1,9 @@
 package org.ktb.modie.presentation.v1.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,14 +24,15 @@ import org.ktb.modie.repository.UserRepository;
 import org.ktb.modie.service.ChatService;
 import org.ktb.modie.service.FcmService;
 import org.ktb.modie.service.JwtService;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.client.HttpClientErrorException;
 
-import lombok.RequiredArgsConstructor;
-
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
@@ -93,7 +97,7 @@ public class ChatController {
             .nickname(user.getUserName())
             .content(messageContent)
             .dateTime(now.toString().split("\\.")[0])
-            .meetId(meetId)
+            .meetId(meetHashId)
             .isOwner(isOwner)
             .isMe(false)  // 다른 사용자용 기본값
             .build();
@@ -105,42 +109,61 @@ public class ChatController {
             .nickname(user.getUserName())
             .content(messageContent)
             .dateTime(now.toString().split("\\.")[0])
-            .meetId(meetId)
+            .meetId(meetHashId)
             .isOwner(isOwner)
             .isMe(true)  // 발신자용은 true로 설정
             .build();
 
-        // 모든 사용자에게 isMe = false로 메시지 전송
-        messagingTemplate.convertAndSend("/topic/chat/" + meetId, chatDto);
+        try {
+            messagingTemplate.convertAndSend("/topic/chat/" + meetHashId, chatDto);
+            messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetHashId, senderChatDto);
 
-        // 발신자에게만 isMe = true로 메시지 전송
-        messagingTemplate.convertAndSend("/user/" + userId + "/chat/" + meetId, senderChatDto);
+            // FCM 알림 전송
+            // 모임 참여자 조회 (+본인 제외)
+            List<UserMeet> userMeets = userMeetRepository.findUserMeetByMeet_MeetIdAndDeletedAtIsNull(meetId);
+            List<String> targetUserIds = new ArrayList<>(
+                userMeets.stream()
+                    .map(userMeet -> userMeet.getUser().getUserId())
+                    .filter(id -> !id.equals(userId)) // 본인 제외
+                    .toList()
+            );
 
-        System.out.println("메시지 전송 완료 - 일반: /topic/chat/" + meetId
-            + ", 발신자: /user/" + userId + "/chat/" + meetId);
-
-        // FCM 알림 전송
-        // 모임 참여자 조회 (+본인 제외)
-        List<UserMeet> userMeets = userMeetRepository.findUserMeetByMeet_MeetIdAndDeletedAtIsNull(meetId);
-        List<String> targetUserIds = userMeets.stream()
-            .map(userMeet -> userMeet.getUser().getUserId())
-            .filter(id -> !id.equals(userId)) // 본인 제외
-            .toList();
-        // 해당 참여자들의 FCM 토큰 한 번에 조회
-        List<FcmToken> fcmTokens = fcmTokenRepository.findByUser_UserIdIn(targetUserIds);
-
-        for (FcmToken fcmToken : fcmTokens) {
-            if (fcmToken.getToken() == null || fcmToken.getToken().isBlank()) {
-                throw new BusinessException(CustomErrorCode.FCM_TOKEN_NOT_FOUND);
+            // 방장 추가
+            String ownerId = meet.getOwner().getUserId();
+            if (!userId.equals(ownerId)) {
+                targetUserIds.add(ownerId);
             }
 
-            try {
+            // 해당 참여자들의 FCM 토큰 한 번에 조회
+            List<FcmToken> fcmTokens = fcmTokenRepository.findByUser_UserIdIn(targetUserIds);
+
+            for (FcmToken fcmToken : fcmTokens) {
+                if (fcmToken.getToken() == null || fcmToken.getToken().isBlank()) {
+                    throw new BusinessException(CustomErrorCode.FCM_TOKEN_NOT_FOUND);
+                }
+
                 String title = user.getUserName() + "님의 새 메시지";
                 String body = messageContent;
-                fcmService.sendNotification(fcmToken.getToken(), title, body, meetId);
-            } catch (Exception e) {
-                throw new BusinessException(CustomErrorCode.FCM_SEND_FAILED);
+                fcmService.sendNotification(fcmToken.getToken(), title, body, meetHashId);
             }
+
+        } catch (MessagingException ex) {
+            // 예외 메시지 로그 (추후 오류 추적을 위해)
+            log.error("메시지 전송 오류: {}", ex.getMessage(), ex);
+            throw new BusinessException(
+                CustomErrorCode.INTERNAL_SERVER_ERROR,
+                "메시지 전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+            );
+        } catch (HttpClientErrorException ex) {
+            log.error("알림 전송 오류: {}", ex.getMessage(), ex);
+            throw new BusinessException(CustomErrorCode.FCM_SEND_FAILED);
+        } catch (Exception ex) {
+            // 예외 메시지 로그 (기타 예외 처리)
+            log.error("알 수 없는 오류가 발생했습니다: {}", ex.getMessage(), ex);
+            throw new BusinessException(
+                CustomErrorCode.INTERNAL_SERVER_ERROR,
+                "메시지 전송 중 예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+            );
         }
     }
 

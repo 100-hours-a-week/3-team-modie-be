@@ -13,7 +13,7 @@ public class ChatDto {
     private String content;    // message를 content로 변경
     private String nickname;  // sender를 nickname으로 변경
     private String dateTime;  // LocalDateTime을 String으로 변경
-    private Long meetId;
+    private String meetId;
     @JsonProperty("isOwner")
     private boolean isOwner;
     @JsonProperty("isMe")
@@ -26,7 +26,7 @@ public class ChatDto {
         @JsonProperty("content") String content,
         @JsonProperty("nickname") String nickname,
         @JsonProperty("dateTime") String dateTime,
-        @JsonProperty("meetId") Long meetId,
+        @JsonProperty("meetId") String meetId,
         @JsonProperty("isOwner") boolean isOwner,
         @JsonProperty("isMe") boolean isMe) {
         this.chatId = chatId;
