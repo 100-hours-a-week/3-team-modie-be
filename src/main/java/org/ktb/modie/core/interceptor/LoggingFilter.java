@@ -62,11 +62,11 @@ public class LoggingFilter extends OncePerRequestFilter {
 		String queryString = request.getQueryString();
 		String fullUrl = uri + (queryString != null ? "?" + queryString : "");
 
-		log.info("[{}] 요청: {} {}", requestId, method, fullUrl);
+		log.info("[{}] Request: {} {}", requestId, method, fullUrl);
 	}
 
 	private void logResponse(HttpServletResponse response, String requestId, long duration) {
 		int status = response.getStatus();
-		log.info("[{}] 응답: {} ({}ms)", requestId, status, duration);
+		log.info("[{}] Response: {} ({}ms)", requestId, status, duration);
 	}
 }
