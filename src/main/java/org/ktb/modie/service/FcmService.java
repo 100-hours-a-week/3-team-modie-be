@@ -121,8 +121,8 @@ public class FcmService {
 			notification.put("title", title);
 			notification.put("body", body);
 
-			Map<String, Object> data = new HashMap<>();
-			data.put("url", "/" + meetId + "/chat");
+            Map<String, Object> data = new HashMap<>();
+            data.put("url", "https://modie.site/" + meetId + "/chat");
 
 			Map<String, Object> messageContent = new HashMap<>();
 			messageContent.put("token", targetToken);
