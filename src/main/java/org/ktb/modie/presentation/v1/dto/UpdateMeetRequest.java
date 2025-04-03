@@ -39,21 +39,16 @@ public record UpdateMeetRequest(
     @FutureOrPresent(message = "출발 시간은 현재 시간보다 이후여야 합니다.")
     LocalDateTime meetAt,
 
-    @Schema(description = "총 비용 (0~10,000,000)", example = "10000")
+    @Schema(description = "총 비용 (1,000~10,000,000)", example = "10000")
     @NotNull
-    @Min(0)
+    @Min(1000)
     @Max(10_000_000)
     int totalCost,
 
     @Schema(description = "최대 인원 수 (1~30)", example = "5")
     @NotNull
-    @Min(1)
+    @Min(2)
     @Max(30)
     int memberLimit
-
-    // @Schema(description = "수정시각", example = "2025-03-18T18:00:00")
-    // @NotNull
-    // @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    // LocalDateTime updatedAt
 ) {
 }
