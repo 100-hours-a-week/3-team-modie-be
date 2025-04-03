@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 60초마다 설정 파일의 변경을 확인하여 변경시 갱신 -->
 <configuration scan="true" scanPeriod="60 seconds">
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
   <!-- 각 환경별 설정 -->
   <springProfile name="local">
     <property resource="logback-local.properties"/>
@@ -28,12 +31,15 @@
   <!-- 공통 설정 -->
   <property name="LOG_FILE_NAME" value="${APP_NAME}_log"/>
   <property name="ERR_LOG_FILE_NAME" value="error_log"/>
+  <property name="LOG_COLORS" value="{ERROR=red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=magenta}"/>
   <property name="LOG_PATTERN"
-            value="%-5level %d{yy-MM-dd HH:mm:ss}[%thread] [%X{requestId}] [%logger{0}:%line] - %msg%n"/>
+            value="%clr(%-5level){LOG_COLORS} %d{yy-MM-dd HH:mm:ss}[%thread] [%X{requestId}] [%logger{0}:%line] - %msg%n"/>
+
 
   <!-- Console Appender -->
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <charset>UTF-8</charset>
       <pattern>${LOG_PATTERN}</pattern>
     </encoder>
   </appender>
@@ -123,9 +129,7 @@
     <root level="DEBUG">
       <appender-ref ref="CONSOLE"/>
       <appender-ref ref="FILE"/>
-      <appender-ref ref="JSON_FILE"/>
       <appender-ref ref="ERROR_FILE"/>
-      <appender-ref ref="ERROR_JSON_FILE"/>
     </root>
 
     <!-- 개발 시 쿼리 로그 확인을 위한 설정 -->
