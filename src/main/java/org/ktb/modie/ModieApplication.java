@@ -11,17 +11,15 @@ import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
 public class ModieApplication {
-    private static final Logger logger = LoggerFactory.getLogger(ModieApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(ModieApplication.class);
 
     public static void main(String[] args) {
         SpringApplication.run(ModieApplication.class, args);
-        // 현재 디렉토리 출력
-        logger.info("현재 디렉토리: {}", System.getProperty("user.dir"));
 
-        // 로그 설정 확인
-        logger.info("로그 메시지 테스트");
-        logger.debug("로그 디버그 메시지 테스트");
-        logger.error("로그 에러 메시지 테스트");
+        log.info("Current Directory: {}", System.getProperty("user.dir"));
+        log.info("LOG MESSAGE TEST");
+        log.debug("LOG DEBUG MESSAGE TEST");
+        log.error("LOG ERROR MESSAGE TEST");
     }
 
     @PostConstruct

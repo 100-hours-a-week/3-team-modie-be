@@ -25,33 +25,25 @@ public class LoggingFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
-		// 시작 시간 기록
 		long startTime = System.currentTimeMillis();
 
-		// 요청 ID 생성 또는 가져오기
 		String requestId = request.getHeader("X-Request-ID");
 		if (requestId == null || requestId.isEmpty()) {
 			requestId = UUID.randomUUID().toString();
 		}
 
-		// MDC에 요청 ID 설정
 		MDC.put(REQUEST_ID, requestId);
 
 		try {
-			// 응답 헤더에 요청 ID 추가
 			response.addHeader("X-Request-ID", requestId);
 
-			// 요청 로깅
 			logRequest(request, requestId);
 
-			// 필터 체인 실행
 			filterChain.doFilter(request, response);
 
-			// 응답 로깅
 			logResponse(response, requestId, System.currentTimeMillis() - startTime);
 
 		} finally {
-			// MDC 정리
 			MDC.remove(REQUEST_ID);
 		}
 	}

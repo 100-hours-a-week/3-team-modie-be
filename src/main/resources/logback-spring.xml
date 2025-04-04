@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 60초마다 설정 파일의 변경을 확인하여 변경시 갱신 -->
 <configuration scan="true" scanPeriod="60 seconds">
   <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
   <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
 
-  <!-- 각 환경별 설정 -->
-  <springProfile name="local">
-    <property resource="logback-local.properties"/>
-    <property name="LOG_PATH" value="${LOG_FILE_PATH:-./logs/local}"/>
-    <property name="LOG_LEVEL" value="DEBUG"/>
-  </springProfile>
-
-  <springProfile name="dev">
-    <property resource="logback-dev.properties"/>
-    <property name="LOG_PATH" value="${LOG_FILE_PATH:-/var/log/modie/dev}"/>
-    <property name="LOG_LEVEL" value="INFO"/>
-  </springProfile>
-
-  <springProfile name="prod">
-    <property resource="logback-prod.properties"/>
-    <property name="LOG_PATH" value="${LOG_FILE_PATH:-/var/log/modie/prod}"/>
-    <property name="LOG_LEVEL" value="WARN"/>
-  </springProfile>
-
-  <!-- 스프링 프로퍼티에서 로그 레벨을 동적으로 가져올 수도 있음 -->
   <springProperty scope="context" name="SPRING_LOG_LEVEL" source="logging.level.root"/>
   <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="application"/>
   <springProperty scope="context" name="ACTIVE_PROFILE" source="spring.profiles.active" defaultValue="unknown"/>
@@ -35,6 +14,66 @@
   <property name="LOG_PATTERN"
             value="%clr(%-5level){LOG_COLORS} %d{yy-MM-dd HH:mm:ss}[%thread] [%X{requestId}] [%logger{0}:%line] - %msg%n"/>
 
+  <logger name="jdbc.sqlonly" level="OFF"/>
+  <logger name="jdbc.sqltiming" level="INFO"/>
+  <logger name="jdbc.audit" level="OFF"/>
+  <logger name="jdbc.resultset" level="OFF"/>
+  <logger name="jdbc.resultsettable" level="OFF"/>
+  <logger name="jdbc.connection" level="OFF"/>
+
+  <logger name="org.springframework" level="INFO"/>
+  <logger name="org.hibernate" level="INFO"/>
+
+  <!-- 각 환경별 설정 -->
+  <springProfile name="local">
+    <property resource="logback-local.properties"/>
+    <property name="LOG_PATH" value="${log.file.path:-./logs/local}"/>
+    <property name="LOG_SIZE" value="${log.file.max-size:-10MB}"/>
+    <property name="LOG_LEVEL" value="${logging.level.org.ktb.modie:-DEBUG}"/>
+    <property name="RETENTION_DAYS" value="${custom.logging.retention.days:-7}"/>
+
+    <root level="${LOG_LEVEL}">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+      <appender-ref ref="ERROR_FILE"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="dev">
+    <property resource="logback-dev.properties"/>
+    <property name="LOG_PATH" value="${log.file.path:-/var/log/modie/dev}"/>
+    <property name="LOG_SIZE" value="${log.file.max-size:-10MB}"/>
+    <property name="LOG_LEVEL" value="${logging.level.org.ktb.modie:-INFO}"/>
+    <property name="RETENTION_DAYS" value="${custom.logging.retention.days:-14}"/>
+
+    <root level="${LOG_LEVEL}">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+      <appender-ref ref="JSON_FILE"/>
+      <appender-ref ref="ERROR_FILE"/>
+      <appender-ref ref="ERROR_JSON_FILE"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="prod">
+    <property resource="logback-prod.properties"/>
+    <property name="LOG_PATH" value="${log.file.path:-/var/log/modie/prod}"/>
+    <property name="LOG_SIZE" value="${log.file.max-size:-10MB}"/>
+    <property name="LOG_LEVEL" value="${logging.level.org.ktb.modie:-WARN}"/>
+    <property name="RETENTION_DAYS" value="${custom.logging.retention.days:-30}"/>
+
+    <root level="${LOG_LEVEL}">
+      <!-- <appender-ref ref="CONSOLE" /> -->
+      <appender-ref ref="FILE"/>
+      <appender-ref ref="JSON_FILE"/>
+      <appender-ref ref="ERROR_FILE"/>
+      <appender-ref ref="ERROR_JSON_FILE"/>
+    </root>
+
+    <logger name="jdbc" level="OFF"/>
+    <logger name="jdbc.connection" level="OFF"/>
+    <logger name="org.ktb.modie.critical" level="INFO"/>
+  </springProfile>
 
   <!-- Console Appender -->
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -53,9 +92,9 @@
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log</fileNamePattern>
       <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-        <maxFileSize>10MB</maxFileSize>
+        <maxFileSize>${LOG_SIZE}</maxFileSize>
       </timeBasedFileNamingAndTriggeringPolicy>
-      <maxHistory>30</maxHistory>
+      <maxHistory>${RETENTION_DAYS}</maxHistory>
     </rollingPolicy>
   </appender>
 
@@ -77,9 +116,9 @@
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.json</fileNamePattern>
       <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-        <maxFileSize>10MB</maxFileSize>
+        <maxFileSize>${LOG_SIZE}</maxFileSize>
       </timeBasedFileNamingAndTriggeringPolicy>
-      <maxHistory>30</maxHistory>
+      <maxHistory>${RETENTION_DAYS}</maxHistory>
     </rollingPolicy>
   </appender>
 
@@ -97,9 +136,9 @@
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/error/${ERR_LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log</fileNamePattern>
       <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-        <maxFileSize>10MB</maxFileSize>
+        <maxFileSize>${LOG_SIZE}</maxFileSize>
       </timeBasedFileNamingAndTriggeringPolicy>
-      <maxHistory>60</maxHistory>
+      <maxHistory>${RETENTION_DAYS}</maxHistory>
     </rollingPolicy>
   </appender>
 
@@ -118,67 +157,9 @@
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/error/${ERR_LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.json</fileNamePattern>
       <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-        <maxFileSize>10MB</maxFileSize>
+        <maxFileSize>${LOG_SIZE}</maxFileSize>
       </timeBasedFileNamingAndTriggeringPolicy>
-      <maxHistory>60</maxHistory>
+      <maxHistory>${RETENTION_DAYS}</maxHistory>
     </rollingPolicy>
   </appender>
-
-  <!-- 환경별 로그 레벨 및 어펜더 설정 -->
-  <springProfile name="local">
-    <root level="DEBUG">
-      <appender-ref ref="CONSOLE"/>
-      <appender-ref ref="FILE"/>
-      <appender-ref ref="ERROR_FILE"/>
-    </root>
-
-    <!-- 개발 시 쿼리 로그 확인을 위한 설정 -->
-    <logger name="jdbc.sqlonly" level="OFF"/>
-    <logger name="jdbc.sqltiming" level="INFO"/>
-    <logger name="jdbc.audit" level="OFF"/>
-    <logger name="jdbc.resultset" level="OFF"/>
-    <logger name="jdbc.resultsettable" level="OFF"/>
-    <logger name="jdbc.connection" level="OFF"/>
-  </springProfile>
-
-  <springProfile name="dev">
-    <root level="INFO">
-      <appender-ref ref="CONSOLE"/>
-      <appender-ref ref="FILE"/>
-      <appender-ref ref="JSON_FILE"/>
-      <appender-ref ref="ERROR_FILE"/>
-      <appender-ref ref="ERROR_JSON_FILE"/>
-    </root>
-
-    <!-- 개발 환경의 SQL 로깅 설정 -->
-    <logger name="jdbc.sqlonly" level="OFF"/>
-    <logger name="jdbc.sqltiming" level="INFO"/>
-    <logger name="jdbc.audit" level="OFF"/>
-    <logger name="jdbc.resultset" level="OFF"/>
-    <logger name="jdbc.resultsettable" level="OFF"/>
-    <logger name="jdbc.connection" level="OFF"/>
-  </springProfile>
-
-  <springProfile name="prod">
-    <root level="WARN">
-      <!-- 운영 환경에서는 콘솔 로그를 비활성화할 수도 있음 -->
-      <!-- <appender-ref ref="CONSOLE" /> -->
-      <appender-ref ref="FILE"/>
-      <appender-ref ref="JSON_FILE"/>
-      <appender-ref ref="ERROR_FILE"/>
-      <appender-ref ref="ERROR_JSON_FILE"/>
-    </root>
-
-    <!-- 운영 환경에서는 SQL 로깅 최소화 -->
-    <logger name="jdbc" level="OFF"/>
-    <logger name="jdbc.connection" level="OFF"/>
-
-    <!-- 특정 비즈니스 로직 로깅 설정 -->
-    <logger name="org.ktb.modie.critical" level="INFO"/>
-  </springProfile>
-
-  <!-- 모든 환경에 공통으로 적용되는 로거 설정 -->
-  <logger name="org.springframework" level="INFO"/>
-  <logger name="org.hibernate" level="INFO"/>
-  <!--  <logger name="org.ktb.modie" level="DEBUG"/>-->
 </configuration>

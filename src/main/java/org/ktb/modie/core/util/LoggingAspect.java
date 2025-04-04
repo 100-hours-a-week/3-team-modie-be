@@ -19,10 +19,10 @@ public class LoggingAspect {
 
     @Around("serviceMethods()")
     public Object logServiceMethodExecution(ProceedingJoinPoint joinPoint) throws Throwable {
-        Logger logger = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
+        Logger log = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
         String methodName = joinPoint.getSignature().getName();
 
-        logger.debug("[{}] Start: {} - Parameter: {}", MDC.get("requestId"), methodName,
+        log.debug("[{}] Start: {} - Parameter: {}", MDC.get("requestId"), methodName,
             joinPoint.getArgs());
 
         long startTime = System.currentTimeMillis();
@@ -30,10 +30,10 @@ public class LoggingAspect {
             Object result = joinPoint.proceed();
             long endTime = System.currentTimeMillis();
 
-            logger.debug("[{}] Completed: {} - time: {}ms", MDC.get("requestId"), methodName, (endTime - startTime));
+            log.debug("[{}] Completed: {} - time: {}ms", MDC.get("requestId"), methodName, (endTime - startTime));
             return result;
         } catch (Exception e) {
-            logger.error("[{}] Error: {} - Method: {} - Cause: {}", MDC.get("requestId"), e.getClass().getSimpleName(),
+            log.error("[{}] Error: {} - Method: {} - Cause: {}", MDC.get("requestId"), e.getClass().getSimpleName(),
                 methodName, e.getMessage(),
                 e);
             throw e;
