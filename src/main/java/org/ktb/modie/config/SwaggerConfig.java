@@ -27,6 +27,10 @@ public class SwaggerConfig {
             .version("v1")
             .description("API 명세서");
 
+        Server localServer = new Server()
+            .url("http://localhost:8080")
+            .description("개발용 서버");
+
         Server devServer = new Server()
             .url("https://dev-api.modie.site")
             .description("개발용 서버");
@@ -44,6 +48,7 @@ public class SwaggerConfig {
             )
             .addSecurityItem(new SecurityRequirement()
                 .addList("bearerAuth"))
+            .addServersItem(localServer)
             .addServersItem(devServer);
     }
 
