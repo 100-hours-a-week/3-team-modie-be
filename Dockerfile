@@ -8,7 +8,6 @@ COPY . .
 
 RUN ./gradlew clean build -x test
 
-
 # Run stage
 
 FROM bellsoft/liberica-openjdk-alpine:17
