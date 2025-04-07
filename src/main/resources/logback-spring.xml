@@ -23,6 +23,7 @@
 
   <logger name="org.springframework" level="INFO"/>
   <logger name="org.hibernate" level="INFO"/>
+  <logger name="com.zaxxer.hikari" level="WARN"/>
 
   <!-- 각 환경별 설정 -->
   <springProfile name="local">
