@@ -17,9 +17,6 @@ public class ModieApplication {
         SpringApplication.run(ModieApplication.class, args);
 
         log.info("Current Directory: {}", System.getProperty("user.dir"));
-        log.info("LOG MESSAGE TEST");
-        log.debug("LOG DEBUG MESSAGE TEST");
-        log.error("LOG ERROR MESSAGE TEST");
     }
 
     @PostConstruct
