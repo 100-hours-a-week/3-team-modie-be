@@ -30,9 +30,9 @@ public interface MeetRepository extends JpaRepository<Meet, Long> {
         @Param("isCompleted") Boolean isCompleted,
         Pageable pageable);
 
-    @Query("SELECT m FROM Meet m " +
-        "JOIN FETCH m.owner o " +
-        "WHERE m.meetId = :meetId AND m.deletedAt IS NULL")
+    @Query("SELECT m FROM Meet m "
+        + "JOIN FETCH m.owner o "
+        + "WHERE m.meetId = :meetId AND m.deletedAt IS NULL")
     Optional<Meet> findActiveByMeedId(@Param("meetId") Long meetId);
 
 }
