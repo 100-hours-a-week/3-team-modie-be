@@ -43,6 +43,9 @@ public class FcmToken {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "device_id", length = 100)
+    private String deviceId;
+
     @PrePersist
     @PreUpdate
     public void updateTimestamp() {
