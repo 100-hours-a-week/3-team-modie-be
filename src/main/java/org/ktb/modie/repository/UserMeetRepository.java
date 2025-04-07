@@ -12,9 +12,18 @@ import org.springframework.data.repository.query.Param;
 
 // userMeet
 public interface UserMeetRepository extends JpaRepository<UserMeet, Long> {
-    Optional<UserMeet> findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(String userId, Long meetId);
+    @Query("SELECT um FROM UserMeet um " +
+        "JOIN FETCH um.user u " +
+        "JOIN FETCH um.meet m " +
+        "WHERE u.userId = :userId AND m.meetId = :meetId AND um.deletedAt IS NULL")
+    Optional<UserMeet> findUserMeetByUser_UserIdAndMeet_MeetIdAndDeletedAtIsNull(@Param("userId") String userId,
+        @Param("meetId") Long meetId);
 
-    List<UserMeet> findUserMeetByMeet_MeetIdAndDeletedAtIsNull(Long meetId);
+    @Query("SELECT um FROM UserMeet um " +
+        "JOIN FETCH um.user u " +
+        "JOIN FETCH um.meet m " +
+        "WHERE m.meetId = :meetId AND um.deletedAt IS NULL")
+    List<UserMeet> findUserMeetByMeet_MeetIdAndDeletedAtIsNull(@Param("meetId") Long meetId);
 
     Optional<UserMeet> findUserMeetByUser_UserIdAndMeet_MeetId(String userId, Long meetId);
 
