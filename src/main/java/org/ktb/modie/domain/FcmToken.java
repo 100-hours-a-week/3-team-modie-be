@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,27 +26,27 @@ import lombok.Setter;
 @Builder
 public class FcmToken {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-    @Column(name = "token", nullable = false, columnDefinition = "TEXT")
-    private String token;
+	@Column(name = "token", nullable = false, columnDefinition = "TEXT")
+	private String token;
 
-    @Column(name = "device_type", length = 20)
-    private String deviceType;
+	@Column(name = "device_type", length = 20)
+	private String deviceType;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
 
-    @PrePersist
-    @PreUpdate
-    public void updateTimestamp() {
-        this.updatedAt = LocalDateTime.now();
-    }
+	@PrePersist
+	@PreUpdate
+	public void updateTimestamp() {
+		this.updatedAt = LocalDateTime.now();
+	}
 }

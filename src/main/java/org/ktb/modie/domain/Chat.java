@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,14 +29,13 @@ public class Chat {
     @Column(name = "message_id")
     private Integer messageId;
 
-    // private Long meetId;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "meet_id", nullable = false)
-    private Meet meet;  // Meet 엔티티 참조
+    private Meet meet;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;  // User 엔티티 참조
+    private User user;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
