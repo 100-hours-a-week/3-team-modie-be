@@ -63,8 +63,12 @@ public class ChatHistoryController {
 		if (lastChatId == null || lastChatId == 0) {
 			chatList = chatRepository.findTop25ByMeetIdOrderByCreatedAtDesc(meetId, pageable);
 		} else {
-			chatList = chatRepository.findByMeetIdAndMessageIdLessThanOrderByCreatedAtDesc(meetId, lastChatId,
-				pageable);
+			chatList = chatRepository
+				.findByMeetIdAndMessageIdLessThanOrderByCreatedAtDesc(
+					meetId,
+					lastChatId,
+					pageable
+				);
 		}
 
 		List<ChatDto> chatDtoList = chatList.stream()
