@@ -34,7 +34,6 @@ public class ChatHistoryController {
 	private final MeetRepository meetRepository;  // MeetRepository 추가
 	private final HashIdUtil hashIdUtil;
 
-	// 생성자 수정: MeetRepository도 주입받도록 수정
 	public ChatHistoryController(ChatRepository chatRepository, UserRepository userRepository,
 		MeetRepository meetRepository, HashIdUtil hashIdUtil) {
 		this.chatRepository = chatRepository;
