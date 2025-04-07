@@ -59,6 +59,12 @@ jobs:
             COMMIT_HASH=$(aws ecr describe-images --repository-name modie/modie-be \
                   --region ap-northeast-2 --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
             echo "🚀 사용할 Docker 태그: $COMMIT_HASH"
+
+            # 로그 디렉토리 생성 및 권한 설정
+            sudo mkdir -p /var/log/modie/dev
+            sudo chown $(id -u):$(id -g) /var/log/modie/dev
+            sudo chmod 755 /var/log/modie/dev
+
             # aws 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be
 
@@ -97,6 +103,8 @@ jobs:
               -e FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }} \
               -e FIREBASE_CLIENT_X509_CERT_URL=${{ secrets.FIREBASE_CLIENT_X509_CERT_URL }} \
               -e HASH_KEY=${{ secrets.HASH_KEY }} \
+              -e SPRING_PROFILES_ACTIVE=dev \
+              -v /var/log/modie/dev:/var/log/modie/dev \
               --restart always \
               418272768555.dkr.ecr.ap-northeast-2.amazonaws.com/modie/modie-be:$COMMIT_HASH || {
                 echo "❌ Docker 컨테이너 실행 실패!"
