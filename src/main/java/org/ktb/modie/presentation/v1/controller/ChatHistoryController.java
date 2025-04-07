@@ -50,7 +50,6 @@ public class ChatHistoryController {
 		HttpServletRequest request) {
 
 		Long meetId = hashIdUtil.decode(meetHashId);
-		System.out.println("getChatHistory start !! ");
 		// 유저 정보 보완 (userId로 DB에서 조회)
 		meetRepository.findById(meetId)
 			.orElseThrow(() -> new BusinessException(
