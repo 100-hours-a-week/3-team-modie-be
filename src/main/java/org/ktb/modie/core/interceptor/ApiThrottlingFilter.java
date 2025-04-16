@@ -1,29 +1,27 @@
 package org.ktb.modie.core.interceptor;
 
-import java.io.IOException;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.ktb.modie.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class ApiThrottlingFilter extends OncePerRequestFilter {
 
-    private static final int MAX_REQUESTS_PER_SECOND = 5;
+    private static final int MAX_REQUESTS_PER_SECOND = 50;
     private static final long TIME_WINDOW_MS = 1000; // 1초
 
     private final LoadingCache<String, Deque<Long>> requestHistory = CacheBuilder.newBuilder()
@@ -41,8 +39,8 @@ public class ApiThrottlingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain filterChain)
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
         throws ServletException, IOException {
         String userKey = resolveUserKey(request);
         long now = System.currentTimeMillis();
