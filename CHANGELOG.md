@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## <small>1.6.1 (2025-04-16)</small>
+
+* fix: api throlling 크기 증가 ([af35eee](https://github.com/100-hours-a-week/3-team-modie-be/commit/af35eee))
+* fix : to main ([5709311](https://github.com/100-hours-a-week/3-team-modie-be/commit/5709311))
+
 ## 1.6.0 (2025-04-03)
 
 * fix: chat alarm Firebase 환경 변수 처리 ([72efbaa](https://github.com/100-hours-a-week/3-team-modie-be/commit/72efbaa))
